@@ -1,0 +1,13 @@
+
+model:
+  type: 'custom_app'
+
+prompt:
+  endpoint: 'https://christophermartin.work/airsdemo/chat'
+  headers:
+    'Content-Type': 'application/json'
+  method: 'POST'
+  json:
+    'message': "{prompt}"
+  response:
+    'output': 'response'

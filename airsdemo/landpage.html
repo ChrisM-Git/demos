@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christopher Martin Prisma AIRS Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            background: #ffffff;
+            color: #2d3748;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: #ffffff;
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a365d;
+        }
+
+        .logo i {
+            color: #3182ce;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #4a5568;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: #edf2f7;
+            color: #3182ce;
+        }
+
+        .content-btn {
+            background: #48bb78;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        .content-btn:hover {
+            background: #38a169;
+            transform: translateY(-1px);
+        }
+
+        /* Main Container */
+        .main-container {
+            padding-top: 80px;
+            min-height: 100vh;
+        }
+
+        /* Landing Page */
+        .landing-page {
+            display: block;
+        }
+
+        .landing-page.hidden {
+            display: none;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #f65821 0%, #293e67 100%);
+            color: white;
+            text-align: center;
+            padding: 5rem 2rem;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0.95;
+        }
+
+        .hero-cta {
+            background: #ffffff;
+            color: #3182ce;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .features-section {
+            padding: 5rem 2rem;
+            background: #f7fafc;
+        }
+
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1a365d;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: #4a5568;
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .architecture-diagram {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 3rem auto;
+            max-width: 1000px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .flow-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 2rem 0;
+        }
+
+        .flow-image-frame {
+            width: 100%;
+            max-width: 900px;
+            padding: 20px;
+            background: #f8f9fa;
+            border: 3px solid #cbd5e0;
+            border-radius: 8px;
+            box-shadow:
+                inset 2px 2px 5px rgba(0, 0, 0, 0.1),
+                inset -2px -2px 5px rgba(255, 255, 255, 0.7),
+                2px 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .flow-image-frame img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 4px;
+        }
+
+
+        .flow-box:hover {
+            background: #e6fffa;
+            border-color: #38b2ac;
+        }
+
+        .
+
+        .verticals-section {
+            padding: 5rem 2rem;
+            background: #ffffff;
+        }
+
+        .verticals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .vertical-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 2.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .vertical-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #3182ce;
+        }
+
+        .retail-card {
+            border-left: 4px solid #38a169;
+        }
+
+        .healthcare-card {
+            border-left: 4px solid #3182ce;
+        }
+
+        .enterprise-card {
+            border-left: 4px solid #d69e2e;
+        }
+
+        .vertical-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .retail-card .vertical-icon { color: #38a169; }
+        .healthcare-card .vertical-icon { color: #3182ce; }
+        .enterprise-card .vertical-icon { color: #d69e2e; }
+
+        .vertical-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1a365d;
+        }
+
+        .vertical-description {
+            color: #4a5568;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .vertical-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .vertical-features li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: #2d3748;
+            font-size: 0.95rem;
+        }
+
+        .vertical-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #38a169;
+            font-weight: bold;
+        }
+
+        .select-button {
+            background: #3182ce;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        .select-button:hover {
+            background: #2c5aa0;
+            transform: translateY(-1px);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 1000px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.3s ease;
+        }
+
+        .close:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .upload-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f8f9fa;
+        }
+
+        .upload-section h3 {
+            margin: 0 0 15px 0;
+            color: #2d3748;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upload-area {
+            border: 3px dashed #cbd5e0;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .upload-area:hover {
+            border-color: #3182ce;
+            background: #f7fafc;
+        }
+
+        .upload-area.dragover {
+            border-color: #38a169;
+            background: #f0fff4;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: #3182ce;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 15px;
+            transition: background-color 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            background: #2c5aa0;
+        }
+        .db-table-view {
+    margin: 20px 0;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.db-table-view h4 {
+    margin: 0 0 10px 0;
+    color: #2d3748;
+}
+
+.db-grid {
+    overflow-x: auto;
+    max-height: 400px;
+}
+
+.db-grid table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.db-grid th {
+    background: #edf2f7;
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #cbd5e0;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+}
+
+.db-grid td {
+    padding: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.db-grid tr:hover {
+    background: #f7fafc;
+}
+
+.row-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.edit-btn, .delete-row-btn {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.edit-btn {
+    background: #3182ce;
+    color: white;
+}
+
+.delete-row-btn {
+    background: #e53e3e;
+    color: white;
+}
+
+        .file-list {
+            margin-top: 20px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin: 8px 0;
+            background: white;
+        }
+
+        .file-info {
+            flex-grow: 1;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: #2d3748;
+        }
+
+        .file-meta {
+            font-size: 0.85rem;
+            color: #718096;
+        }
+
+        .delete-btn {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .delete-btn:hover {
+            background: #c53030;
+        }
+
+        .status-message {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .success {
+            background: #f0fff4;
+            color: #38a169;
+            border: 1px solid #9ae6b4;
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #e53e3e;
+            border: 1px solid #feb2b2;
+        }
+
+        .restart-notice {
+            background: #fff5b7;
+            color: #744210;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+            border: 1px solid #f6e05e;
+        }
+
+        .restart-notice strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.5rem; }
+            .hero-subtitle { font-size: 1.1rem; }
+            .verticals-grid { grid-template-columns: 1fr; }
+            .flow-diagram { flex-direction: column; }
+
+
+            .nav-links {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            .upload-section {
+                padding: 15px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .landing-page, .content-page.active {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <img src="logo.png" height="22" width="46"/>
+                Palo Alto Networks Prisma AIRS Demo
+            </div>
+
+            <nav class="nav-links">
+                <a href="#" class="nav-link active" onclick="showLanding()">Home</a>
+               <a href="retail/productmgr.html" class="nav-link" target="_blank">
+                   <i class="fas fa-database"></i> Product Manager</a>
+                <button class="content-btn" onclick="openContentModal()">
+                    <i class="fas fa-upload"></i> Manage Content
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Document Upload Modal -->
+    <div id="contentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <i class="fas fa-file-upload"></i>
+                    MCP Document Management
+                </h2>
+                <button class="close" onclick="closeContentModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="restart-notice">
+                    <strong>Important:</strong> After uploading documents, restart your MCP server to make them available to chatbots.
+                    <br><code>python mcp.py</code>
+                </div>
+
+                <!-- Retail Upload Section -->
+                <div class="upload-section">
+                    <h3>
+                        <i class="fas fa-shopping-cart" style="color: #38a169;"></i>
+                        Luna Tech (Retail) Documents
+                        <span id="retail-count" style="background: #38a169; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem;">0 files</span>
+                    </h3>
+
+                    <div class="upload-area" onclick="document.getElementById('retail-file').click()">
+                        <p><strong>Click to upload or drag files here</strong></p>
+                        <p>Add product guides, policies, support documentation</p>
+                        <input type="file" id="retail-file" class="file-input" multiple accept=".txt,.md,.pdf,.docx,.doc">
+                    </div>
+                    <button type="button" class="upload-btn" onclick="uploadFiles('retail')">Upload to Retail</button>
+
+                    <div id="retail-status" class="status-message"></div>
+                    <div id="retail-files" class="file-list"></div>
+                </div>
+
+                <div class="upload-section" id="retail-db-section">
+                    <h3> <i class="fas fa-database" style="color: #38a169;"></i>
+                        Retail Database Tables </h3>
+                    <div id="db-tables-container"></div>
+                    <button type="button" class="upload-btn" onclick="loadDatabaseTables()">Refresh Tables</button>
+                </div>
+
+                <!-- Healthcare Upload Section -->
+                <div class="upload-section">
+                    <h3>
+                        <i class="fas fa-heartbeat" style="color: #3182ce;"></i>
+                        HealthBridge (Healthcare) Documents
+                        <span id="healthcare-count" style="background: #3182ce; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem;">0 files</span>
+                    </h3>
+
+                    <div class="upload-area" onclick="document.getElementById('healthcare-file').click()">
+                        <p><strong>Click to upload or drag files here</strong></p>
+                        <p>Add medical policies, patient guides, procedures</p>
+                        <input type="file" id="healthcare-file" class="file-input" multiple accept=".txt,.md,.pdf,.docx,.doc">
+                    </div>
+                    <button type="button" class="upload-btn" onclick="uploadFiles('healthcare')">Upload to Healthcare</button>
+
+                    <div id="healthcare-status" class="status-message"></div>
+                    <div id="healthcare-files" class="file-list"></div>
+                </div>
+
+                <!-- Enterprise Upload Section -->
+                <div class="upload-section">
+                    <h3>
+                        <i class="fas fa-building" style="color: #d69e2e;"></i>
+                        Enterprise Corp (Internal) Documents
+                        <span id="enterprise-count" style="background: #d69e2e; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem;">0 files</span>
+                    </h3>
+
+                    <div class="upload-area" onclick="document.getElementById('enterprise-file').click()">
+                        <p><strong>Click to upload or drag files here</strong></p>
+                        <p>Add HR policies, IT procedures, company guidelines</p>
+                        <input type="file" id="enterprise-file" class="file-input" multiple accept=".txt,.md,.pdf,.docx,.doc">
+                    </div>
+                    <button type="button" class="upload-btn" onclick="uploadFiles('enterprise')">Upload to Enterprise</button>
+
+                    <div id="enterprise-status" class="status-message"></div>
+                    <div id="enterprise-files" class="file-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Landing Page -->
+        <div id="landing-page" class="landing-page">
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <h1 class="hero-title">Prisma AIRS</h1>
+                <p class="hero-subtitle">
+                   Enterprises are adopting AI at speed.
+                    From apps to agents, teams are deploying AI across the business at unprecedented
+                    speed—often without guardrails. That opens the door to new attack surfaces, from
+                    OWASP-listed AI risks to emerging, real-world threats. This demo shows how Prisma AIRS
+                    keeps you protected, securing AI so innovation can move forward with confidence.
+                </p>
+                <button class="hero-cta" onclick="document.querySelector('.verticals-section').scrollIntoView({behavior: 'smooth'})">
+                    Explore Solutions
+                </button>
+            </section>
+
+            <!-- Features Section -->
+            <section class="features-section">
+                <div class="features-container">
+                    <h2 class="section-title">Demo Environment Process Flow</h2>
+                    <p class="section-subtitle">
+                      Every AI call is a potential attack vector. Prisma AIRS inserts a real-time security layer between
+                        AI processing and content delivery, with API Runtime and Network Intercept integration into
+                        DevSecOps workflows. This ensures malicious inputs are blocked and harmful outputs filtered—before
+                        they ever reach your users.
+                    </p>
+
+
+                <div class="architecture-diagram">
+                    <div class="flow-diagram">
+                        <div class="flow-image-frame">
+                             <img src="./flow-diagram.png" alt="Process Flow Diagram">
+                        </div>
+                    </div>
+                     <p style="text-align: center; color: orangered; margin-top: 2rem;">
+                        Every interaction is protected by advanced machine learning models trained for industry-specific threat pattern</p>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- Verticals Section -->
+            <section class="verticals-section">
+                <div class="features-container">
+                    <h2 class="section-title">Industry Solutions</h2>
+                    <p class="section-subtitle">
+                        Experience our AI security technology in realistic industry environments with customized threat detection profiles.
+                    </p>
+                </div>
+
+                <div class="verticals-grid">
+                    <div class="vertical-card retail-card" onclick="showVertical('retail')">
+                        <img src="retail.png" height="300" width="300"/>
+                        <h3 class="vertical-title">Retail & E-commerce</h3>
+                        <p class="vertical-description">
+                            Comprehensive customer support platform for modern retail operations with intelligent product assistance and order management.
+                        </p>
+                        <ul class="vertical-features">
+                            <li>AI-powered product recommendations</li>
+                            <li>Automated customer service responses</li>
+                            <li>Real-time inventory integration</li>
+                            <li>Fraud detection and prevention</li>
+                            <li>Multi-channel support capabilities</li>
+                        </ul>
+                        <button class="select-button">View Retail Demo</button>
+                    </div>
+
+                    <div class="vertical-card healthcare-card" onclick="showVertical('healthcare')">
+                        <img src="healthcare.png" height="300" width="300"/>
+                        <h3 class="vertical-title">Healthcare & Medical</h3>
+                        <p class="vertical-description">
+                            HIPAA-compliant patient portal with secure AI assistance for healthcare information, appointments, and medical guidance.
+                        </p>
+                        <ul class="vertical-features">
+                            <li>HIPAA-compliant data handling</li>
+                            <li>Secure appointment scheduling</li>
+                            <li>Medical information assistance</li>
+                            <li>Prescription management support</li>
+                            <li>Emergency protocol integration</li>
+                        </ul>
+                        <button class="select-button">View Healthcare Demo</button>
+                    </div>
+
+                    <div class="vertical-card enterprise-card" onclick="showVertical('enterprise')">
+                        <img src="ent.png" height="300" width="300"/>
+                        <h3 class="vertical-title">Enterprise & Corporate</h3>
+                        <p class="vertical-description">
+                            Intelligent employee assistance platform for HR, IT support, and organizational resources with advanced security protocols.
+                        </p>
+                        <ul class="vertical-features">
+                            <li>Automated HR assistance</li>
+                            <li>IT support ticket management</li>
+                            <li>Policy and compliance guidance</li>
+                            <li>Document search and retrieval</li>
+                            <li>Multi-departmental integration</li>
+                        </ul>
+                        <button class="select-button">View Enterprise Demo</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+<script>
+// Auto-detect API paths based on environment
+function getApiBaseUrl(service) {
+    const hostname = window.location.hostname;
+
+    // Use nginx proxy paths for your domain
+    if (hostname === 'christophermartin.work' || hostname === 'www.christophermartin.work') {
+        switch(service) {
+            case 'upload': return '/upload-server';
+            case 'mcp': return '/mcp-api';
+            default: return '/upload-server';
+        }
+    } else {
+        // Direct localhost access for development
+        switch(service) {
+            case 'upload': return 'http://localhost:8096';
+            case 'mcp': return 'http://localhost:8091/api';
+            default: return 'http://localhost:8096';
+        }
+    }
+}
+
+const UPLOAD_API = getApiBaseUrl('upload');
+
+// Modal management
+function openContentModal() {
+    document.getElementById('contentModal').style.display = 'block';
+    loadDocumentCounts();
+    loadAllFiles();      // This loads documents for all verticals
+    loadDatabaseTables(); // This loads database tables
+}
+
+function closeContentModal() {
+    document.getElementById('contentModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('contentModal');
+    if (event.target == modal) {
+        closeContentModal();
+    }
+}
+
+// Vertical navigation
+function showVertical(vertical) {
+    switch(vertical) {
+        case 'retail':
+            window.open('retail/retail.html', '_blank');
+            break;
+        case 'healthcare':
+            window.open('healthcare/healthcare.html', '_blank');
+            break;
+        case 'enterprise':
+            window.open('ent/enterprise.html', '_blank');
+            break;
+    }
+}
+
+function showLanding() {
+    document.getElementById('landing-page').style.display = 'block';
+    document.querySelectorAll('.content-page').forEach(page => {
+        page.style.display = 'none';
+    });
+}
+
+// File upload functionality
+async function uploadFiles(vertical) {
+    const fileInput = document.getElementById(vertical + '-file');
+    const statusDiv = document.getElementById(vertical + '-status');
+    const files = fileInput.files;
+
+    if (files.length === 0) {
+        showStatus(statusDiv, 'Please select files to upload', 'error');
+        return;
+    }
+
+    const formData = new FormData();
+    for (let file of files) {
+        formData.append('files', file);
+    }
+
+    try {
+        const response = await fetch(`${UPLOAD_API}/upload/${vertical}`, {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            showStatus(statusDiv, `Successfully uploaded ${result.uploaded_count} file(s)`, 'success');
+            loadDocumentCount(vertical);
+            loadFiles(vertical);
+            fileInput.value = ''; // Clear the input
+        } else {
+            showStatus(statusDiv, result.detail || 'Upload failed', 'error');
+        }
+    } catch (error) {
+        showStatus(statusDiv, 'Network error during upload. Make sure the upload server is running.', 'error');
+    }
+}
+
+async function deleteFile(vertical, filename) {
+    if (!confirm(`Delete ${filename}?`)) return;
+
+    try {
+        const response = await fetch(`${UPLOAD_API}/delete/${vertical}/${encodeURIComponent(filename)}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            loadDocumentCount(vertical);
+            loadFiles(vertical);
+        } else {
+            alert('Failed to delete file');
+        }
+    } catch (error) {
+        alert('Network error during delete');
+    }
+}
+
+function showStatus(element, message, type) {
+    element.textContent = message;
+    element.className = `status-message ${type}`;
+    element.style.display = 'block';
+
+    setTimeout(() => {
+        element.style.display = 'none';
+    }, 5000);
+}
+
+// Load document counts and files
+async function loadDocumentCounts() {
+    const verticals = ['retail', 'healthcare', 'enterprise'];
+
+    for (const vertical of verticals) {
+        try {
+            const response = await fetch(`${UPLOAD_API}/api/documents/${vertical}`);
+            if (response.ok) {
+                const docs = await response.json();
+                document.getElementById(`${vertical}-count`).textContent = `${docs.length} files`;
+            }
+        } catch (error) {
+            document.getElementById(`${vertical}-count`).textContent = 'N/A';
+        }
+    }
+}
+
+async function loadDocumentCount(vertical) {
+    try {
+        const response = await fetch(`${UPLOAD_API}/api/documents/${vertical}`);
+        if (response.ok) {
+            const docs = await response.json();
+            document.getElementById(`${vertical}-count`).textContent = `${docs.length} files`;
+        }
+    } catch (error) {
+        document.getElementById(`${vertical}-count`).textContent = 'N/A';
+    }
+}
+
+async function loadAllFiles() {
+    const verticals = ['retail', 'healthcare', 'enterprise'];
+    for (const vertical of verticals) {
+        loadFiles(vertical);
+    }
+}
+
+async function loadFiles(vertical) {
+    try {
+        const response = await fetch(`${UPLOAD_API}/api/documents/${vertical}`);
+        if (response.ok) {
+            const docs = await response.json();
+            const filesDiv = document.getElementById(`${vertical}-files`);
+
+            if (docs.length === 0) {
+                filesDiv.innerHTML = '<p style="color: #718096; font-style: italic;">No documents uploaded yet</p>';
+                return;
+            }
+
+            filesDiv.innerHTML = docs.map(doc => `
+                <div class="file-item">
+                    <div class="file-info">
+                        <div class="file-name">${doc.name}</div>
+                        <div class="file-meta">${doc.size} bytes • Modified ${doc.modified}</div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteFile('${vertical}', '${doc.name}')">Delete</button>
+                </div>
+            `).join('');
+        }
+    } catch (error) {
+        document.getElementById(`${vertical}-files`).innerHTML = '<p style="color: #e53e3e;">Error loading files</p>';
+    }
+}
+// Update the loadDatabaseTables function to include an "Add" button
+async function loadDatabaseTables() {
+    const container = document.getElementById('db-tables-container');
+
+    try {
+        const response = await fetch(`${UPLOAD_API}/api/db-tables/retail`);
+        const tables = await response.json();
+
+        if (Object.keys(tables).length === 0) {
+            container.innerHTML = '<p style="color: #718096;">No database tables found</p>';
+            return;
+        }
+
+        let html = '';
+        for (const [tableName, tableData] of Object.entries(tables)) {
+            html += `
+                <div class="db-table-view">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h4>${tableName} (${tableData.row_count} rows)</h4>
+                        <button class="upload-btn" onclick='showAddRowForm("${tableName}", ${JSON.stringify(tableData.columns)})' style="margin: 0;">
+                            + Add New ${tableName.slice(0, -1)}
+                        </button>
+                    </div>
+                    <div class="db-grid">
+                        <table>
+                            <thead>
+                                <tr>
+                                    ${tableData.columns.map(col => `<th>${col.name}</th>`).join('')}
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableData.rows.map(row => `
+                                    <tr>
+                                        ${tableData.columns.map(col => `<td>${row[col.name] ?? ''}</td>`).join('')}
+                                        <td class="row-actions">
+                                            <button class="edit-btn" onclick='editRow("${tableName}", ${JSON.stringify(row)})'>Edit</button>
+                                            <button class="delete-row-btn" onclick='deleteRow("${tableName}", ${JSON.stringify(row)})'>Delete</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        container.innerHTML = html;
+
+    } catch (error) {
+        container.innerHTML = '<p style="color: #e53e3e;">Error loading database tables</p>';
+        console.error(error);
+    }
+}
+
+function showAddRowForm(tableName, columns) {
+    // Filter out auto-increment columns
+    const editableColumns = columns.filter(col =>
+        !col.name.includes('_id') &&
+        !col.name.includes('created_at') &&
+        !col.name.includes('updated_at')
+    );
+
+    let formHtml = `<div style="background: white; padding: 20px; border-radius: 8px; max-width: 600px;">
+        <h3>Add New ${tableName.slice(0, -1)}</h3>
+        <form id="add-row-form">`;
+
+    editableColumns.forEach(col => {
+        formHtml += `
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">${col.name}</label>
+                <input type="text" name="${col.name}"
+                       placeholder="Enter ${col.name}"
+                       style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+            </div>`;
+    });
+
+    formHtml += `
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="submit" class="upload-btn" style="margin: 0;">Add ${tableName.slice(0, -1)}</button>
+            <button type="button" class="delete-btn" onclick="closeAddRowForm()" style="background: #718096;">Cancel</button>
+        </div>
+        </form>
+    </div>`;
+
+    // Create modal overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'add-row-overlay';
+    overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 3000; display: flex; align-items: center; justify-content: center;';
+    overlay.innerHTML = formHtml;
+    document.body.appendChild(overlay);
+
+    // Handle form submission
+    document.getElementById('add-row-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData);
+
+        try {
+            const response = await fetch(`${UPLOAD_API}/api/db-insert/retail/${tableName}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                closeAddRowForm();
+                loadDatabaseTables();
+                alert('Row added successfully!');
+            } else {
+                alert('Failed to add row');
+            }
+        } catch (error) {
+            alert('Error adding row: ' + error.message);
+        }
+    };
+}
+
+function closeAddRowForm() {
+    const overlay = document.getElementById('add-row-overlay');
+    if (overlay) overlay.remove();
+}
+async function deleteRow(tableName, row) {
+    if (!confirm('Delete this row?')) return;
+
+    // Determine the correct ID column for each table
+    const idMap = {
+        'products': 'product_id',
+        'categories': 'category_id',
+        'product_reviews': 'review_id',
+        'support_articles': 'article_id',
+        'policies': 'policy_id'
+    };
+
+    const idColumn = idMap[tableName] || 'id';
+    const rowId = row[idColumn];
+
+    if (!rowId) {
+        alert('Cannot find ID for this row');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${UPLOAD_API}/api/db-delete/retail/${tableName}/${rowId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            loadDatabaseTables();
+            alert('Row deleted successfully!');
+        } else {
+            alert('Failed to delete row');
+        }
+    } catch (error) {
+        alert('Error deleting row');
+    }
+}
+
+function editRow(tableName, row) {
+    // Determine ID column
+    const idMap = {
+        'products': 'product_id',
+        'categories': 'category_id',
+        'product_reviews': 'review_id',
+        'support_articles': 'article_id',
+        'policies': 'policy_id'
+    };
+
+    const idColumn = idMap[tableName] || 'id';
+    const rowId = row[idColumn];
+
+    // Filter out ID and timestamp columns
+    const columns = Object.keys(row).filter(k =>
+        !k.includes('_id') &&
+        !k.includes('created_at') &&
+        !k.includes('updated_at')
+    );
+
+    const newData = {};
+
+    for (const col of columns) {
+        const newValue = prompt(`Edit ${col}:`, row[col]);
+        if (newValue !== null && newValue !== row[col]) {
+            newData[col] = newValue;
+        }
+    }
+
+    if (Object.keys(newData).length > 0) {
+        updateRow(tableName, rowId, newData);
+    }
+}
+
+async function updateRow(table, rowId, data) {
+    try {
+        const response = await fetch(`${UPLOAD_API}/api/db-update/retail/${table}/${rowId}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            loadDatabaseTables();
+        } else {
+            alert('Failed to update row');
+        }
+    } catch (error) {
+        alert('Error updating row');
+    }
+}
+
+// Drag and drop functionality
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.upload-area').forEach(area => {
+        area.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            area.classList.add('dragover');
+        });
+
+        area.addEventListener('dragleave', () => {
+            area.classList.remove('dragover');
+        });
+
+        area.addEventListener('drop', (e) => {
+            e.preventDefault();
+            area.classList.remove('dragover');
+
+            // Find which vertical this upload area belongs to
+            const section = area.closest('.upload-section');
+            const h3 = section.querySelector('h3');
+            let vertical = '';
+
+            if (h3.textContent.includes('Retail')) vertical = 'retail';
+            else if (h3.textContent.includes('Healthcare')) vertical = 'healthcare';
+            else if (h3.textContent.includes('Enterprise')) vertical = 'enterprise';
+
+            if (vertical) {
+                const fileInput = document.getElementById(vertical + '-file');
+                fileInput.files = e.dataTransfer.files;
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

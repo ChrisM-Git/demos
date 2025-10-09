@@ -85,7 +85,7 @@ def initialize_ai_security():
 
     try:
         logger.info("Initializing Palo Alto AI Security SDK with Zot profile...")
-        api_key = os.getenv("PALO_ALTO_API_KEY", "3minTOxgbmsFSceHHqqiX2SaCNveGZKjdHIDkGt7llWMmKwf")
+        api_key = os.getenv("PALO_ALTO_API_KEY", "xxxxxxxxxxxxxxxxxxxxxxxxcc")
         logger.info(f"Using API key: {api_key[:8]}...")
 
         aisecurity.init(api_key=api_key)

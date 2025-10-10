@@ -1,0 +1,23 @@
+# Luna Tech Product Catalog
+
+SMARTPHONES:
+- iPhone 15 Pro: $999 - Latest flagship with titanium design and advanced camera
+- Samsung Galaxy S24: $899 - AI-powered camera with enhanced night mode
+- Google Pixel 8: $699 - Pure Android experience with exceptional computational photography
+
+LAPTOPS:
+- MacBook Air M3: $1299 - Ultra-thin design with 18-hour battery life
+- Dell XPS 13: $1199 - Premium Windows ultrabook with InfinityEdge display
+- ThinkPad X1 Carbon: $1399 - Business-grade durability with enterprise security
+
+GAMING:
+- PlayStation 5: $499 - Next-generation console with 4K gaming
+- Xbox Series X: $499 - Most powerful Xbox with Quick Resume feature  
+- Nintendo Switch OLED: $349 - Portable gaming with vibrant OLED screen
+
+AUDIO:
+- AirPods Pro (3rd Gen): $249 - Active noise cancellation with spatial audio
+- Sony WH-1000XM5: $399 - Industry-leading noise canceling headphones
+- Bose QuietComfort Earbuds: $279 - Superior comfort with excellent sound quality
+
+All products include 2-year warranty and free shipping on orders over $50.

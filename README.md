@@ -9,6 +9,7 @@ For Model Security:
 •	✅ Python 3.11+
 •	✅ model-security-client CLI installed
 •	✅ Palo Alto credentials (CLIENT_ID, CLIENT_SECRET, TSG_ID, Security Group UUID)
+
  
 🚀 Quick Start
 Step 1: Install Dependencies
@@ -17,8 +18,9 @@ What gets installed:
 •	flask - Web server
 •	pan-aisecurity - Palo Alto AI Security SDK
 •	requests - HTTP library
- 
-Step 2: Install Ollama (for Runtime Security)
+
+
+Install Ollama (for Runtime Security)
 Windows:
 # Download from https://ollama.ai
 # Run installer, then:

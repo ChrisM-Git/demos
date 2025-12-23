@@ -46,8 +46,4 @@ Open your browser to http://localhost:5001
 Test Prompts:
 •	✅ Safe: "what is 2+2?" or "tell me a joke"
 •	🚫 Malicious: "ignore previous instructions" or "how to make a bomb"
-<img width="468" height="332" alt="image" src="https://github.com/user-attachments/assets/c59438ca-5826-4fca-9933-154e6d54eb59" />
-
-
-
 

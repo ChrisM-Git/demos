@@ -14,6 +14,8 @@ For Model Security:
 🚀 Quick Start
 Step 1: Install Dependencies
 pip install -r requirements.txt
+
+
 What gets installed:
 •	flask - Web server
 •	pan-aisecurity - Palo Alto AI Security SDK

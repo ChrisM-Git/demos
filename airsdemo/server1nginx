@@ -1,0 +1,536 @@
+# WebSocket connection upgrade mapping
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    '' close;
+}
+
+server {
+    server_name christophermartin.work www.christophermartin.work;
+    root /var/www/christophermartin.work;
+    listen 443 ssl;
+    ssl_certificate /var/www/christophermartin.work/certs/certificate.crt;
+    ssl_certificate_key /var/www/christophermartin.work/certs/private.key;
+    index index.html;
+
+    # SSL/TLS settings
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_tickets off;
+
+    # Security headers
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    # Content Security Policy (relaxed for demo environment)
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://unpkg.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://unpkg.com; connect-src 'self' https://christophermartin.work wss://christophermartin.work" always;
+
+    # ============================================================================
+    # AUTHENTICATION VERIFICATION (INTERNAL ONLY)
+    # ============================================================================
+
+    # Internal authentication check - nginx uses this to verify sessions
+    location = /api/auth/verify {
+        internal;
+        proxy_pass http://localhost:8000/api/auth/verify;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+        proxy_set_header X-Original-URI $request_uri;
+        proxy_set_header Cookie $http_cookie;
+        proxy_set_header Host $host;
+    }
+
+    # ============================================================================
+    # SAM CHATBOT SERVICE (Port 8000 - LOCAL)
+    # ============================================================================
+
+    # SAM chat endpoint
+    location /ask-sam {
+        proxy_pass http://localhost:8000/ask-sam;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 120s;
+
+        add_header 'Access-Control-Allow-Origin' '*' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
+        add_header 'Access-Control-Allow-Headers' 'Content-Type' always;
+    }
+
+    # Session management
+    location ~ ^/(reset-session|sessions)$ {
+        proxy_pass http://localhost:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 60s;
+
+        add_header 'Access-Control-Allow-Origin' '*' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, DELETE, OPTIONS' always;
+        add_header 'Access-Control-Allow-Headers' 'Content-Type' always;
+    }
+
+    # Reset verification endpoint
+    location /reset-verification {
+        proxy_pass http://localhost:8000/reset-verification;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 60s;
+
+        add_header 'Access-Control-Allow-Origin' '*' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
+        add_header 'Access-Control-Allow-Headers' 'Content-Type' always;
+    }
+
+    # Document management for SAM
+    location ~ ^/(list-documents|upload-documents|delete-document|reload-data)$ {
+        proxy_pass http://localhost:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 300s;
+        client_max_body_size 50M;
+        proxy_request_buffering off;
+
+        add_header 'Access-Control-Allow-Origin' '*' always;
+    }
+
+    # Website scraping for SAM
+    location /scrape-website {
+        proxy_pass http://localhost:8000/scrape-website;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 600s;
+        client_max_body_size 1M;
+        proxy_request_buffering off;
+
+        add_header 'Access-Control-Allow-Origin' '*' always;
+    }
+
+    # ============================================================================
+    # AUTHENTICATION & PORTAL (Port 8000 - LOCAL)
+    # ============================================================================
+
+    # Authentication endpoints
+    location /api/auth/ {
+        proxy_pass http://localhost:8000/api/auth/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Authorization $http_authorization;
+        proxy_pass_header Authorization;
+        proxy_read_timeout 60s;
+        proxy_connect_timeout 30s;
+        proxy_send_timeout 30s;
+
+        add_header 'Access-Control-Allow-Origin' '*' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
+        add_header 'Access-Control-Allow-Headers' 'Content-Type, Authorization' always;
+    }
+
+    # Portal page (public - login page)
+    location = /portal.html {
+        root /var/www/christophermartin.work;
+        try_files $uri =404;
+    }
+
+    # Login and dashboard pages (public)
+    location = /login.html {
+        root /var/www/christophermartin.work;
+        try_files $uri =404;
+    }
+
+    location = /dashboard.html {
+        root /var/www/christophermartin.work;
+        try_files $uri =404;
+    }
+
+    # ============================================================================
+    # STATIC ASSETS - Handle images, CSS, JavaScript, and other static files
+    # IMPORTANT: These must come BEFORE the main /airsdemo/ location block
+    # ============================================================================
+
+    # Images directory via /airsdemo/images/ - PROTECTED
+    location ^~ /airsdemo/images/ {
+        auth_request /api/auth/verify;
+        error_page 401 = @redirect_to_portal;
+
+        proxy_pass http://33.5.6.11/images/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # CSS files via /airsdemo/css/ - PROTECTED
+    location ^~ /airsdemo/css/ {
+        auth_request /api/auth/verify;
+        error_page 401 = @redirect_to_portal;
+
+        proxy_pass http://33.5.6.11/css/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # JavaScript files via /airsdemo/js/ - PROTECTED
+    location ^~ /airsdemo/js/ {
+        auth_request /api/auth/verify;
+        error_page 401 = @redirect_to_portal;
+
+        proxy_pass http://33.5.6.11/js/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # All other static file types for /airsdemo/ (fonts, etc.) - PROTECTED
+    location ~ ^/airsdemo/.*\.(woff|woff2|ttf|eot|svg|ico|map)$ {
+        auth_request /api/auth/verify;
+        error_page 401 = @redirect_to_portal;
+
+        rewrite ^/airsdemo/(.*)$ /$1 break;
+        proxy_pass http://33.5.6.11;
+        proxy_set_header Host 33.5.6.11;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Root-level images (if referenced without /images/ prefix) - PROTECTED
+    location ~ ^/(logo\.png|flow-diagram\.png|retail\.png|healthcare\.png|ent\.png|finance\.png)$ {
+        auth_request /api/auth/verify;
+        error_page 401 = @redirect_to_portal;
+
+        proxy_pass http://33.5.6.11$uri;
+        proxy_set_header Host 33.5.6.11;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # ============================================================================
+    # AIRS DEMO - MAIN HTML PAGES (SECOND SERVER) - PROTECTED
+    # Simple proxy without sub_filter to avoid breaking JavaScript
+    # ============================================================================
+    location ^~ /airsdemo/ {
+        auth_request /api/auth/verify;
+        error_page 401 = @redirect_to_portal;
+
+        proxy_pass http://33.5.6.11/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_read_timeout 300s;
+
+        # Override CSP to allow resources from the second server
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://33.5.6.11 https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline' http://33.5.6.11 https://fonts.googleapis.com https://cdnjs.cloudflare.com https://unpkg.com; img-src 'self' http://33.5.6.11 data:; font-src 'self' http://33.5.6.11 https://fonts.gstatic.com https://cdnjs.cloudflare.com https://unpkg.com; connect-src 'self' http://33.5.6.11 https://christophermartin.work wss://christophermartin.work" always;
+    }
+
+    # ============================================================================
+    # API ENDPOINTS
+    # ============================================================================
+
+    # API endpoints for second server chatbot (Port 8077) - PROTECTED
+    location /api/chat {
+        auth_request /api/auth/verify;
+        error_page 401 = @redirect_to_portal;
+
+        proxy_pass http://33.5.6.11:8077/chat;
+        proxy_set_header Host 33.5.6.11;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_read_timeout 300s;
+
+        add_header 'Access-Control-Allow-Origin' '*' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
+        add_header 'Access-Control-Allow-Headers' 'Content-Type' always;
+    }
+
+    # Upload server API on second server (Port 8096) - PROTECTED
+    location /upload-server/ {
+        auth_request /api/auth/verify;
+        error_page 401 = @redirect_to_portal;
+
+        proxy_pass http://33.5.6.11:8096/;
+        proxy_set_header Host 33.5.6.11;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_read_timeout 120s;
+
+        add_header 'Access-Control-Allow-Origin' '*' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
+        add_header 'Access-Control-Allow-Headers' 'Content-Type' always;
+    }
+
+    # Chatbot on second server (Port 8077) - PROTECTED
+    location /chatbot/ {
+        auth_request /api/auth/verify;
+        error_page 401 = @redirect_to_portal;
+
+        proxy_pass http://33.5.6.11:8077/;
+        proxy_set_header Host 33.5.6.11;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_read_timeout 300s;
+
+        add_header 'Access-Control-Allow-Origin' '*' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
+        add_header 'Access-Control-Allow-Headers' 'Content-Type' always;
+    }
+
+    # ============================================================================
+    # VERTICAL DEMO PAGES & ASSETS
+    # ============================================================================
+
+    # All static assets (images, CSS, JS, fonts) for vertical pages - PROTECTED
+    location ~ ^/(retail|healthcare|ent|finance)/.*\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|map)$ {
+        auth_request /api/auth/verify;
+        error_page 401 = @redirect_to_portal;
+
+        proxy_pass http://33.5.6.11;
+        proxy_set_header Host 33.5.6.11;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Static assets accessed via /airsdemo/retail/, etc. - PROTECTED
+    location ~ ^/airsdemo/(retail|healthcare|ent|finance)/.*\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|map)$ {
+        auth_request /api/auth/verify;
+        error_page 401 = @redirect_to_portal;
+
+        rewrite ^/airsdemo/(.*)$ /$1 break;
+        proxy_pass http://33.5.6.11;
+        proxy_set_header Host 33.5.6.11;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Vertical demo pages - PROTECTED
+    location /retail/ {
+        auth_request /api/auth/verify;
+        error_page 401 = @redirect_to_portal;
+
+        proxy_pass http://33.5.6.11/retail/;
+        proxy_set_header Host 33.5.6.11;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+    }
+
+    location /healthcare/ {
+        auth_request /api/auth/verify;
+        error_page 401 = @redirect_to_portal;
+
+        proxy_pass http://33.5.6.11/healthcare/;
+        proxy_set_header Host 33.5.6.11;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+    }
+
+    location /ent/ {
+        auth_request /api/auth/verify;
+        error_page 401 = @redirect_to_portal;
+
+        proxy_pass http://33.5.6.11/ent/;
+        proxy_set_header Host 33.5.6.11;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+    }
+
+    location /finance/ {
+        auth_request /api/auth/verify;
+        error_page 401 = @redirect_to_portal;
+
+        proxy_pass http://33.5.6.11/finance/;
+        proxy_set_header Host 33.5.6.11;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+    }
+
+    # ============================================================================
+    # MCP DEMO (PUBLIC - NO AUTH)
+    # ============================================================================
+
+    location /mcp/ {
+        proxy_pass http://33.5.6.11/mcp/;
+        proxy_set_header Host 33.5.6.11;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_read_timeout 120s;
+
+        add_header 'Access-Control-Allow-Origin' '*' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
+        add_header 'Access-Control-Allow-Headers' 'Content-Type' always;
+    }
+
+    location /mcp-api/ {
+        proxy_pass http://33.5.6.11:8079/;
+        proxy_set_header Host 33.5.6.11;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_read_timeout 300s;
+
+        add_header 'Access-Control-Allow-Origin' '*' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
+        add_header 'Access-Control-Allow-Headers' 'Content-Type' always;
+    }
+
+    # ============================================================================
+    # GENERAL AIRS DEMO ROUTES
+    # ============================================================================
+
+
+    # AIRS demo API routes - PROTECTED
+    location /airsdemo/api/ {
+        auth_request /api/auth/verify;
+        error_page 401 = @redirect_to_portal;
+
+        proxy_pass http://33.5.6.11/api/;
+        proxy_set_header Host 33.5.6.11;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+    }
+
+    # API bot endpoint - PROTECTED
+    location /apibot/ {
+        auth_request /api/auth/verify;
+        error_page 401 = @redirect_to_portal;
+
+        proxy_pass http://33.5.6.11/;
+        proxy_set_header Host 33.5.6.11;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+    }
+
+    # Named location for redirecting to portal on auth failure
+    location @redirect_to_portal {
+        return 302 /portal.html;
+    }
+
+    # ============================================================================
+    # WEB TERMINAL (Port 8010 - LOCAL)
+    # ============================================================================
+
+    location /terminal/ws {
+        proxy_pass http://localhost:8010/terminal/ws;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+        proxy_send_timeout 86400;
+        proxy_connect_timeout 30s;
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_request_buffering off;
+    }
+
+    location /terminal/ {
+        proxy_pass http://localhost:8010/terminal/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 60s;
+        proxy_connect_timeout 30s;
+        proxy_send_timeout 30s;
+    }
+
+    # ============================================================================
+    # MAIN SITE STATIC FILES (FIRST SERVER)
+    # ============================================================================
+
+    # Terminal page with special CSP
+    location = /terminal.html {
+        root /var/www/christophermartin.work;
+        try_files $uri =404;
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://unpkg.com; connect-src 'self' wss://christophermartin.work ws://christophermartin.work" always;
+    }
+
+    # Static assets (CSS, JS, images, fonts)
+    location ~ \.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        root /var/www/christophermartin.work;
+        expires 30d;
+        add_header Cache-Control "public, max-age=2592000";
+        access_log off;
+        add_header Access-Control-Allow-Origin "*";
+    }
+
+    # Default handler - main site
+    location / {
+        root /var/www/christophermartin.work;
+        index index.html;
+        try_files $uri $uri/ =404;
+    }
+}

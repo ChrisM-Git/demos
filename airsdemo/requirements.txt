@@ -1,0 +1,40 @@
+# Web Framework (demo.py)
+fastapi>=0.115.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.11.0
+
+# LLM Integration (demo.py)
+ollama>=0.4.0
+
+# Palo Alto Networks AI Security SDK (demo.py - optional)
+pan-aisecurity==0.6.0.5.post2
+
+# Utilities (demo.py)
+python-dotenv==1.0.0
+
+# MCP Server Dependencies (mcp_server.py)
+mcp==1.19.0
+sentence-transformers==2.3.1
+numpy>=1.26.0
+python-docx==1.1.0
+
+
+# MCP Demo Requirements
+# FastAPI and related dependencies
+fastapi
+pydantic
+uvicorn[standard]
+
+# HTTP client
+httpx
+
+# Environment variables
+python-dotenv
+
+# AI/ML dependencies
+ollama
+
+# Palo Alto Networks AI Security (optional)
+# Uncomment if using AI security features
+# pan-aisecurity
+

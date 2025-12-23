@@ -11,75 +11,96 @@ from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import Resource, Tool, TextContent
 from mcp.server.models import InitializationOptions
+from sentence_transformers import SentenceTransformer
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
 
-class FastDatabaseProvider:
-    """Fast keyword database search"""
+class SemanticDatabaseProvider:
+    """Semantic search using embeddings - understands meaning, not just keywords"""
 
     def __init__(self, db_path: str, vertical_name: str):
         self.db_path = db_path
         self.vertical_name = vertical_name
-        print(f"⚡ {vertical_name}: Database ready", file=sys.stderr)
 
-    def _extract_keywords(self, query: str) -> List[str]:
-        """Extract meaningful keywords"""
-        stopwords = {'show', 'me', 'your', 'the', 'a', 'an', 'what', 'how', 'are', 'is', 'do', 'you', 'have', 'tell',
-                     'about', 'want', 'looking', 'for'}
-        words = re.findall(r'\b\w{2,}\b', query.lower())
-        return [w for w in words if w not in stopwords]
+        print(f"🧠 {vertical_name}: Loading semantic search...", file=sys.stderr)
+        self.model = SentenceTransformer('all-MiniLM-L6-v2')
+
+        print(f"✅ {vertical_name}: Ready with real-time database queries", file=sys.stderr)
+
+    def _load_products(self):
+        """Load products from database in real-time with category information"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        # Join with categories table to get category name for better semantic matching
+        cursor.execute("""
+            SELECT p.product_id, p.name, p.brand, p.price, p.sale_price, p.stock_quantity,
+                   p.description, p.specifications, c.name as category_name
+            FROM products p
+            LEFT JOIN categories c ON p.category_id = c.category_id
+        """)
+        rows = cursor.fetchall()
+        conn.close()
+
+        products = []
+        product_texts = []
+        for row in rows:
+            # Include category in the text for semantic matching
+            category = row[8] or ''
+            text = f"{category} {row[1]} {row[2] or ''} {row[6] or ''} {row[7] or ''}".strip()
+
+            products.append({
+                'product_id': row[0], 'name': row[1], 'brand': row[2],
+                'price': row[3], 'sale_price': row[4], 'stock_quantity': row[5],
+                'description': row[6], 'specifications': row[7], 'category': category
+            })
+            product_texts.append(text)
+
+        # Create embeddings
+        embeddings = self.model.encode(product_texts, convert_to_numpy=True)
+        return products, embeddings, product_texts
 
     async def search_content(self, query: str, limit: int = 5, user_context: Dict = None) -> Dict[str, Any]:
-        """Fast keyword search"""
+        """Search by meaning, not exact keywords - loads fresh data from database each time"""
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
+            print(f"🔍 Semantic search: '{query}'", file=sys.stderr)
 
-            keywords = self._extract_keywords(query)
-            if not keywords:
-                keywords = ['']
+            # Load fresh data from database
+            products, embeddings, product_texts = self._load_products()
+            print(f"📊 Loaded {len(products)} products from database", file=sys.stderr)
 
-            # Build OR conditions
-            conditions = []
-            params = []
-            for kw in keywords[:10]:  # Limit to 10 keywords
-                pattern = f'%{kw}%'
-                conditions.append(
-                    "(LOWER(name) LIKE ? OR LOWER(description) LIKE ? OR LOWER(specifications) LIKE ? OR LOWER(brand) LIKE ?)")
-                params.extend([pattern] * 4)
+            # Encode query and find similar products
+            query_emb = self.model.encode([query])[0]
+            similarities = np.dot(embeddings, query_emb) / (
+                    np.linalg.norm(embeddings, axis=1) * np.linalg.norm(query_emb)
+            )
 
-            sql = f"""
-                SELECT product_id, name, brand, price, sale_price, stock_quantity, description, specifications
-                FROM products
-                WHERE {' OR '.join(conditions)}
-                LIMIT ?
-            """
-            params.append(limit * 2)
-
-            cursor.execute(sql, params)
-            rows = cursor.fetchall()
-            conn.close()
-
-            # Format results
+            # Get top matches above threshold
+            top_idx = np.argsort(similarities)[::-1][:limit]
             results = []
-            for row in rows[:limit]:
-                price = f"${row[4]}" if row[4] else f"${row[3]}"
-                snippets = [
-                    f"Product: {row[1]}" + (f" by {row[2]}" if row[2] else ""),
-                    f"Price: {price}, Stock: {row[5]} units available"
-                ]
-                if row[6]:
-                    snippets.append(f"Description: {row[6]}")
-                if row[7]:
-                    snippets.append(f"Specs: {row[7]}")
+
+            for idx in top_idx:
+                if similarities[idx] < 0.25:  # Skip low matches
+                    continue
+
+                p = products[idx]
+                price = f"${p['sale_price']}" if p['sale_price'] else f"${p['price']}"
 
                 results.append({
                     "document": "Luna Tech Product Catalog",
-                    "snippets": snippets,
-                    "relevance_score": 100
+                    "snippets": [
+                        f"Product: {p['name']}" + (f" by {p['brand']}" if p['brand'] else ""),
+                        f"Price: {price}, Stock: {p['stock_quantity']} units available",
+                        f"Description: {p['description']}" if p['description'] else None,
+                        f"Specs: {p['specifications']}" if p['specifications'] else None
+                    ],
+                    "relevance_score": float(similarities[idx]) * 100
                 })
+                print(f"  📊 {p['name']}: {similarities[idx]:.2f}", file=sys.stderr)
 
+            print(f"✅ Found {len(results)} matches", file=sys.stderr)
             return {
                 "query": query,
                 "results": results,
@@ -119,6 +140,7 @@ class FastDocumentProvider:
 
     def _load_documents(self):
         """Load all documents"""
+        print(f"📂 {self.vertical_name}: Loading documents from {self.docs_dir}", file=sys.stderr)
         for file_path in self.docs_dir.rglob('*'):
             if file_path.is_file() and file_path.suffix.lower() in ['.txt', '.md', '.docx']:
                 content = self._read_document(file_path)
@@ -130,6 +152,9 @@ class FastDocumentProvider:
                         'filename': file_path.stem.lower(),
                         'folder': file_path.parent.name
                     })
+                    print(f"  ✅ Loaded: {file_path.name} ({len(content)} chars)", file=sys.stderr)
+                else:
+                    print(f"  ⚠️  Skipped (empty): {file_path.name}", file=sys.stderr)
 
     def _extract_snippets(self, content: str, keywords: List[str], doctor_name: str = None) -> List[str]:
         """Extract relevant snippets - prioritize complete sections"""
@@ -148,7 +173,6 @@ class FastDocumentProvider:
 
         # For insurance queries, extract the complete insurance section
         if any(kw in ['insurance', 'carrier', 'carriers', 'plan', 'plans', 'accept'] for kw in keywords):
-            # Find insurance section
             insurance_markers = [
                 'insurance do',
                 'accept',
@@ -160,17 +184,14 @@ class FastDocumentProvider:
             for marker in insurance_markers:
                 if marker in content_lower:
                     idx = content_lower.find(marker)
-                    # Extract large section (2000 chars) to get full list
                     snippet_start = max(0, idx - 100)
                     snippet_end = min(len(content), idx + 2000)
                     insurance_section = content[snippet_start:snippet_end]
 
-                    # Clean up - stop at next major heading
                     lines = insurance_section.split('\n')
                     clean_lines = []
                     heading_count = 0
                     for line in lines:
-                        # Stop at second numbered heading (e.g., "3. Medical Departments")
                         if re.match(r'^\d+\.', line.strip()):
                             heading_count += 1
                             if heading_count > 1:
@@ -179,12 +200,12 @@ class FastDocumentProvider:
 
                     return ['\n'.join(clean_lines).strip()]
 
-        # For doctor directory queries, prioritize Featured Providers
+        # For doctor directory queries
         if any(kw in ['doctor', 'doctors', 'directory', 'provider', 'providers'] for kw in keywords):
             if 'featured provider' in content_lower:
                 idx = content_lower.find('featured provider')
                 snippet_start = max(0, idx - 50)
-                snippet_end = min(len(content), idx + 1500)  # Increased to 1500
+                snippet_end = min(len(content), idx + 1500)
                 featured_section = content[snippet_start:snippet_end]
 
                 intro_idx = content_lower.find('at healthbridge')
@@ -206,7 +227,7 @@ class FastDocumentProvider:
             sent_lower = sent.lower()
             if any(kw in sent_lower for kw in keywords):
                 relevant.append(sent)
-                if len(relevant) >= 10:  # Increased to 10
+                if len(relevant) >= 10:
                     break
 
         return relevant[:10] if relevant else sentences[:5]
@@ -218,6 +239,10 @@ class FastDocumentProvider:
         # Extract keywords
         stopwords = {'show', 'me', 'your', 'the', 'a', 'an', 'what', 'how', 'can', 'do', 'you', 'tell', 'about', 'more'}
         keywords = [w for w in re.findall(r'\b\w{3,}\b', query_lower) if w not in stopwords]
+
+        print(f"🔍 {self.vertical_name} - Query: '{query}'", file=sys.stderr)
+        print(f"📝 {self.vertical_name} - Keywords: {keywords}", file=sys.stderr)
+        print(f"📚 {self.vertical_name} - Total documents loaded: {len(self.documents)}", file=sys.stderr)
 
         # Check for doctor name
         doctor_name = None
@@ -257,6 +282,10 @@ class FastDocumentProvider:
 
         results.sort(key=lambda x: x['relevance_score'], reverse=True)
 
+        print(f"✅ {self.vertical_name} - Found {len(results)} results (returning top {min(limit, len(results))})", file=sys.stderr)
+        for i, r in enumerate(results[:limit], 1):
+            print(f"  {i}. {r['document']} (score: {r['relevance_score']})", file=sys.stderr)
+
         return {
             "query": query,
             "results": results[:limit],
@@ -266,7 +295,7 @@ class FastDocumentProvider:
 
 
 class FastMCPServer:
-    """Fast MCP server - keyword search only"""
+    """Fast MCP server - semantic search for retail, keyword for others"""
 
     def __init__(self, webroot_dir: str = "."):
         self.server = Server("fast-multi-vertical")
@@ -274,8 +303,9 @@ class FastMCPServer:
 
         print(f"\n⚡ FAST MCP SERVER", file=sys.stderr)
 
+        # FIXED: Using SemanticDatabaseProvider instead of FastDatabaseProvider
         self.providers = {
-            "luna-tech": FastDatabaseProvider(
+            "luna-tech": SemanticDatabaseProvider(
                 str(self.webroot_dir / "retail" / "luna_tech.db"),
                 "Luna Tech"
             ),
@@ -286,6 +316,14 @@ class FastMCPServer:
             "enterprise": FastDocumentProvider(
                 self.webroot_dir / "ent" / "documents",
                 "Enterprise Corp"
+            ),
+            "finance": FastDocumentProvider (
+                self.webroot_dir / "finance" / "documents",
+                "SecureBank"
+            ),
+            "gaming": FastDocumentProvider(
+                self.webroot_dir / "gaming" / "documents",
+                "Mt Olympus Casino & Hotel"
             )
         }
 
@@ -305,15 +343,18 @@ class FastMCPServer:
 
     def setup_tools(self):
         @self.server.list_tools()
-        async def list_tools() -> List[Tool]:
+        async def list_tools () -> List[Tool]:
             return [
-                Tool(
+                Tool (
                     name="search_documents",
                     description="Fast keyword search",
                     inputSchema={
                         "type": "object",
                         "properties": {
-                            "vertical": {"type": "string", "enum": ["luna-tech", "healthbridge", "enterprise"]},
+                            "vertical": {
+                                "type": "string",
+                                "enum": ["luna-tech", "healthbridge", "enterprise", "finance", "gaming"]
+                            },
                             "query": {"type": "string"},
                             "limit": {"type": "integer", "default": 5},
                             "user_context": {"type": "object"}

@@ -7,8 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+
     <style>
-        * {
+
+          * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -22,7 +24,6 @@
             line-height: 1.6;
         }
 
-        /* Header */
         .header {
             background: #ffffff;
             padding: 1rem 2rem;
@@ -96,13 +97,11 @@
             transform: translateY(-1px);
         }
 
-        /* Main Container */
         .main-container {
             padding-top: 80px;
             min-height: 100vh;
         }
 
-        /* Landing Page */
         .landing-page {
             display: block;
         }
@@ -179,6 +178,40 @@
             margin-right: auto;
         }
 
+        .api-button-container {
+            margin: 2rem auto 3rem;
+            text-align: center;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .api-demo-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .api-demo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .api-demo-btn i {
+            font-size: 1.3rem;
+        }
+
         .architecture-diagram {
             background: #ffffff;
             border: 1px solid #e2e8f0;
@@ -188,7 +221,6 @@
             max-width: 1000px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
-
 
         .flow-diagram {
             display: flex;
@@ -217,13 +249,10 @@
             border-radius: 4px;
         }
 
-
         .flow-box:hover {
             background: #e6fffa;
             border-color: #38b2ac;
         }
-
-        .
 
         .verticals-section {
             padding: 5rem 2rem;
@@ -232,10 +261,16 @@
 
         .verticals-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
+        }
+
+        @media (min-width: 1400px) {
+            .verticals-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
 
         .vertical-card {
@@ -267,6 +302,18 @@
             border-left: 4px solid #d69e2e;
         }
 
+        .finance-card {
+            border-left: 4px solid #805ad5;
+        }
+
+        .travel-card {
+            border-left: 4px solid #e53e3e;
+        }
+
+        .gaming-card {
+            border-left: 4px solid #f6ad55;
+        }
+
         .vertical-icon {
             font-size: 2.5rem;
             margin-bottom: 1.5rem;
@@ -276,6 +323,9 @@
         .retail-card .vertical-icon { color: #38a169; }
         .healthcare-card .vertical-icon { color: #3182ce; }
         .enterprise-card .vertical-icon { color: #d69e2e; }
+        .finance-card .vertical-icon { color: #805ad5; }
+        .travel-card .vertical-icon { color: #e53e3e; }
+        .gaming-card .vertical-icon { color: #f6ad55; }
 
         .vertical-title {
             font-size: 1.6rem;
@@ -329,7 +379,6 @@
             transform: translateY(-1px);
         }
 
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -358,6 +407,110 @@
         @keyframes modalSlideIn {
             from { opacity: 0; transform: translateY(-50px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* API Sidebar Styles */
+        .api-sidebar {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            right: 0;
+            top: 0;
+            width: 50%;
+            max-width: 700px;
+            height: 100vh;
+            background-color: white;
+            box-shadow: -4px 0 30px rgba(0,0,0,0.3);
+            animation: slideInRight 0.4s ease-out;
+            overflow-y: auto;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .api-sidebar-overlay {
+            display: none;
+            position: fixed;
+            z-index: 1999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+            backdrop-filter: blur(2px);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .api-sidebar-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .api-sidebar-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .api-sidebar-close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.3s ease;
+        }
+
+        .api-sidebar-close:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        .api-sidebar-body {
+            padding: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .api-sidebar {
+                width: 70%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .api-sidebar {
+                width: 90%;
+            }
         }
 
         .modal-header {
@@ -399,6 +552,111 @@
 
         .modal-body {
             padding: 30px;
+        }
+
+        .code-example-section {
+            background: #f8f9fa;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .code-example-section h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .code-example-section h3 i {
+            color: #667eea;
+        }
+
+        .code-example-section ol {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+
+        .code-example-section ul {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+
+        .copy-btn.copied {
+            background: #38a169;
+        }
+
+        .info-box {
+            background: #eef2ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: #4c51bf;
+        }
+
+        .warning-box {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .warning-box p {
+            margin: 0;
+            color: #92400e;
+        }
+
+        .docs-link {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-top: 15px;
+            transition: background 0.3s ease;
+        }
+
+        .docs-link:hover {
+            background: #5568d3;
         }
 
         .upload-section {
@@ -457,71 +715,72 @@
         .upload-btn:hover {
             background: #2c5aa0;
         }
+
         .db-table-view {
-    margin: 20px 0;
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 15px;
-}
+            margin: 20px 0;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+        }
 
-.db-table-view h4 {
-    margin: 0 0 10px 0;
-    color: #2d3748;
-}
+        .db-table-view h4 {
+            margin: 0 0 10px 0;
+            color: #2d3748;
+        }
 
-.db-grid {
-    overflow-x: auto;
-    max-height: 400px;
-}
+        .db-grid {
+            overflow-x: auto;
+            max-height: 400px;
+        }
 
-.db-grid table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-}
+        .db-grid table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
 
-.db-grid th {
-    background: #edf2f7;
-    padding: 8px;
-    text-align: left;
-    border: 1px solid #cbd5e0;
-    font-weight: 600;
-    position: sticky;
-    top: 0;
-}
+        .db-grid th {
+            background: #edf2f7;
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #cbd5e0;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
 
-.db-grid td {
-    padding: 8px;
-    border: 1px solid #e2e8f0;
-}
+        .db-grid td {
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+        }
 
-.db-grid tr:hover {
-    background: #f7fafc;
-}
+        .db-grid tr:hover {
+            background: #f7fafc;
+        }
 
-.row-actions {
-    display: flex;
-    gap: 5px;
-}
+        .row-actions {
+            display: flex;
+            gap: 5px;
+        }
 
-.edit-btn, .delete-row-btn {
-    padding: 4px 8px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8rem;
-}
+        .edit-btn, .delete-row-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
 
-.edit-btn {
-    background: #3182ce;
-    color: white;
-}
+        .edit-btn {
+            background: #3182ce;
+            color: white;
+        }
 
-.delete-row-btn {
-    background: #e53e3e;
-    color: white;
-}
+        .delete-row-btn {
+            background: #e53e3e;
+            color: white;
+        }
 
         .file-list {
             margin-top: 20px;
@@ -601,19 +860,11 @@
             font-size: 1.1rem;
         }
 
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
         @media (max-width: 768px) {
             .hero-title { font-size: 2.5rem; }
             .hero-subtitle { font-size: 1.1rem; }
             .verticals-grid { grid-template-columns: 1fr; }
             .flow-diagram { flex-direction: column; }
-
 
             .nav-links {
                 flex-wrap: wrap;
@@ -634,7 +885,6 @@
             }
         }
 
-        /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -648,14 +898,136 @@
         .landing-page, .content-page.active {
             animation: fadeIn 0.5s ease-out;
         }
+
+
+        /* Technology Use Cases Section - New Styling */
+        .technology-section {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        }
+
+        .technology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 1200px) {
+            .technology-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .tech-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 2.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tech-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .tech-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .tech-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 28px rgba(102, 126, 234, 0.25);
+            border-color: #667eea;
+        }
+
+        .tech-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tech-title {
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1a365d;
+        }
+
+        .tech-description {
+            color: #4a5568;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .tech-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .tech-features li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: #2d3748;
+            font-size: 0.95rem;
+        }
+
+        .tech-features li:before {
+            content: "⚡";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .tech-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .section-divider {
+            max-width: 1200px;
+            margin: 3rem auto;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #cbd5e0, transparent);
+        }
+
     </style>
+
+
 </head>
 <body>
-    <!-- Header -->
     <header class="header">
         <div class="header-content">
             <div class="logo">
-                <img src="logo.png" height="22" width="46"/>
+                <img src="images/logo.png" height="22" width="46"/>
                 Palo Alto Networks Prisma AIRS Demo
             </div>
 
@@ -670,7 +1042,327 @@
         </div>
     </header>
 
-    <!-- Document Upload Modal -->
+    <!-- API Code Example Sidebar -->
+    <div id="apiSidebarOverlay" class="api-sidebar-overlay" onclick="closeApiModal()"></div>
+    <div id="apiSidebar" class="api-sidebar">
+        <div class="api-sidebar-header">
+            <h2 class="api-sidebar-title">
+                <i class="fas fa-code"></i>
+                AIRS API Runtime
+            </h2>
+            <button class="api-sidebar-close" onclick="closeApiModal()">&times;</button>
+        </div>
+        <div class="api-sidebar-body">
+            <div class="info-box">
+                <p><strong>⚡ Minimal Code Integration:</strong> Secure your AI applications with just a few lines of code. The AIRS Python SDK reduces integration complexity by approximately 64%.</p>
+            </div>
+
+            <div class="code-example-section">
+                <h3><i class="fas fa-download"></i> Step 1: Installation</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode('install-code')">Copy</button>
+                    <pre id="install-code"># Install the AIRS Python SDK
+pip install pan-aisecurity</pre>
+                </div>
+            </div>
+
+            <div class="code-example-section">
+                <h3><i class="fas fa-cog"></i> Step 2: Initialize SDK</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode('init-code')">Copy</button>
+                    <pre id="init-code">import os
+import aisecurity
+from aisecurity.scan.inline.scanner import Scanner
+from aisecurity.generated_openapi_client.models.ai_profile import AiProfile
+
+# Initialize with your API key (from environment variable)
+aisecurity.init(api_key=os.getenv("PANW_AI_SEC_API_KEY"))
+
+# Configure your AI security profile
+ai_profile = AiProfile(profile_name="your-security-profile")
+
+# Create scanner instance
+scanner = Scanner()</pre>
+                </div>
+                <div class="warning-box">
+                    <p><strong>🔒 API Key:</strong> Set your API key as an environment variable: <code>export PANW_AI_SEC_API_KEY=your_api_key_here</code></p>
+                </div>
+            </div>
+
+            <div class="code-example-section">
+                <h3><i class="fas fa-shield-alt"></i> Step 3: Scan User Prompts (Input Protection)</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode('input-code')">Copy</button>
+                    <pre id="input-code">from aisecurity.scan.models.content import Content
+
+# Scan user input before processing
+user_prompt = "Hello, can you help me with..."
+
+scan_result = scanner.sync_scan(
+    ai_profile=ai_profile,
+    content=Content(prompt=user_prompt),
+    metadata={"app_user": "user_123"}
+)
+
+# Check if prompt is safe
+if scan_result.action == "block":
+    print("⚠️ Malicious prompt detected!")
+    # Block the request
+else:
+    print("✅ Prompt is safe to process")
+    # Continue with AI processing</pre>
+                </div>
+            </div>
+
+            <div class="code-example-section">
+                <h3><i class="fas fa-search"></i> Step 4: Scan AI Responses (Output Protection)</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode('output-code')">Copy</button>
+                    <pre id="output-code"># After getting response from your AI model
+ai_response = "Here's the information you requested..."
+
+# Scan the AI-generated response
+output_scan = scanner.sync_scan(
+    ai_profile=ai_profile,
+    content=Content(
+        prompt=user_prompt,
+        response=ai_response
+    ),
+    metadata={"app_user": "user_123"}
+)
+
+# Check if response is safe to return
+if output_scan.action == "block":
+    print("⚠️ Unsafe AI response detected!")
+    # Return safe fallback message
+    return "I cannot provide that information."
+else:
+    print("✅ Response is safe to return")
+    # Return the AI response to user
+    return ai_response</pre>
+                </div>
+            </div>
+
+            <div class="code-example-section">
+                <h3><i class="fas fa-code-branch"></i> Complete Integration Example</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode('complete-code')">Copy</button>
+                    <pre id="complete-code">import os
+import aisecurity
+from aisecurity.scan.inline.scanner import Scanner
+from aisecurity.generated_openapi_client.models.ai_profile import AiProfile
+from aisecurity.scan.models.content import Content
+
+# Initialize once at app startup
+aisecurity.init(api_key=os.getenv("PANW_AI_SEC_API_KEY"))
+scanner = Scanner()
+ai_profile = AiProfile(profile_name="your-security-profile")
+
+def process_user_query(user_id, user_prompt):
+    """
+    Secure AI query processing with dual-phase scanning
+    """
+    # PHASE 1: Scan user input
+    input_scan = scanner.sync_scan(
+        ai_profile=ai_profile,
+        content=Content(prompt=user_prompt),
+        metadata={"app_user": user_id}
+    )
+
+    if input_scan.action == "block":
+        return "Your request violates security policies."
+
+    # Process with your AI model (OpenAI, Anthropic, etc.)
+    ai_response = your_ai_model(user_prompt)
+
+    # PHASE 2: Scan AI response
+    output_scan = scanner.sync_scan(
+        ai_profile=ai_profile,
+        content=Content(prompt=user_prompt, response=ai_response),
+        metadata={"app_user": user_id}
+    )
+
+    if output_scan.action == "block":
+        return "I cannot provide that information."
+
+    return ai_response
+
+# Example usage
+result = process_user_query("user_123", "Tell me about your products")</pre>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <p><strong>🛡️ What Gets Detected:</strong> Prompt injection, malicious URLs, sensitive data leaks, toxic content, malicious code, AI agent threats, contextual violations, and custom policy violations.</p>
+            </div>
+
+            <a href="https://docs.paloaltonetworks.com/ai-runtime-security/activation-and-onboarding/ai-runtime-security-api-intercept-overview/airs-apis-python-sdk" target="_blank" class="docs-link">
+                <i class="fas fa-book"></i> View Full API Documentation
+            </a>
+        </div>
+    </div>
+
+    <!-- Network Intercept Sidebar -->
+    <div id="networkSidebarOverlay" class="api-sidebar-overlay" onclick="closeNetworkModal()"></div>
+    <div id="networkSidebar" class="api-sidebar">
+        <div class="api-sidebar-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <h2 class="api-sidebar-title">
+                <i class="fas fa-network-wired"></i>
+                AIRS Network Intercept Onboarding
+            </h2>
+            <button class="api-sidebar-close" onclick="closeNetworkModal()">&times;</button>
+        </div>
+        <div class="api-sidebar-body">
+            <div class="info-box">
+                <p><strong>🌐 Zero-Code Network Integration:</strong> Deploy AI security at the network layer without modifying application code. Protect all AI traffic flowing through your infrastructure.</p>
+            </div>
+
+            <div class="code-example-section">
+                <h3><i class="fas fa-clipboard-list"></i> Onboarding Overview</h3>
+                <p style="margin-bottom: 15px;">Network Intercept provides transparent AI security by intercepting and inspecting AI API traffic at the network level. Follow these steps to onboard your cloud account:</p>
+            </div>
+
+            <div class="code-example-section">
+                <h3><i class="fas fa-cloud"></i> Step 1: Access Strata Cloud Manager</h3>
+                <div class="info-box">
+                    <p><strong>Navigate to:</strong> Strata Cloud Manager → AI Runtime Security → Settings → Cloud Accounts</p>
+                </div>
+                <p style="margin: 15px 0;">This is where you'll configure your cloud infrastructure to work with AIRS Network Intercept.</p>
+            </div>
+
+            <div class="code-example-section">
+                <h3><i class="fas fa-plus-circle"></i> Step 2: Onboard Cloud Account</h3>
+                <ol>
+                    <li>Click <strong>"Onboard Cloud Account"</strong></li>
+                    <li>Select your cloud provider:
+                        <ul>
+                            <li>AWS</li>
+                            <li>Azure</li>
+                            <li>Google Cloud Platform</li>
+                        </ul>
+                    </li>
+                    <li>Enter your cloud account credentials</li>
+                    <li>Configure network access permissions</li>
+                </ol>
+            </div>
+
+            <div class="code-example-section">
+                <h3><i class="fas fa-key"></i> Step 3: AWS Integration (Example)</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode('aws-config')">Copy</button>
+                    <pre id="aws-config"># AWS CloudFormation Template Configuration
+# Deploy this stack to enable AIRS Network Intercept
+
+Resources:
+  AIRSRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: PrismaAIRS-NetworkIntercept
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::PANW_ACCOUNT:root
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/ReadOnlyAccess
+      Policies:
+        - PolicyName: AIRSNetworkAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ec2:DescribeInstances
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DescribeVpcs
+                  - elasticloadbalancing:DescribeLoadBalancers
+                Resource: '*'</pre>
+                </div>
+                <div class="warning-box">
+                    <p><strong>🔐 Security Note:</strong> Replace <code>PANW_ACCOUNT</code> with the Palo Alto Networks account ID provided in Strata Cloud Manager.</p>
+                </div>
+            </div>
+
+            <div class="code-example-section">
+                <h3><i class="fas fa-project-diagram"></i> Step 4: Configure Network Intercept Points</h3>
+                <p style="margin-bottom: 15px;">Specify which traffic should be inspected:</p>
+                <ol>
+                    <li><strong>API Gateway Integration:</strong> Intercept at load balancer or API gateway level</li>
+                    <li><strong>VPC Traffic Mirroring:</strong> Mirror relevant AI API traffic for inspection</li>
+                    <li><strong>Subnet Configuration:</strong> Select subnets containing AI workloads</li>
+                    <li><strong>Traffic Filtering:</strong> Define rules for AI-related traffic patterns</li>
+                </ol>
+            </div>
+
+            <div class="code-example-section">
+                <h3><i class="fas fa-shield-alt"></i> Step 5: Activate Security Profiles</h3>
+                <div class="info-box">
+                    <p><strong>Create and apply AI Security Profiles:</strong></p>
+                </div>
+                <ol>
+                    <li>Navigate to <strong>AI Runtime Security → AI Profiles</strong></li>
+                    <li>Create a new profile or select existing</li>
+                    <li>Configure protection policies:
+                        <ul>
+                            <li>Prompt injection detection</li>
+                            <li>Malicious payload filtering</li>
+                            <li>Data loss prevention</li>
+                            <li>Toxic content blocking</li>
+                        </ul>
+                    </li>
+                    <li>Apply profile to network intercept points</li>
+                </ol>
+            </div>
+
+            <div class="code-example-section">
+                <h3><i class="fas fa-check-circle"></i> Step 6: Verify Deployment</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode('verify-traffic')">Copy</button>
+                    <pre id="verify-traffic"># Test Network Intercept with curl
+# This request will be intercepted and inspected
+
+curl -X POST https://your-ai-api.example.com/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [
+      {"role": "user", "content": "Hello, how can you help me?"}
+    ]
+  }'
+
+# Check Strata Cloud Manager logs to confirm:
+# 1. Traffic is being intercepted
+# 2. Security policies are being applied
+# 3. Threats are being detected and blocked</pre>
+                </div>
+            </div>
+
+            <div class="code-example-section">
+                <h3><i class="fas fa-chart-line"></i> Step 7: Monitor and Optimize</h3>
+                <p style="margin-bottom: 15px;">Access real-time monitoring dashboards:</p>
+                <ol>
+                    <li><strong>Traffic Analytics:</strong> View all intercepted AI API calls</li>
+                    <li><strong>Threat Detection:</strong> Monitor blocked malicious requests</li>
+                    <li><strong>Performance Metrics:</strong> Track latency and throughput</li>
+                    <li><strong>Compliance Reports:</strong> Generate audit trails for AI usage</li>
+                </ol>
+            </div>
+
+            <div class="info-box">
+                <p><strong>🎯 Key Benefits:</strong> Zero code changes, comprehensive coverage, centralized policy management, detailed visibility into all AI traffic, and automatic protection for new AI services.</p>
+            </div>
+
+            <div class="warning-box">
+                <p><strong>⚠️ Important:</strong> Network Intercept requires proper network architecture planning. Work with your network team to ensure minimal latency impact and proper traffic routing.</p>
+            </div>
+
+            <a href="https://docs.paloaltonetworks.com/ai-runtime-security/activation-and-onboarding/onboard-and-activate-cloud-account-in-scm" target="_blank" class="docs-link">
+                <i class="fas fa-book"></i> View Full Network Intercept Documentation
+            </a>
+        </div>
+    </div>
+
     <div id="contentModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -686,7 +1378,6 @@
                     <br><code>python mcp.py</code>
                 </div>
 
-                <!-- Retail Upload Section -->
                 <div class="upload-section">
                     <h3>
                         <i class="fas fa-shopping-cart" style="color: #38a169;"></i>
@@ -712,7 +1403,6 @@
                     <button type="button" class="upload-btn" onclick="loadDatabaseTables()">Refresh Tables</button>
                 </div>
 
-                <!-- Healthcare Upload Section -->
                 <div class="upload-section">
                     <h3>
                         <i class="fas fa-heartbeat" style="color: #3182ce;"></i>
@@ -731,7 +1421,6 @@
                     <div id="healthcare-files" class="file-list"></div>
                 </div>
 
-                <!-- Enterprise Upload Section -->
                 <div class="upload-section">
                     <h3>
                         <i class="fas fa-building" style="color: #d69e2e;"></i>
@@ -749,15 +1438,48 @@
                     <div id="enterprise-status" class="status-message"></div>
                     <div id="enterprise-files" class="file-list"></div>
                 </div>
+
+                <div class="upload-section">
+                    <h3>
+                        <i class="fas fa-chart-line" style="color: #805ad5;"></i>
+                        Finance Corp (Financial) Documents
+                        <span id="finance-count" style="background: #805ad5; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem;">0 files</span>
+                    </h3>
+
+                    <div class="upload-area" onclick="document.getElementById('finance-file').click()">
+                        <p><strong>Click to upload or drag files here</strong></p>
+                        <p>Add financial policies, compliance docs, investment guides</p>
+                        <input type="file" id="finance-file" class="file-input" multiple accept=".txt,.md,.pdf,.docx,.doc">
+                    </div>
+                    <button type="button" class="upload-btn" onclick="uploadFiles('finance')">Upload to Finance</button>
+
+                    <div id="finance-status" class="status-message"></div>
+                    <div id="finance-files" class="file-list"></div>
+                </div>
+
+                <div class="upload-section">
+                    <h3>
+                        <i class="fas fa-dice" style="color: #f6ad55;"></i>
+                        Grand Resort & Casino (Gaming) Documents
+                        <span id="gaming-count" style="background: #f6ad55; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem;">0 files</span>
+                    </h3>
+
+                    <div class="upload-area" onclick="document.getElementById('gaming-file').click()">
+                        <p><strong>Click to upload or drag files here</strong></p>
+                        <p>Add gaming policies, hotel services, entertainment guides</p>
+                        <input type="file" id="gaming-file" class="file-input" multiple accept=".txt,.md,.pdf,.docx,.doc">
+                    </div>
+                    <button type="button" class="upload-btn" onclick="uploadFiles('gaming')">Upload to Gaming</button>
+
+                    <div id="gaming-status" class="status-message"></div>
+                    <div id="gaming-files" class="file-list"></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Main Container -->
     <div class="main-container">
-        <!-- Landing Page -->
         <div id="landing-page" class="landing-page">
-            <!-- Hero Section -->
             <section class="hero-section">
                 <h1 class="hero-title">Prisma AIRS</h1>
                 <p class="hero-subtitle">
@@ -772,7 +1494,6 @@
                 </button>
             </section>
 
-            <!-- Features Section -->
             <section class="features-section">
                 <div class="features-container">
                     <h2 class="section-title">Demo Environment Process Flow</h2>
@@ -783,21 +1504,27 @@
                         they ever reach your users.
                     </p>
 
-
-                <div class="architecture-diagram">
-                    <div class="flow-diagram">
-                        <div class="flow-image-frame">
-                             <img src="./flow-diagram.png" alt="Process Flow Diagram">
-                        </div>
+                    <div class="api-button-container">
+                        <button class="api-demo-btn" onclick="openApiModal()">
+                            <i class="fas fa-code"></i>
+                            View AIRS API Runtime Integration Code
+                        </button>
+                        <button class="api-demo-btn" onclick="openNetworkModal()" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); box-shadow: 0 4px 12px rgba(240, 147, 251, 0.4);">
+                            <i class="fas fa-network-wired"></i>
+                            View AIRS Network Intercept Onboarding
+                        </button>
+                    </div>
+                    <div class="architecture-diagram">
+                        <div class="flow-diagram">
+                            <div class="flow-image-frame">
+                             <img src="images/flow-diagram.png" height="868" width="1934"/>
+                            </div>
+                         </div>
                     </div>
                      <p style="text-align: center; color: orangered; margin-top: 2rem;">
-                        Every interaction is protected by advanced machine learning models trained for industry-specific threat pattern</p>
+                        Every interaction is protected by advanced machine learning models trained for industry-specific threat patterns</p>
                     </div>
-                </div>
-
             </section>
-
-            <!-- Verticals Section -->
             <section class="verticals-section">
                 <div class="features-container">
                     <h2 class="section-title">Industry Solutions</h2>
@@ -808,7 +1535,7 @@
 
                 <div class="verticals-grid">
                     <div class="vertical-card retail-card" onclick="showVertical('retail')">
-                        <img src="retail.png" height="300" width="300"/>
+                        <img src="images/retail.png" height="300" width="300"/>
                         <h3 class="vertical-title">Retail & E-commerce</h3>
                         <p class="vertical-description">
                             Comprehensive customer support platform for modern retail operations with intelligent product assistance and order management.
@@ -824,7 +1551,7 @@
                     </div>
 
                     <div class="vertical-card healthcare-card" onclick="showVertical('healthcare')">
-                        <img src="healthcare.png" height="300" width="300"/>
+                        <img src="images/healthcare.png" height="300" width="300"/>
                         <h3 class="vertical-title">Healthcare & Medical</h3>
                         <p class="vertical-description">
                             HIPAA-compliant patient portal with secure AI assistance for healthcare information, appointments, and medical guidance.
@@ -839,8 +1566,24 @@
                         <button class="select-button">View Healthcare Demo</button>
                     </div>
 
+                    <div class="vertical-card gaming-card" onclick="showVertical('gaming')">
+                        <img src="images/gaming.png" height="300" width="300"/>
+                        <h3 class="vertical-title">Gaming & Hospitality</h3>
+                        <p class="vertical-description">
+                            Integrated casino and resort management platform with responsible gaming compliance, guest services, and VIP rewards programs.
+                        </p>
+                        <ul class="vertical-features">
+                            <li>Gaming compliance monitoring</li>
+                            <li>Hotel and resort reservations</li>
+                            <li>VIP services and rewards tracking</li>
+                            <li>Event and entertainment bookings</li>
+                            <li>Responsible gaming support</li>
+                        </ul>
+                        <button class="select-button">View Gaming Demo</button>
+                    </div>
+
                     <div class="vertical-card enterprise-card" onclick="showVertical('enterprise')">
-                        <img src="ent.png" height="300" width="300"/>
+                        <img src="images/ent.png" height="300" width="300"/>
                         <h3 class="vertical-title">Enterprise & Corporate</h3>
                         <p class="vertical-description">
                             Intelligent employee assistance platform for HR, IT support, and organizational resources with advanced security protocols.
@@ -854,17 +1597,118 @@
                         </ul>
                         <button class="select-button">View Enterprise Demo</button>
                     </div>
+
+                    <div class="vertical-card finance-card" onclick="showVertical('finance')">
+                        <img src="images/finance.png" height="300" width="300"/>
+                        <h3 class="vertical-title">Finance & Banking</h3>
+                        <p class="vertical-description">
+                            Secure financial services with insights for wealth
+                            management, transactions, and personalized financial guidance.</p>
+                        <ul class="vertical-features">
+                            <li>PCI-DSS compliant transaction handling</li>
+                            <li>Intelligent fraud detection and alerts</li>
+                            <li>Personalized investment recommendations</li>
+                            <li>Automated financial planning assistance</li>
+                            <li>Multi-factor authentication integration</li>
+                        </ul>
+                        <button class="select-button">View Finance Demo</button>
+                    </div>
+
+                    <div class="vertical-card travel-card" onclick="window.open('travel/travel.html', '_blank')">
+                        <img src="images/travel.png" height="300" width="300"/>
+                        <h3 class="vertical-title">USA / GOV Travel Agent</h3>
+                        <p class="vertical-description">
+                            Agentic AI travel planning powered by LiteLLM multi-model gateway. Experience how multiple AI models collaborate to create comprehensive travel itineraries.
+                        </p>
+                        <ul class="vertical-features">
+                            <li>Multi-model AI orchestration (GPT-4o, Claude)</li>
+                            <li>LiteLLM gateway integration</li>
+                            <li>Real-time flight & hotel search</li>
+                            <li>Intelligent budget optimization</li>
+                            <li>Automated itinerary generation</li>
+                        </ul>
+                        <button class="select-button">View Travel Agent Demo</button>
+                    </div>
                 </div>
             </section>
+            <!-- NEW TECHNOLOGY USE CASES SECTION -->
+            <div class="section-divider"></div>
+
+            <section class="technology-section">
+                <div class="features-container">
+                    <h2 class="section-title">Technology Use Cases</h2>
+                    <p class="section-subtitle">
+                        Explore cutting-edge AI agent security capabilities with Model Context Protocol (MCP) server inspection and centralized security governance.
+                    </p>
+                </div>
+
+                <div class="technology-grid">
+                    <!-- Multi-Agent Luna Tech - LIVE DEMO -->
+                    <div class="tech-card" onclick="showMultiAgentDemo()" style="background: #04090E;">
+
+                        <div><img src="multiagent.png" height="124" width="124"/>
+                            <h4 class="tech-title" style="color: #ffffff;">Multi-Agent Recommendations</h4></div>
+                        <p class="tech-description" style="color: #e2e8f0;">
+                            Experience goal-driven agentic AI in action using Luna Tech Retail. Watch as a single goal autonomously orchestrates multiple MCP server calls through Prisma AIRS security inspection. See real-time blocking of policy violations.
+                        </p>
+                        <ul class="tech-features">
+                            <li style="color: #00ffff;">Goal-driven autonomous execution</li>
+                            <li style="color: #00ffff;">Multi-step agent orchestration</li>
+                            <li style="color: #00ffff;">Real-time MCP call inspection</li>
+                            <li style="color: #00ffff;">Security policy enforcement</li>
+                            <li style="color: #00ffff;">Adaptive agent behavior</li>
+                        </ul>
+                        <button class="select-button" style="background: #1e3a5f;">
+                            Try Multi-Agent Demo
+                        </button>
+                    </div>
+
+                    <!-- Model Scanning -->
+                    <div class="tech-card" onclick="showModelScanningDemo()" style="background: #04090E;">
+                        <div><img src="modelscan.png" height="114" width="114"/>
+                            <h4 class="tech-title" style="color: #ffffff;">Model Scanning</h4></div>
+                        <p class="tech-description" style="color: #e2e8f0;">
+                            Comprehensive AI model vulnerability assessment. Scan language models for security weaknesses, data leaks, bias detection, and compliance violations before deployment.
+                        </p>
+                        <ul class="tech-features">
+                            <li style="color: #00ffff;">Automated vulnerability scanning</li>
+                            <li style="color: #00ffff;">Prompt injection detection</li>
+                            <li style="color: #00ffff;">Data leakage analysis</li>
+                            <li style="color: #00ffff;">Bias and fairness testing</li>
+                            <li style="color: #00ffff;">Compliance validation</li>
+                        </ul>
+                        <button class="select-button" style="background: #1e3a5f;">
+                            Launch Model Scanner
+                        </button>
+                    </div>
+
+                    <!-- Red Team Testing -->
+                    <div class="tech-card" onclick="showRedTeamDemo()" style="background: #04090E;">
+                        <img src="redteam.png" height="114" width="114"/>
+                        <h4 class="tech-title" style="color: #ffffff;">Red Team Testing</h4>
+                        <p class="tech-description" style="color: #e2e8f0;">
+                            Test AI security with intentionally vulnerable applications. Launch chatbot and agentic apps with a web-based control panel to perform adversarial testing and jailbreaking attempts.
+                        </p>
+                        <ul class="tech-features">
+                            <li style="color: #00ffff;">Vulnerable chatbot application</li>
+                            <li style="color: #00ffff;">Agentic app with tool-calling</li>
+                            <li style="color: #00ffff;">Web-based control panel</li>
+                            <li style="color: #00ffff;">Start/stop apps remotely</li>
+                            <li style="color: #00ffff;">Adversarial testing environment</li>
+                        </ul>
+                        <button class="select-button" style="background: #1e3a5f;">
+                            Launch Red Team Panel
+                        </button>
+                    </div>
+                </div>
+            </section>
+
         </div>
     </div>
-
-<script>
-// Auto-detect API paths based on environment
-function getApiBaseUrl(service) {
+ <script>
+     function getApiBaseUrl(service) {
     const hostname = window.location.hostname;
 
-    // Use nginx proxy paths for your domain
     if (hostname === 'christophermartin.work' || hostname === 'www.christophermartin.work') {
         switch(service) {
             case 'upload': return '/upload-server';
@@ -872,7 +1716,6 @@ function getApiBaseUrl(service) {
             default: return '/upload-server';
         }
     } else {
-        // Direct localhost access for development
         switch(service) {
             case 'upload': return 'http://localhost:8096';
             case 'mcp': return 'http://localhost:8091/api';
@@ -883,27 +1726,85 @@ function getApiBaseUrl(service) {
 
 const UPLOAD_API = getApiBaseUrl('upload');
 
-// Modal management
+function showMCPDemo() {
+    window.open('mcp_chat.html', '_blank');
+}
+
+
+function showMultiAgentDemo() {
+    window.open('/mcp/multi_agent_chat.html', '_blank');
+}
+
+function showModelScanningDemo() {
+    window.open('ms-rt/modelscan.html', '_blank');
+}
+
+function showRedTeamDemo() {
+    window.open('ms-rt/redteam.html', '_blank');
+}
+
+
+
+function openApiModal() {
+    document.getElementById('apiSidebarOverlay').style.display = 'block';
+    document.getElementById('apiSidebar').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeApiModal() {
+    document.getElementById('apiSidebarOverlay').style.display = 'none';
+    document.getElementById('apiSidebar').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function openNetworkModal() {
+    document.getElementById('networkSidebarOverlay').style.display = 'block';
+    document.getElementById('networkSidebar').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeNetworkModal() {
+    document.getElementById('networkSidebarOverlay').style.display = 'none';
+    document.getElementById('networkSidebar').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
 function openContentModal() {
     document.getElementById('contentModal').style.display = 'block';
     loadDocumentCounts();
-    loadAllFiles();      // This loads documents for all verticals
-    loadDatabaseTables(); // This loads database tables
+    loadAllFiles();
+    loadDatabaseTables();
 }
 
 function closeContentModal() {
     document.getElementById('contentModal').style.display = 'none';
 }
 
-// Close modal when clicking outside
+function copyCode(elementId) {
+    const codeElement = document.getElementById(elementId);
+    const text = codeElement.textContent;
+
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = codeElement.parentElement.querySelector('.copy-btn');
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.classList.remove('copied');
+        }, 2000);
+    });
+}
+
 window.onclick = function(event) {
-    const modal = document.getElementById('contentModal');
-    if (event.target == modal) {
+    const contentModal = document.getElementById('contentModal');
+
+    if (event.target == contentModal) {
         closeContentModal();
     }
 }
 
-// Vertical navigation
 function showVertical(vertical) {
     switch(vertical) {
         case 'retail':
@@ -915,6 +1816,12 @@ function showVertical(vertical) {
         case 'enterprise':
             window.open('ent/enterprise.html', '_blank');
             break;
+        case 'finance':
+            window.open('finance/finance.html', '_blank');
+            break;
+        case 'gaming':
+            window.open('gaming/gaming.html', '_blank');
+            break;
     }
 }
 
@@ -925,7 +1832,6 @@ function showLanding() {
     });
 }
 
-// File upload functionality
 async function uploadFiles(vertical) {
     const fileInput = document.getElementById(vertical + '-file');
     const statusDiv = document.getElementById(vertical + '-status');
@@ -953,7 +1859,7 @@ async function uploadFiles(vertical) {
             showStatus(statusDiv, `Successfully uploaded ${result.uploaded_count} file(s)`, 'success');
             loadDocumentCount(vertical);
             loadFiles(vertical);
-            fileInput.value = ''; // Clear the input
+            fileInput.value = '';
         } else {
             showStatus(statusDiv, result.detail || 'Upload failed', 'error');
         }
@@ -991,9 +1897,8 @@ function showStatus(element, message, type) {
     }, 5000);
 }
 
-// Load document counts and files
 async function loadDocumentCounts() {
-    const verticals = ['retail', 'healthcare', 'enterprise'];
+    const verticals = ['retail', 'healthcare', 'enterprise', 'finance', 'gaming'];
 
     for (const vertical of verticals) {
         try {
@@ -1021,7 +1926,7 @@ async function loadDocumentCount(vertical) {
 }
 
 async function loadAllFiles() {
-    const verticals = ['retail', 'healthcare', 'enterprise'];
+    const verticals = ['retail', 'healthcare', 'enterprise', 'finance', 'gaming'];
     for (const vertical of verticals) {
         loadFiles(vertical);
     }
@@ -1053,7 +1958,7 @@ async function loadFiles(vertical) {
         document.getElementById(`${vertical}-files`).innerHTML = '<p style="color: #e53e3e;">Error loading files</p>';
     }
 }
-// Update the loadDatabaseTables function to include an "Add" button
+
 async function loadDatabaseTables() {
     const container = document.getElementById('db-tables-container');
 
@@ -1110,7 +2015,6 @@ async function loadDatabaseTables() {
 }
 
 function showAddRowForm(tableName, columns) {
-    // Filter out auto-increment columns
     const editableColumns = columns.filter(col =>
         !col.name.includes('_id') &&
         !col.name.includes('created_at') &&
@@ -1139,14 +2043,12 @@ function showAddRowForm(tableName, columns) {
         </form>
     </div>`;
 
-    // Create modal overlay
     const overlay = document.createElement('div');
     overlay.id = 'add-row-overlay';
     overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 3000; display: flex; align-items: center; justify-content: center;';
     overlay.innerHTML = formHtml;
     document.body.appendChild(overlay);
 
-    // Handle form submission
     document.getElementById('add-row-form').onsubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
@@ -1176,10 +2078,10 @@ function closeAddRowForm() {
     const overlay = document.getElementById('add-row-overlay');
     if (overlay) overlay.remove();
 }
+
 async function deleteRow(tableName, row) {
     if (!confirm('Delete this row?')) return;
 
-    // Determine the correct ID column for each table
     const idMap = {
         'products': 'product_id',
         'categories': 'category_id',
@@ -1213,7 +2115,6 @@ async function deleteRow(tableName, row) {
 }
 
 function editRow(tableName, row) {
-    // Determine ID column
     const idMap = {
         'products': 'product_id',
         'categories': 'category_id',
@@ -1225,7 +2126,6 @@ function editRow(tableName, row) {
     const idColumn = idMap[tableName] || 'id';
     const rowId = row[idColumn];
 
-    // Filter out ID and timestamp columns
     const columns = Object.keys(row).filter(k =>
         !k.includes('_id') &&
         !k.includes('created_at') &&
@@ -1264,7 +2164,6 @@ async function updateRow(table, rowId, data) {
     }
 }
 
-// Drag and drop functionality
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.upload-area').forEach(area => {
         area.addEventListener('dragover', (e) => {
@@ -1280,7 +2179,6 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             area.classList.remove('dragover');
 
-            // Find which vertical this upload area belongs to
             const section = area.closest('.upload-section');
             const h3 = section.querySelector('h3');
             let vertical = '';
@@ -1288,6 +2186,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (h3.textContent.includes('Retail')) vertical = 'retail';
             else if (h3.textContent.includes('Healthcare')) vertical = 'healthcare';
             else if (h3.textContent.includes('Enterprise')) vertical = 'enterprise';
+            else if (h3.textContent.includes('Finance')) vertical = 'finance';
+            else if (h3.textContent.includes('Gaming')) vertical = 'gaming';
 
             if (vertical) {
                 const fileInput = document.getElementById(vertical + '-file');
@@ -1296,6 +2196,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-</script>
+
+ </script>
 </body>
 </html>

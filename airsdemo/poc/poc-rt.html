@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Red Teaming | Prisma AIRS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --cyan: #00e5ff;
+      --blue: #0080ff;
+      --purple: #8b5cf6;
+      --red: #ff4060;
+      --orange: #ff9800;
+      --green: #00e676;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --card-bg: rgba(8, 18, 50, 0.7);
+      --border: rgba(0, 180, 255, 0.2);
+      --code-bg: rgba(0, 5, 25, 0.8);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      font-family: 'Inter', sans-serif;
+      background: #040a1a;
+      color: var(--text);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .page-bg {
+      position: fixed; inset: 0; z-index: 0;
+      background: url('../images/bg-stars.png') center center / cover no-repeat;
+    }
+    .page-bg::after {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(0, 4, 18, 0.5);
+    }
+    .page-wrap { position: relative; z-index: 1; }
+
+    /* NAV */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 32px;
+      background: rgba(0, 4, 18, 0.88);
+      border-bottom: 1px solid rgba(0, 100, 200, 0.2);
+      backdrop-filter: blur(16px);
+    }
+    .brand {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 600; font-size: 0.9rem; color: #c8dff5;
+      text-decoration: none;
+    }
+    .brand-badge {
+      width: 26px; height: 26px; border-radius: 6px;
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      display: grid; place-items: center;
+      font-size: 0.6rem; font-weight: 800; color: #030d20;
+    }
+    .back-link {
+      color: var(--cyan); text-decoration: none;
+      font-size: 0.85rem; font-weight: 500;
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 12px; border-radius: 6px;
+      border: 1px solid rgba(0,229,255,0.2);
+      transition: all .2s;
+    }
+    .back-link:hover { background: rgba(0,229,255,0.07); }
+
+    .crumb {
+      padding: 7px 32px; font-size: 0.82rem;
+      color: rgba(130,170,210,0.55);
+      display: flex; gap: 7px; align-items: center;
+    }
+    .crumb a { color: var(--cyan); text-decoration: none; }
+
+    /* PAGE HERO */
+    .page-hero {
+      text-align: center;
+      padding: 48px 20px 36px;
+    }
+    .hero-icon { width: 80px; height: 80px; margin: 0 auto 20px; }
+    .hero-icon img {
+      width: 100%; height: 100%; object-fit: contain;
+      filter: drop-shadow(0 0 20px rgba(255,64,96,0.5));
+    }
+    .page-hero h1 {
+      font-size: 2.6rem; font-weight: 800;
+      background: linear-gradient(135deg, #fff 30%, #ff6080 70%);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+    .page-hero p {
+      color: var(--muted); font-size: 1.05rem;
+      line-height: 1.65; max-width: 640px; margin: 0 auto 28px;
+    }
+    .detection-grid {
+      display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+    }
+    .badge {
+      display: flex; align-items: center; gap: 7px;
+      padding: 7px 14px; border-radius: 20px;
+      background: rgba(255, 64, 96, 0.08);
+      border: 1px solid rgba(255, 64, 96, 0.25);
+      font-size: 0.82rem; font-weight: 600; color: #ff8090;
+    }
+
+    /* SCAN TYPE TABS */
+    .scan-tabs {
+      display: flex; gap: 12px; justify-content: center;
+      padding: 20px 20px 0; flex-wrap: wrap;
+    }
+    .scan-tab {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--muted); font-size: 0.88rem; font-weight: 600;
+      cursor: pointer; transition: all .2s; text-decoration: none;
+    }
+    .scan-tab:hover, .scan-tab.active {
+      color: var(--cyan);
+      border-color: rgba(0,229,255,0.4);
+      background: rgba(0,229,255,0.07);
+    }
+    .scan-tab i { font-size: 0.85rem; }
+
+    /* GLOW DIVIDER */
+    .glow-divider {
+      position: relative; height: 40px; margin: 20px 0 0;
+    }
+    .glow-divider::before {
+      content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,80,100,0.3) 20%, #ff6080 45%, #fff 50%, #ff6080 55%, rgba(255,80,100,0.3) 80%, transparent);
+      box-shadow: 0 0 10px 2px rgba(255,80,100,0.3);
+    }
+    .glow-divider::after {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 300px; height: 50px;
+      background: radial-gradient(ellipse at center, rgba(255,100,120,0.3) 0%, transparent 70%);
+      filter: blur(8px);
+    }
+
+    /* CONTENT LAYOUT */
+    .content-wrap {
+      max-width: 1100px; margin: 0 auto;
+      padding: 36px 32px 80px;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    /* SIDEBAR */
+    .sidebar { position: sticky; top: 24px; }
+    .sidebar-title {
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(255,100,120,0.7);
+      padding: 0 0 10px 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+    .sidebar-nav a {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px; border-radius: 8px;
+      color: var(--muted); text-decoration: none;
+      font-size: 0.88rem; font-weight: 500;
+      transition: all .2s; border: 1px solid transparent;
+    }
+    .sidebar-nav a:hover {
+      color: var(--cyan); background: rgba(0,229,255,0.06);
+      border-color: rgba(0,229,255,0.15);
+    }
+    .sidebar-nav i { width: 16px; text-align: center; font-size: 0.8rem; }
+
+    /* SECTIONS */
+    .doc-section { margin-bottom: 40px; scroll-margin-top: 24px; }
+    .section-title {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 1.4rem; font-weight: 700;
+      color: #d8eeff; margin-bottom: 18px;
+      padding-bottom: 12px; border-bottom: 1px solid var(--border);
+    }
+    .section-title i {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: rgba(255,64,96,0.1);
+      border: 1px solid rgba(255,64,96,0.25);
+      display: grid; place-items: center;
+      color: var(--red); font-size: 0.9rem; flex: 0 0 auto;
+    }
+
+    /* CARDS */
+    .info-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px 22px;
+      margin-bottom: 16px; backdrop-filter: blur(12px);
+    }
+    .info-card h3 {
+      font-size: 1rem; font-weight: 700; color: #c8e8ff;
+      margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+    }
+    .info-card p, .info-card li {
+      color: var(--muted); font-size: 0.92rem; line-height: 1.65;
+    }
+    .info-card ul { padding-left: 0; list-style: none; display: grid; gap: 6px; }
+    .info-card ul li { display: flex; align-items: flex-start; gap: 8px; }
+    .info-card ul li::before { content: '→'; color: var(--cyan); font-size: 0.85rem; flex: 0 0 auto; margin-top: 1px; }
+
+    /* STEPS */
+    .steps { display: grid; gap: 14px; }
+    .step {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 14px; padding: 18px 20px;
+      backdrop-filter: blur(12px); position: relative; overflow: hidden;
+    }
+    .step::before {
+      content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 3px;
+      background: linear-gradient(180deg, var(--red), var(--orange));
+    }
+    .step-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--red), var(--orange));
+      display: grid; place-items: center;
+      font-size: 0.78rem; font-weight: 800; color: #fff; flex: 0 0 auto;
+    }
+    .step h3 { font-size: 0.98rem; font-weight: 700; color: #d0e8ff; }
+    .step p, .step li { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+    .step ul { padding-left: 0; list-style: none; display: grid; gap: 5px; margin-top: 8px; }
+    .step ul li { display: flex; gap: 8px; align-items: flex-start; }
+    .step ul li::before { content: '✓'; color: var(--green); flex: 0 0 auto; }
+
+    /* ALERTS */
+    .alert {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 14px 16px; border-radius: 10px;
+      margin: 14px 0; font-size: 0.88rem; line-height: 1.55;
+    }
+    .alert-warn {
+      background: rgba(255,180,0,0.07); border: 1px solid rgba(255,180,0,0.25); color: #ffd54f;
+    }
+    .alert-info {
+      background: rgba(0,229,255,0.06); border: 1px solid rgba(0,229,255,0.2); color: #b2ebf2;
+    }
+    .alert-danger {
+      background: rgba(255,64,96,0.07); border: 1px solid rgba(255,64,96,0.25); color: #ff8090;
+    }
+    .alert i { flex: 0 0 auto; margin-top: 1px; }
+
+    /* CODE */
+    .code-block {
+      background: var(--code-bg); border: 1px solid rgba(0,180,255,0.18);
+      border-radius: 10px; overflow: hidden; margin: 12px 0;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 14px; background: rgba(0,20,60,0.6);
+      border-bottom: 1px solid rgba(0,100,200,0.15);
+    }
+    .code-label {
+      font-size: 0.75rem; font-weight: 600; color: rgba(0,229,255,0.7);
+      letter-spacing: 1px; text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .code-dots { display: flex; gap: 5px; }
+    .code-dots span { width: 10px; height: 10px; border-radius: 50%; }
+    .code-dots span:nth-child(1) { background: #ff5f56; }
+    .code-dots span:nth-child(2) { background: #ffbd2e; }
+    .code-dots span:nth-child(3) { background: #27c93f; }
+    pre {
+      padding: 16px 18px; overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem; line-height: 1.65; color: #b2d8f0;
+    }
+    pre .comment { color: rgba(100,160,200,0.5); }
+
+    /* SCAN TYPE CARDS */
+    .scan-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 16px; }
+    .scan-card {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px 16px; text-align: center;
+      backdrop-filter: blur(12px); transition: all .2s;
+    }
+    .scan-card:hover {
+      border-color: rgba(255,64,96,0.4);
+      box-shadow: 0 10px 30px rgba(255,64,96,0.1);
+      transform: translateY(-3px);
+    }
+    .scan-card-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: rgba(255,64,96,0.1); border: 1px solid rgba(255,64,96,0.25);
+      display: grid; place-items: center; margin: 0 auto 12px;
+      color: var(--red); font-size: 1.1rem;
+    }
+    .scan-card h3 { font-size: 0.95rem; font-weight: 700; color: #d0e8ff; margin-bottom: 6px; }
+    .scan-card p { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+    /* CATEGORY TAGS */
+    .category-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .cat-tag {
+      padding: 5px 12px; border-radius: 16px; font-size: 0.8rem; font-weight: 600;
+    }
+    .cat-security { background: rgba(255,64,96,0.1); border: 1px solid rgba(255,64,96,0.3); color: #ff8090; }
+    .cat-safety { background: rgba(255,152,0,0.1); border: 1px solid rgba(255,152,0,0.3); color: #ffcc80; }
+    .cat-brand { background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); color: #c4b5fd; }
+    .cat-compliance { background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.25); color: #80deea; }
+
+    /* DRIFT TABLE */
+    .drift-table {
+      width: 100%; border-collapse: collapse;
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden; font-size: 0.88rem;
+    }
+    .drift-table th {
+      background: rgba(0,20,60,0.7); color: rgba(0,229,255,0.8);
+      padding: 10px 16px; text-align: left;
+      font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase;
+    }
+    .drift-table td {
+      padding: 10px 16px; border-top: 1px solid rgba(0,100,200,0.12);
+      color: var(--muted);
+    }
+    .drift-table td:first-child { color: #c8e8ff; font-weight: 600; }
+    .drift-table tr:hover td { background: rgba(255,64,96,0.03); }
+
+    /* CHECKLIST */
+    .checklist { display: grid; gap: 8px; }
+    .check-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 10px;
+      background: rgba(0,8,30,0.5); border: 1px solid rgba(0,120,200,0.18);
+      font-size: 0.9rem; color: rgba(210,230,250,0.85);
+    }
+    .check-item i {
+      width: 20px; height: 20px; border-radius: 5px;
+      background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.3);
+      color: var(--green); display: grid; place-items: center;
+      font-size: 0.65rem; flex: 0 0 auto;
+    }
+
+    @media (max-width: 860px) {
+      .content-wrap { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .scan-cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-bg"></div>
+<div class="page-wrap">
+
+  <!-- NAV -->
+  <div class="topbar">
+    <a class="brand" href="../landpage.html">
+      <div class="brand-badge">AI</div>
+      Prisma AIRS Demo Portal
+    </a>
+    <a class="back-link" href="poc.html">
+      <i class="fa-solid fa-arrow-left"></i> Back to POC
+    </a>
+  </div>
+
+  <div class="crumb">
+    <a href="../landpage.html">homepage</a>
+    <span>/</span>
+    <a href="poc.html">POC</a>
+    <span>/</span>
+    <span>Red Teaming</span>
+  </div>
+
+  <!-- HERO -->
+  <div class="page-hero">
+    <div class="hero-icon">
+      <img src="./images/icon-rt.png" alt="Red Teaming" />
+    </div>
+    <h1>AI Red Teaming</h1>
+    <p>Structured adversarial testing of AI models, applications, and agents. Detect security vulnerabilities, safety drift, and compliance gaps through automated attack simulations.</p>
+    <div class="detection-grid">
+      <div class="badge"><i class="fa-solid fa-check"></i> Prompt Injection</div>
+      <div class="badge"><i class="fa-solid fa-check"></i> Jailbreaks</div>
+      <div class="badge"><i class="fa-solid fa-check"></i> Safety Drift</div>
+      <div class="badge"><i class="fa-solid fa-check"></i> Brand Risk</div>
+      <div class="badge"><i class="fa-solid fa-check"></i> Compliance Gaps</div>
+      <div class="badge"><i class="fa-solid fa-check"></i> Agentic Exploits</div>
+    </div>
+  </div>
+
+  <!-- SCAN TYPE QUICK LINKS -->
+  <div class="scan-tabs">
+    <a href="#attack-library" class="scan-tab"><i class="fa-solid fa-book"></i> Attack Library Scan</a>
+    <a href="#agent-scan" class="scan-tab"><i class="fa-solid fa-robot"></i> Agent Scan</a>
+    <a href="#custom-prompts" class="scan-tab"><i class="fa-solid fa-pen"></i> Custom Prompt Sets</a>
+    <a href="#drift" class="scan-tab"><i class="fa-solid fa-chart-line"></i> Drift Detection</a>
+  </div>
+
+  <div class="glow-divider"></div>
+
+  <!-- CONTENT -->
+  <div class="content-wrap">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-title">On This Page</div>
+      <nav class="sidebar-nav">
+        <a href="#prerequisites"><i class="fa-solid fa-list-check"></i> Prerequisites</a>
+        <a href="#iam"><i class="fa-solid fa-user-shield"></i> IAM Permissions</a>
+        <a href="#network-broker"><i class="fa-solid fa-network-wired"></i> Network Broker</a>
+        <a href="#service-account"><i class="fa-solid fa-key"></i> Service Account</a>
+        <a href="#targets"><i class="fa-solid fa-crosshairs"></i> Configure Targets</a>
+        <a href="#attack-library"><i class="fa-solid fa-book"></i> Attack Library Scan</a>
+        <a href="#agent-scan"><i class="fa-solid fa-robot"></i> Agent Scan</a>
+        <a href="#custom-prompts"><i class="fa-solid fa-pen"></i> Custom Prompt Sets</a>
+        <a href="#drift"><i class="fa-solid fa-chart-line"></i> Drift Detection</a>
+        <a href="#reports"><i class="fa-solid fa-file-lines"></i> Reports</a>
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main>
+
+      <!-- PREREQUISITES -->
+      <section class="doc-section" id="prerequisites">
+        <div class="section-title"><i class="fa-solid fa-list-check"></i> Prerequisites</div>
+        <div class="scan-cards">
+          <div class="scan-card">
+            <div class="scan-card-icon"><i class="fa-solid fa-id-badge"></i></div>
+            <h3>Active License</h3>
+            <p>Prisma AIRS AI Red Teaming license required</p>
+          </div>
+          <div class="scan-card">
+            <div class="scan-card-icon"><i class="fa-solid fa-user-shield"></i></div>
+            <h3>IAM Permissions</h3>
+            <p>Superuser or Read-only role with Red Teaming access</p>
+          </div>
+          <div class="scan-card">
+            <div class="scan-card-icon"><i class="fa-solid fa-server"></i></div>
+            <h3>Deployment Profile</h3>
+            <p>Active deployment profile configured in SCM</p>
+          </div>
+        </div>
+        <div class="alert alert-warn">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>If a deployment profile exists but IAM permissions for AI Red Teaming are missing, authentication errors will occur. <strong>Both are required.</strong></span>
+        </div>
+      </section>
+
+      <!-- IAM -->
+      <section class="doc-section" id="iam">
+        <div class="section-title"><i class="fa-solid fa-user-shield"></i> Verify IAM Permissions</div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-header"><div class="step-num">1</div><h3>Navigate to Strata Cloud Manager</h3></div>
+            <p>Go to <strong style="color:var(--cyan)">https://console.paloaltonetworks.com/</strong></p>
+            <p style="margin-top:8px; color:#b2d8f0;">Common Services → Identity & Access → Access Management</p>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num">2</div><h3>Confirm Required Role</h3></div>
+            <p>Select your tenant and verify one of the following is assigned:</p>
+            <ul>
+              <li>Superuser (all applications and services)</li>
+              <li>Read-only role with explicit AI Red Teaming access</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- NETWORK BROKER -->
+      <section class="doc-section" id="network-broker">
+        <div class="section-title"><i class="fa-solid fa-network-wired"></i> Network Broker Setup</div>
+        <div class="info-card">
+          <h3><i class="fa-solid fa-globe" style="color:var(--cyan)"></i> Required Network Endpoints</h3>
+          <p>Your environment must allow outbound/bidirectional access to:</p>
+          <ul style="margin-top:10px">
+            <li>api.sase.paloaltonetworks.com</li>
+            <li>auth.apps.paloaltonetworks.com</li>
+            <li>registry.ai-red-teaming.paloaltonetworks.com</li>
+          </ul>
+          <p style="margin-top:10px;">Target domains must be DNS resolvable.</p>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-header"><div class="step-num">1</div><h3>Create Docker Pull Secret</h3></div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-label">kubectl</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+              <pre>kubectl create secret docker-registry airs-pull-secret \
+  --docker-server=registry.ai-red-teaming.paloaltonetworks.com \
+  --docker-username=&lt;USERNAME&gt; \
+  --docker-password=&lt;PASSWORD&gt;</pre>
+            </div>
+            <div class="alert alert-info">
+              <i class="fa-solid fa-circle-info"></i>
+              <span>The Docker pull secret is shared across the entire tenant and only needs to be created once.</span>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num">2</div><h3>Authenticate to Helm Registry</h3></div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-label">helm</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+              <pre>helm registry login registry.ai-red-teaming.paloaltonetworks.com \
+  --username=&lt;USERNAME&gt; \
+  --password=&lt;PASSWORD&gt;</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num">3</div><h3>Install Network Client via Helm</h3></div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-label">helm install</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+              <pre>helm install panw-network-client \
+  oci://registry.ai-red-teaming.paloaltonetworks.com/pairs-redteam-prd-fckx/red-teaming-onprem/charts/panw-network-client:1.0.2 \
+  --set config.clientId=&lt;CLIENT_ID&gt; \
+  --set config.clientSecret=&lt;CLIENT_SECRET&gt; \
+  --set config.channelId=fdec449f-3116-4352-a4b4-fbb421f3aa8a</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SERVICE ACCOUNT -->
+      <section class="doc-section" id="service-account">
+        <div class="section-title"><i class="fa-solid fa-key"></i> Create a Service Account</div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-header"><div class="step-num">1</div><h3>Create the Account</h3></div>
+            <p>In Strata Cloud Manager, create a new service account with a name and description. Assign the <strong style="color:#b2d8f0">Superuser</strong> role.</p>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num">2</div><h3>Save Credentials</h3></div>
+            <p>Copy and securely store:</p>
+            <ul>
+              <li>Client ID</li>
+              <li>Client Secret</li>
+            </ul>
+            <div class="alert alert-warn">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <span>You cannot view the Client Secret again after leaving this screen.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TARGETS -->
+      <section class="doc-section" id="targets">
+        <div class="section-title"><i class="fa-solid fa-crosshairs"></i> Configure Red Teaming Targets</div>
+        <div class="info-card">
+          <h3><i class="fa-solid fa-diagram-project" style="color:var(--red)"></i> Target Types</h3>
+          <ul>
+            <li><strong style="color:#c8e8ff">Model</strong> — A standalone AI model endpoint</li>
+            <li><strong style="color:#c8e8ff">Application</strong> — An AI-powered application (RAG, chatbot)</li>
+            <li><strong style="color:#c8e8ff">Agent</strong> — Autonomous AI that invokes tools, APIs, or external systems</li>
+          </ul>
+          <div class="alert alert-info" style="margin-top:12px">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>Select <strong>Agent</strong> only if the target independently invokes tools or APIs, determines action sequences, or interacts with external systems.</span>
+          </div>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-header"><div class="step-num">1</div><h3>Create a New Target</h3></div>
+            <p>In SCM navigate to <strong style="color:#b2d8f0">AI Security → AI Red Teaming → Targets → + New Target</strong></p>
+            <p style="margin-top:8px; color:rgba(156,163,175,0.7); font-size:0.85rem;">Tip: Use <em>Save for Later</em> at any point — saved targets appear with Draft status.</p>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num">2</div><h3>For OpenAI / HuggingFace Targets</h3></div>
+            <p>Provide:</p>
+            <ul>
+              <li>API Key</li>
+              <li>API Endpoint (e.g. https://api.openai.com/v1/chat/completions)</li>
+              <li>Model Name (e.g. gpt-3.5-turbo)</li>
+            </ul>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num">3</div><h3>For Custom REST API Targets</h3></div>
+            <p>Provide the endpoint URL, request format, and expected response structure. Example:</p>
+            <div class="code-block">
+              <div class="code-header"><span class="code-label">Request Example</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+              <pre>curl "http://your-endpoint/chat" \
+  -H "Content-Type: application/json" \
+  --data '{"message": "{INPUT}"}'</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-label">Expected Response JSON</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+              <pre>{
+  "response": "{RESPONSE}",
+  "security_violation": null
+}</pre>
+            </div>
+            <div class="alert alert-info">
+              <i class="fa-solid fa-circle-info"></i>
+              <span><code>{INPUT}</code> = prompt sent by Red Teaming &nbsp;|&nbsp; <code>{RESPONSE}</code> = target's reply</span>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num">4</div><h3>Configure Target Background</h3></div>
+            <p>Provide context to improve scan accuracy — <strong>mandatory for Applications and Agents</strong>:</p>
+            <ul>
+              <li>Industry</li>
+              <li>Use Case (e.g. customer support, code generation)</li>
+              <li>Optional: Competitors, PDF documentation uploads</li>
+            </ul>
+            <p style="margin-top:8px; color:rgba(156,163,175,0.7); font-size:0.85rem;">Use <em>Agentic Profiling</em> to auto-populate fields via AI-driven endpoint analysis.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ATTACK LIBRARY -->
+      <section class="doc-section" id="attack-library">
+        <div class="section-title"><i class="fa-solid fa-book"></i> Attack Library Scan</div>
+        <p style="color:var(--muted); margin-bottom:16px; font-size:0.92rem;">Run structured attack payloads from a curated library across security, safety, brand, and compliance categories.</p>
+        <div class="steps">
+          <div class="step">
+            <div class="step-header"><div class="step-num">1</div><h3>Start a New Scan</h3></div>
+            <p>Navigate to <strong style="color:#b2d8f0">AI Security → AI Red Teaming → Scans → + New Scan</strong></p>
+            <p style="margin-top:6px;">Enter a Scan Name, select your Target, then select <strong style="color:#b2d8f0">Red Teaming using Attack Library</strong>.</p>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num">2</div><h3>Select Attack Categories</h3></div>
+            <div class="category-grid">
+              <span class="cat-tag cat-security">🔴 Security — Adversarial & Exploits</span>
+              <span class="cat-tag cat-safety">🟠 Safety — Harmful & Toxic Responses</span>
+              <span class="cat-tag cat-brand">🟣 Brand Reputation Risk</span>
+              <span class="cat-tag cat-compliance">🔵 Compliance Frameworks</span>
+            </div>
+            <div class="alert alert-info" style="margin-top:12px">
+              <i class="fa-solid fa-circle-info"></i>
+              <span>Some categories require specific target capabilities — e.g. Indirect Prompt Injection requires file upload support. The UI will prompt if prerequisites are missing.</span>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num">3</div><h3>Start & View Results</h3></div>
+            <p>Click <strong style="color:#b2d8f0">Start Scan</strong>. Scans queued while target profiling is in progress will start automatically when profiling completes.</p>
+            <p style="margin-top:8px;">Navigate to <strong style="color:#b2d8f0">Scans</strong> to review <strong>Status</strong>, <strong>Risk Score</strong>, and click <strong>View Report</strong> for details.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- AGENT SCAN -->
+      <section class="doc-section" id="agent-scan">
+        <div class="section-title"><i class="fa-solid fa-robot"></i> Agent Scan</div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-header"><div class="step-num">1</div><h3>Configure Agent Scan</h3></div>
+            <p>Navigate to <strong style="color:#b2d8f0">AI Security → AI Red Teaming → Scans → + New Scan</strong></p>
+            <p style="margin-top:6px;">Select <strong style="color:#b2d8f0">Red Teaming using Agent</strong> as the scan type, then configure the desired attack goal mode and optional agent parameters.</p>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num">2</div><h3>Start & View Results</h3></div>
+            <p>Click <strong style="color:#b2d8f0">Start Scan</strong> and confirm. Navigate to Scans to view status, risk score, and the detailed report.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CUSTOM PROMPTS -->
+      <section class="doc-section" id="custom-prompts">
+        <div class="section-title"><i class="fa-solid fa-pen"></i> Custom Prompt Sets Scan</div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-header"><div class="step-num">1</div><h3>Create a Prompt Set</h3></div>
+            <p>Navigate to <strong style="color:#b2d8f0">AI Security → AI Red Teaming → Custom Attacks → Add Prompt Set</strong></p>
+            <p style="margin-top:6px;">Add prompts by uploading a CSV file or manually entering them. All prompts undergo automatic validation via proprietary LLMs.</p>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num">2</div><h3>Run the Scan</h3></div>
+            <p>Navigate to <strong style="color:#b2d8f0">Scans → + New Scan</strong>, select <strong style="color:#b2d8f0">Red Teaming using Custom Prompt Sets</strong>, choose one or more enabled prompt sets, then click <strong style="color:#b2d8f0">Start Scan</strong>.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- DRIFT DETECTION -->
+      <section class="doc-section" id="drift">
+        <div class="section-title"><i class="fa-solid fa-chart-line"></i> Security & Safety Drift Detection</div>
+        <div class="info-card">
+          <h3><i class="fa-solid fa-triangle-exclamation" style="color:var(--orange)"></i> What Is Drift?</h3>
+          <p>Over time, models can become more vulnerable to attacks or less compliant with safety policies without active monitoring. Input patterns evolve, new attack vectors emerge, and previously effective guardrails may weaken.</p>
+        </div>
+        <div class="info-card">
+          <h3><i class="fa-solid fa-flask" style="color:var(--red)"></i> Scenario Example</h3>
+          <table class="drift-table">
+            <thead><tr><th>Timeframe</th><th>Observation</th></tr></thead>
+            <tbody>
+              <tr><td>Month 1 (Baseline)</td><td>Model blocks 95% of prompt injection, 98% safety compliance</td></tr>
+              <tr><td>Month 3</td><td>New jailbreak techniques discovered, edge cases not in original testing</td></tr>
+              <tr><td>Result</td><td>Model begins allowing prohibited outputs — drift detected</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="info-card">
+          <h3><i class="fa-solid fa-gauge-high" style="color:var(--cyan)"></i> Measurable Drift Indicators</h3>
+          <ul>
+            <li>Increased success rate of prompt injection attacks</li>
+            <li>Higher bypass rates for content filtering</li>
+            <li>Degraded detection of adversarial inputs</li>
+            <li>Declining compliance with safety policies across protected topics</li>
+            <li>Weakening of refusal behaviors for prohibited requests</li>
+          </ul>
+        </div>
+        <div class="alert alert-danger">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span><strong>Without the tool:</strong> Degradation remains unnoticed until incidents occur. <strong>With the tool:</strong> Drift is detected early through continuous automated testing, enabling corrective action before exploitation.</span>
+        </div>
+      </section>
+
+      <!-- REPORTS -->
+      <section class="doc-section" id="reports">
+        <div class="section-title"><i class="fa-solid fa-file-lines"></i> Scan Reports</div>
+        <div class="info-card">
+          <h3><i class="fa-solid fa-chart-bar" style="color:var(--cyan)"></i> Every Completed Scan Includes</h3>
+          <ul>
+            <li>Risk Score and visual metrics overview</li>
+            <li>All successful attack prompts with compromised responses</li>
+            <li>Attack details by severity and category</li>
+            <li>Prioritized remediation recommendations</li>
+            <li>Runtime security policy configurations</li>
+            <li>Partial scan reports and error logs for in-progress scans</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h3><i class="fa-solid fa-file-pdf" style="color:var(--red)"></i> PDF Report Contents</h3>
+          <ul>
+            <li>AI Summary</li>
+            <li>Risk Overviews and visual metrics</li>
+            <li>Successful attack details</li>
+          </ul>
+          <p style="margin-top:10px; font-size:0.85rem; color:rgba(156,163,175,0.7);">Reports are available for completed scans only.</p>
+        </div>
+
+        <!-- PRE-SCAN CHECKLIST -->
+        <div class="section-title" style="margin-top:32px"><i class="fa-solid fa-circle-check"></i> Pre-Scan Checklist</div>
+        <div class="checklist">
+          <div class="check-item"><i class="fa-solid fa-check"></i> Active Prisma AIRS AI Red Teaming license</div>
+          <div class="check-item"><i class="fa-solid fa-check"></i> Deployment profile configured in SCM</div>
+          <div class="check-item"><i class="fa-solid fa-check"></i> IAM permissions verified (Superuser or Red Teaming role)</div>
+          <div class="check-item"><i class="fa-solid fa-check"></i> Network broker installed and endpoints reachable</div>
+          <div class="check-item"><i class="fa-solid fa-check"></i> Service account created, Client ID & Secret saved</div>
+          <div class="check-item"><i class="fa-solid fa-check"></i> At least one target configured and validated</div>
+          <div class="check-item"><i class="fa-solid fa-check"></i> Target background populated (mandatory for Apps & Agents)</div>
+          <div class="check-item"><i class="fa-solid fa-check"></i> Scan categories selected and scan initiated</div>
+        </div>
+
+        <div class="info-card" style="margin-top:20px">
+          <h3><i class="fa-solid fa-book" style="color:var(--cyan)"></i> Official Documentation</h3>
+          <ul>
+            <li><a href="https://docs.paloaltonetworks.com/ai-runtime-security" target="_blank" style="color:var(--cyan)">AI Runtime Security Docs</a></li>
+            <li><a href="https://console.paloaltonetworks.com/" target="_blank" style="color:var(--cyan)">Strata Cloud Manager</a></li>
+          </ul>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+</body>
+</html>

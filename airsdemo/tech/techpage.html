@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Technology Use Cases</title>
+  <link rel="stylesheet" href="/promode.css">
+  <script src="/promode.js" defer></script>
+  <style>
+    :root {
+      --card: rgba(18, 24, 58, .60);
+      --card2: rgba(18, 24, 58, .42);
+      --text: #EAF0FF;
+      --muted: rgba(234,240,255,.72);
+      --muted2: rgba(234,240,255,.55);
+      --stroke: rgba(140, 170, 255, .25);
+      --stroke2: rgba(140, 170, 255, .45);
+      --btnStroke: rgba(170, 140, 255, .55);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    body {
+      background: #070B1A url('images/background.png') center center / cover no-repeat;
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 40px 48px 40px 0;
+    }
+
+    /* Girl: fixed to left, natural proportions, no stretch */
+    .hero {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      height: 100vh;
+      width: auto;
+      display: block;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Everything on the right side */
+    .right-panel {
+      position: relative;
+      z-index: 1;
+      width: 78%;
+      max-width: 1100px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Headline */
+    .headline {
+      text-align: center;
+    }
+    .headline h2 {
+      font-size: clamp(24px, 2.8vw, 40px);
+      font-weight: 750;
+      letter-spacing: .2px;
+    }
+    .headline p {
+      margin: 8px auto 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    /* Rectangle stage around the cards */
+    .stage {
+      border-radius: calc(var(--radius) + 8px);
+      border: 1px solid rgba(140, 170, 255, .22);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      box-shadow: 0 20px 70px rgba(0,0,0,.55);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      padding: 36px;
+    }
+
+    /* 2x2 grid */
+    .usecases {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 22px;
+    }
+
+    .usecase { min-width: 0; }
+
+    /* Bubble */
+    .bubble {
+      width: 169px;
+      height: 169px;
+      margin: 0 auto 10px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      position: relative;
+      background: radial-gradient(circle at 30% 20%, rgba(140,200,255,.22), rgba(25,35,85,.35) 55%, rgba(10,14,30,.55));
+      border: 1px solid rgba(180,210,255,.22);
+      box-shadow: 0 0 0 6px rgba(90,140,255,.08), 0 0 36px rgba(90,160,255,.25);
+      overflow: hidden;
+    }
+    .bubble::after {
+      content: "";
+      position: absolute; inset: -35%;
+      background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.22), transparent 40%);
+      transform: rotate(18deg);
+      opacity: .6;
+      pointer-events: none;
+    }
+    .bubble img {
+      width: 100%;
+      height: 100%;
+      border-radius: 999px;
+      object-fit: cover;
+      object-position: center;
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: 0 10px 24px rgba(0,0,0,.35);
+    }
+
+    .uc-title {
+      text-align: center;
+      font-weight: 800;
+      font-size: 17px;
+      letter-spacing: .1px;
+      margin: 8px 0 12px;
+    }
+
+    /* Glass card */
+    .card {
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      padding: 18px 18px 16px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 0 0 1px rgba(255,255,255,.03) inset, 0 14px 40px rgba(0,0,0,.35);
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+    .card p {
+      margin: 0 0 10px;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .meta {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      color: var(--muted2);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .meta li { display: flex; gap: 7px; align-items: flex-start; }
+
+    .btn {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 44px;
+      border-radius: 13px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: .1px;
+      background: linear-gradient(180deg, rgba(130,100,255,.26), rgba(120,90,255,.15));
+      border: 1px solid var(--btnStroke);
+      box-shadow: 0 0 0 1px rgba(255,255,255,.04) inset, 0 10px 24px rgba(60,90,255,.15);
+      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+
+    .usecase:hover .card {
+      transform: translateY(-3px);
+      border-color: var(--stroke2);
+      box-shadow: 0 0 0 1px rgba(255,255,255,.05) inset, 0 20px 50px rgba(0,0,0,.45), 0 0 28px rgba(110,170,255,.18);
+    }
+    .usecase:hover .btn {
+      transform: translateY(-1px);
+      border-color: rgba(200,175,255,.75);
+      box-shadow: 0 0 0 1px rgba(255,255,255,.06) inset, 0 14px 32px rgba(60,90,255,.22);
+    }
+
+    /* Dashboard nav button */
+    .nav-top {
+      position: fixed;
+      top: 40px;
+      left: 48px;
+      z-index: 10;
+    }
+    .nav-btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      height: 44px;
+      padding: 0 24px;
+      border-radius: 13px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: .1px;
+      background: linear-gradient(180deg, rgba(130,100,255,.26), rgba(120,90,255,.15));
+      border: 1px solid var(--btnStroke);
+      box-shadow: 0 0 0 1px rgba(255,255,255,.04) inset, 0 10px 24px rgba(60,90,255,.15);
+      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+    .nav-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(200,175,255,.75);
+      box-shadow: 0 0 0 1px rgba(255,255,255,.06) inset, 0 14px 32px rgba(60,90,255,.22);
+    }
+  </style>
+</head>
+<body class="has-agent-left">
+
+  <!-- Girl pinned to left -->
+  <img class="hero agent-image" src="images/agent.png" alt="AI assistant" />
+
+  <!-- Dashboard button -->
+  <div class="nav-top">
+    <a class="nav-btn" href="../landpage.html">Dashboard</a>
+  </div>
+
+  <!-- Right panel: headline + rectangle with cards -->
+  <div class="right-panel">
+
+    <div class="headline">
+      <h2>Technology Use Cases</h2>
+      <p>Explore cutting-edge AI agent security capabilities.</p>
+    </div>
+
+    <div class="stage">
+      <div class="usecases">
+
+        <div class="usecase">
+          <div class="bubble"><img src="images/multiagent.png" alt="" /></div>
+          <div class="uc-title">Multi-Agent Recommendations</div>
+          <div class="card">
+            <p>Experience goal-driven agentic AI in action. Watch a single goal orchestrate multiple MCP server calls through security inspection.</p>
+            <ul class="meta">
+              <li><span>⚡</span><span>Goal-driven autonomous execution</span></li>
+              <li><span>⚡</span><span>Multi-step agent orchestration</span></li>
+              <li><span>⚡</span><span>Real-time MCP call inspection</span></li>
+            </ul>
+            <a class="btn" href="../mcp/multi_agent_chat.html">Open Multi-Agent Demo</a>
+          </div>
+        </div>
+
+        <div class="usecase">
+          <div class="bubble"><img src="images/saasagent.png" alt="" /></div>
+          <div class="uc-title">SaaS Agent Security</div>
+          <div class="card">
+            <p>Deploy, monitor, and manage enterprise agents from a unified SaaS control plane across environments.</p>
+            <ul class="meta">
+              <li><span>⚡</span><span>Agent lifecycle management</span></li>
+              <li><span>⚡</span><span>Policy + tool permissions</span></li>
+              <li><span>⚡</span><span>Audit logs + observability</span></li>
+            </ul>
+            <a class="btn" href="#saas-panel">Open SaaS Agent Panel</a>
+          </div>
+        </div>
+
+        <div class="usecase">
+          <div class="bubble"><img src="images/modelsec.png" alt="" /></div>
+          <div class="uc-title">Model Scanning</div>
+          <div class="card">
+            <p>Comprehensive AI model vulnerability assessment. Scan models for weaknesses, data leaks, bias, and compliance violations.</p>
+            <ul class="meta">
+              <li><span>⚡</span><span>Automated vulnerability scanning</span></li>
+              <li><span>⚡</span><span>Prompt injection detection</span></li>
+              <li><span>⚡</span><span>Data leakage + bias testing</span></li>
+            </ul>
+            <a class="btn" href="../ms-rt/modelscan.html">Open Model Scanner</a>
+          </div>
+        </div>
+
+        <div class="usecase">
+          <div class="bubble"><img src="images/redteam.png" alt="" /></div>
+          <div class="uc-title">Red Team Testing</div>
+          <div class="card">
+            <p>Launch vulnerable apps in a safe environment and perform adversarial testing through a web-based control panel.</p>
+            <ul class="meta">
+              <li><span>⚡</span><span>Adversarial testing environment</span></li>
+              <li><span>⚡</span><span>Web-based control panel</span></li>
+              <li><span>⚡</span><span>Start/stop apps remotely</span></li>
+            </ul>
+            <a class="btn" href="#red-team">Open Red Team Panel</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

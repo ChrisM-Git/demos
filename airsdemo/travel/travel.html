@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U.S. GOV Travel System - AI Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f7fa;
+            color: #1a1a1a;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Security Banner */
+        .security-banner {
+            background: #1a365d;
+            color: #fbd38d;
+            padding: 0.4rem 1rem;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .security-banner.footer {
+            margin-top: auto;
+        }
+
+        /* Header */
+        .dts-header {
+            background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+            border-bottom: 3px solid #2b6cb0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0.75rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dts-header__link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: white;
+        }
+
+        .dts-header__link-icon {
+            width: 48px;
+            height: 48px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23fff" stroke="%232b6cb0" stroke-width="3"/><path d="M30 50 L50 30 L70 50 L50 70 Z" fill="%231a365d"/><circle cx="50" cy="50" r="10" fill="%232b6cb0"/></svg>') center/contain no-repeat;
+        }
+
+        .dts-header__link-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .dts-header__info-panel {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .dts-status-panel {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: white;
+        }
+
+        .status-icon {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #48bb78;
+            box-shadow: 0 0 8px rgba(72, 187, 120, 0.6);
+        }
+
+        .dts-header-login {
+            background: #2b6cb0;
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .dts-header-login:hover {
+            background: #3182ce;
+            transform: translateY(-1px);
+        }
+
+        /* Main Content Area */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        /* Hero Section - Full width with background image */
+        .hero-section {
+            position: relative;
+            width: 100%;
+            min-height: 400px;
+            overflow: hidden;
+        }
+
+        .hero-background {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .hero-background img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .dashboard-banner {
+            position: relative;
+            z-index: 10;
+            background: linear-gradient(135deg, rgba(44, 82, 130, 0.95) 0%, rgba(26, 54, 93, 0.95) 100%);
+            border-radius: 12px;
+            padding: 2.5rem;
+            color: white;
+            text-align: left;
+            box-shadow: 0 4px 30px rgba(26, 54, 93, 0.4);
+            max-width: 480px;
+            margin: 2rem;
+            margin-left: 4rem;
+        }
+
+        .dashboard-banner h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-banner h2 {
+            font-size: 1.15rem;
+            font-weight: 500;
+            opacity: 0.95;
+            margin-bottom: 0.75rem;
+        }
+
+        .dashboard-banner p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .banner-divider {
+            width: 60px;
+            height: 3px;
+            background: #63b3ed;
+            margin: 0.75rem 0;
+            border-radius: 2px;
+        }
+
+        /* How It Works Section */
+        .how-it-works {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .how-it-works h3 {
+            font-size: 1.5rem;
+            color: #1a365d;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .step-card {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            background: #f7fafc;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .step-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .step-card h4 {
+            color: #1a365d;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-card p {
+            color: #4a5568;
+            font-size: 0.85rem;
+        }
+
+        /* News & Resources Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .content-card h3 {
+            color: #1a365d;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .news-list {
+            list-style: none;
+        }
+
+        .news-list li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .news-list li:last-child {
+            border-bottom: none;
+        }
+
+        .news-list i {
+            color: #2b6cb0;
+            margin-top: 0.2rem;
+        }
+
+        .news-list a {
+            color: #2d3748;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .news-list a:hover {
+            color: #2b6cb0;
+        }
+
+        /* Footer */
+        .dts-footer {
+            background: #1a365d;
+            color: white;
+            padding: 1.5rem 2rem;
+            margin-top: 2rem;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            color: #a0aec0;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* ========================================
+           CHAT SYSTEM - Fixed Lower Right
+           ======================================== */
+
+        .chat-system {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            align-items: flex-end;
+            gap: 0;
+        }
+
+        /* Status Side Panel */
+        .status-side-panel {
+            width: 220px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px 0 0 12px;
+            box-shadow: -4px 4px 20px rgba(0, 0, 0, 0.15);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            height: 600px;
+            border-right: none;
+        }
+
+        .status-side-panel.open {
+            display: flex;
+        }
+
+        .status-header {
+            background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+            color: white;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-content {
+            flex: 1;
+            padding: 0.75rem;
+            overflow-y: auto;
+            background: #f7fafc;
+        }
+
+        .status-task {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.6rem;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid #48bb78;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .status-task.processing {
+            border-left-color: #ed8936;
+            background: #fffaf0;
+        }
+
+        .status-task.pending {
+            border-left-color: #a0aec0;
+            background: #f7fafc;
+        }
+
+        .task-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .task-icon.complete {
+            background: #c6f6d5;
+            color: #276749;
+        }
+
+        .task-icon.processing {
+            background: #feebc8;
+            color: #c05621;
+        }
+
+        .task-icon.pending {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .task-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #1a365d;
+        }
+
+        .task-model {
+            font-size: 0.7rem;
+            color: #718096;
+        }
+
+        .tools-section {
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .tools-header {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .tool-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.25rem 0.5rem;
+            background: #ebf8ff;
+            border: 1px solid #90cdf4;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            color: #2b6cb0;
+            margin: 0.2rem;
+        }
+
+        /* Chat Window - BIGGER */
+        .chat-window {
+            width: 500px;
+            height: 600px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 0 12px 12px 0;
+            display: none;
+            flex-direction: column;
+            box-shadow: 4px 4px 20px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .chat-window.open {
+            display: flex;
+        }
+
+        .chat-window.standalone {
+            border-radius: 12px;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+            color: white;
+            padding: 1rem 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chat-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+
+        .chat-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1.25rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background: #f7fafc;
+        }
+
+        .chat-input-area {
+            padding: 1rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 0.5rem;
+            background: white;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.85rem 1rem;
+            color: #2d3748;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .chat-input:focus {
+            border-color: #2b6cb0;
+            box-shadow: 0 0 0 2px rgba(43, 108, 176, 0.2);
+        }
+
+        .chat-send {
+            background: linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%);
+            border: none;
+            color: white;
+            padding: 0.85rem 1.25rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .chat-send:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(43, 108, 176, 0.3);
+        }
+
+        /* Toggle Button - Lower Right */
+        .chat-toggle-btn {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(43, 108, 176, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%);
+            margin-left: 15px;
+            overflow: hidden;
+        }
+
+        .chat-toggle-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 25px rgba(43, 108, 176, 0.5);
+        }
+
+        .chat-toggle-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .chat-toggle-btn i {
+            color: white;
+            font-size: 1.6rem;
+        }
+
+        /* Chat Messages */
+        .message {
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            max-width: 95%;
+            font-size: 0.95rem;
+            animation: fadeInMessage 0.3s ease-out;
+            line-height: 1.7;
+        }
+
+        .message.bot {
+            background: white;
+            color: #2d3748;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            max-width: 85%;
+        }
+
+        /* Bot Message Content - Rich Formatting */
+        .bot-message-content {
+            line-height: 1.7;
+        }
+
+        .bot-message-content h1,
+        .bot-message-content h2,
+        .bot-message-content h3 {
+            color: #1a365d;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .bot-message-content h1 {
+            font-size: 1.25rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.4rem;
+        }
+
+        .bot-message-content h2 {
+            font-size: 1.1rem;
+        }
+
+        .bot-message-content h3 {
+            font-size: 1rem;
+            color: #2b6cb0;
+        }
+
+        .bot-message-content p {
+            margin-bottom: 0.75rem;
+        }
+
+        .bot-message-content ul,
+        .bot-message-content ol {
+            margin: 0.75rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .bot-message-content li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        .bot-message-content strong {
+            color: #1a365d;
+            font-weight: 600;
+        }
+
+        .bot-message-content em {
+            color: #4a5568;
+        }
+
+        .bot-message-content hr {
+            border: none;
+            border-top: 1px solid #e2e8f0;
+            margin: 1rem 0;
+        }
+
+        .bot-message-content .highlight {
+            background: #ebf8ff;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border-left: 3px solid #2b6cb0;
+            margin: 0.75rem 0;
+        }
+
+        .bot-message-content .price {
+            color: #276749;
+            font-weight: 600;
+        }
+
+        .bot-message-content .tip {
+            background: #faf5ff;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border-left: 3px solid #805ad5;
+            margin: 0.75rem 0;
+            font-size: 0.9rem;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 1rem 1.25rem;
+            background: white;
+            border-radius: 12px;
+            max-width: 200px;
+            align-self: flex-start;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 5px;
+        }
+
+        .typing-dots span {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #2b6cb0;
+            animation: typingAnimation 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .typing-text {
+            font-size: 0.9rem;
+            color: #718096;
+            font-style: italic;
+        }
+
+        /* Quick Suggestions */
+        .quick-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .suggestion-btn {
+            background: #ebf8ff;
+            border: 1px solid #90cdf4;
+            color: #2b6cb0;
+            padding: 0.5rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-btn:hover {
+            background: #2b6cb0;
+            color: white;
+            border-color: #2b6cb0;
+        }
+
+        /* Animations */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInMessage {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% {
+                opacity: 0.3;
+                transform: scale(0.8);
+            }
+            30% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1100px) {
+            .status-side-panel {
+                display: none !important;
+            }
+
+            .chat-window {
+                border-radius: 12px;
+                width: 420px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-banner {
+                margin: 1rem;
+                margin-left: 1rem;
+                max-width: calc(100% - 2rem);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .chat-system {
+                right: 10px;
+                bottom: 10px;
+            }
+
+            .chat-window {
+                width: calc(100vw - 90px);
+                max-width: 380px;
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Security Banner -->
+    <div class="security-banner">
+        This System Contains CUI//PRVCY
+    </div>
+
+    <!-- Header -->
+    <header class="dts-header">
+        <div class="header-container">
+            <a href="#" class="dts-header__link">
+                <span><img src="libertyhdr.png" height="124" width="124"/></span>
+                <span class="dts-header__link-text">U.S. GOV Travel System</span>
+            </a>
+
+            <div class="dts-header__info-panel">
+                <div class="dts-status-panel">
+                    <span class="status-icon"></span>
+                    <span>System Status: <strong>Operational</strong></span>
+                </div>
+                <a href="#" class="dts-header-login">
+                    <i class="fas fa-sign-in-alt"></i> Log In
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section with Background Image -->
+    <section class="hero-section">
+        <!-- Background Image - Full Width -->
+        <div class="hero-background">
+            <img src="header.png" alt="Travel Background">
+        </div>
+
+        <!-- Blue Text Box - On Top of Image -->
+        <div class="dashboard-banner">
+            <h1>U.S. GOV Travel System</h1>
+            <div class="banner-divider"></div>
+            <h2>Your Travel Management Hub for Government Trips</h2>
+            <p>Government employees and personnel can book official travel and manage travel expenses. Now enhanced with AI-powered assistance.</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="main-container">
+
+        <!-- How It Works -->
+        <section class="how-it-works">
+            <h3>How It Works</h3>
+            <div class="steps-container">
+                <div class="step-card">
+                    <div class="step-icon">
+                        <i class="fas fa-plane"></i>
+                    </div>
+                    <h4>Book Your Travel</h4>
+                    <p>Make reservations, estimate expenses, and request advanced payments</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h4>Receive Approvals</h4>
+                    <p>Get approval for your travel plans and expenses before you travel</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <h4>Keep Records</h4>
+                    <p>Update travel plans and expenses during your trip</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-icon">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <h4>Input Expenses</h4>
+                    <p>Attach receipts and records when you return</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <h4>Get Reimbursed</h4>
+                    <p>Receive payment to your bank account or GTCC</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- News & Resources -->
+        <div class="content-grid">
+            <div class="content-card">
+                <h3><i class="fas fa-newspaper"></i> Government Travel News</h3>
+                <ul class="news-list">
+                    <li>
+                        <i class="fas fa-chevron-right"></i>
+                        <a href="#">Impact of the Potential Government Shutdown on Official Travel</a>
+                    </li>
+                    <li>
+                        <i class="fas fa-chevron-right"></i>
+                        <a href="#">DoD Lifts Civilian Travel Limitations</a>
+                    </li>
+                    <li>
+                        <i class="fas fa-chevron-right"></i>
+                        <a href="#">Travel System Update Aims to Reduce Unauthorized Expenses</a>
+                    </li>
+                    <li>
+                        <i class="fas fa-chevron-right"></i>
+                        <a href="#">Rental Cars & Traffic Violations: Traveler Responsibilities</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="content-card">
+                <h3><i class="fas fa-link"></i> Travel Resources</h3>
+                <ul class="news-list">
+                    <li>
+                        <i class="fas fa-graduation-cap"></i>
+                        <a href="#">Travel System Training</a>
+                    </li>
+                    <li>
+                        <i class="fas fa-comments"></i>
+                        <a href="#">Live Chat Support (Mon-Fri 8am-6pm ET)</a>
+                    </li>
+                    <li>
+                        <i class="fas fa-id-card"></i>
+                        <a href="#">TSA PreCheck Program</a>
+                    </li>
+                    <li>
+                        <i class="fas fa-book"></i>
+                        <a href="#">Joint Travel Regulations</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="dts-footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <i class="fas fa-shield-alt"></i>
+                <span>U.S. GOV Travel System</span>
+            </div>
+            <div class="footer-links">
+                <a href="#">About</a>
+                <a href="#">Browser Support</a>
+                <a href="#">Accessibility</a>
+                <a href="#">Privacy Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bottom Security Banner -->
+    <div class="security-banner footer">
+        This System Contains CUI//PRVCY
+    </div>
+
+    <!-- ========================================
+         CHAT SYSTEM - Fixed Lower Right
+         ======================================== -->
+    <div class="chat-system">
+        <!-- Status Side Panel (Left of Chat) -->
+        <div class="status-side-panel" id="status-panel">
+            <div class="status-header">
+                <i class="fas fa-network-wired"></i>
+                AI Gateway Status
+            </div>
+            <div class="status-content">
+                <div class="status-task" id="task-orchestrator">
+                    <div class="task-icon complete">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="task-details">
+                        <div class="task-name">🎯 Orchestrator</div>
+                        <div class="task-model">GPT-4o - Ready</div>
+                    </div>
+                </div>
+                <div class="status-task" id="task-researcher">
+                    <div class="task-icon complete">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="task-details">
+                        <div class="task-name">🔬 Researcher</div>
+                        <div class="task-model">Claude Sonnet 4.5 - Ready</div>
+                    </div>
+                </div>
+                <div class="status-task" id="task-calculator">
+                    <div class="task-icon complete">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="task-details">
+                        <div class="task-name">🔢 Calculator</div>
+                        <div class="task-model">GPT-4o-mini - Ready</div>
+                    </div>
+                </div>
+
+                <!-- Tools Called Section -->
+                <div class="tools-section" id="tools-section" style="display: none;">
+                    <div class="tools-header">
+                        <i class="fas fa-wrench"></i> Tools Called
+                    </div>
+                    <div id="tools-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Window -->
+        <div class="chat-window" id="chat-window">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <i class="fas fa-plane"></i> U.S. GOV Travel Assistant
+                </div>
+                <button class="chat-close" onclick="toggleChat()">×</button>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot">
+                    <div class="bot-message-content">
+                        <h3>Welcome to U.S. GOV Travel Assistant!</h3>
+                        <p>I'm powered by the <strong>LiteLLM Multi-Model Gateway</strong> with multiple AI models working together:</p>
+                        <ul>
+                            <li><strong>GPT-4o</strong> (OpenAI) – Orchestrates search and tool calling</li>
+                            <li><strong>Claude Sonnet 4.5</strong> (Anthropic) – Creates detailed itineraries</li>
+                            <li><strong>GPT-4o-mini</strong> (OpenAI) – Handles budget calculations</li>
+                        </ul>
+                        <p>All requests are protected by <strong>Palo Alto Networks Prisma AI Security</strong> for your safety.</p>
+                        <p>I can help you plan official government travel, find per diem rates, and create detailed trip itineraries.</p>
+                        <div class="quick-suggestions">
+                            <button class="suggestion-btn" onclick="sendSuggestion('Plan a 5-day TDY trip to Tokyo from San Francisco in March')">TDY to Tokyo</button>
+                            <button class="suggestion-btn" onclick="sendSuggestion('What are the per diem rates for Washington DC?')">DC Per Diem</button>
+                            <button class="suggestion-btn" onclick="sendSuggestion('Plan a weekend trip to Paris for two')">Paris Weekend</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="chat-input"
+                       placeholder="Ask about travel plans, per diem, itineraries..."
+                       onkeypress="handleKeypress(event)">
+                <button class="chat-send" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Toggle Button (Avatar) - Always Visible -->
+        <button class="chat-toggle-btn" id="chat-toggle" onclick="toggleChat()">
+            <img src="libertyagent.png" alt="Chat"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <i class="fas fa-comments" style="display: none;"></i>
+        </button>
+    </div>
+
+    <script>
+        // Use relative URL to work with nginx proxy
+        const API_BASE = '/travel';
+        let chatOpen = false;
+        let typingIndicatorElement = null;
+        let conversationHistory = [];
+
+        function toggleChat() {
+            const chatWindow = document.getElementById('chat-window');
+            const statusPanel = document.getElementById('status-panel');
+
+            chatOpen = !chatOpen;
+
+            if (chatOpen) {
+                chatWindow.classList.add('open');
+                statusPanel.classList.add('open');
+            } else {
+                chatWindow.classList.remove('open');
+                statusPanel.classList.remove('open');
+            }
+        }
+
+        function updateTaskStatus(taskId, status, statusText) {
+            const task = document.getElementById(`task-${taskId}`);
+            if (!task) return;
+
+            const icon = task.querySelector('.task-icon');
+            const model = task.querySelector('.task-model');
+
+            task.className = `status-task ${status}`;
+            icon.className = `task-icon ${status}`;
+
+            if (status === 'processing') {
+                icon.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            } else if (status === 'complete') {
+                icon.innerHTML = '<i class="fas fa-check"></i>';
+            } else {
+                icon.innerHTML = '<i class="fas fa-clock"></i>';
+            }
+
+            if (statusText) {
+                model.textContent = statusText;
+            }
+        }
+
+        function showToolsCalled(tools) {
+            const section = document.getElementById('tools-section');
+            const list = document.getElementById('tools-list');
+
+            if (tools && tools.length > 0) {
+                section.style.display = 'block';
+                list.innerHTML = tools.map(tool =>
+                    `<span class="tool-badge"><i class="fas fa-cog"></i> ${tool.name || tool}</span>`
+                ).join('');
+            }
+        }
+
+        function clearToolsCalled() {
+            const section = document.getElementById('tools-section');
+            section.style.display = 'none';
+        }
+
+        function sendSuggestion(text) {
+            document.getElementById('chat-input').value = text;
+            sendMessage();
+        }
+
+        function handleKeypress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            addMessage(message, 'user');
+            input.value = '';
+            clearToolsCalled();
+
+            // Update gateway status - processing
+            updateTaskStatus('orchestrator', 'processing', 'GPT-4o - Planning...');
+            updateTaskStatus('researcher', 'pending', 'Claude Sonnet 4.5 - Waiting');
+            updateTaskStatus('calculator', 'pending', 'GPT-4o-mini - Waiting');
+
+            showTypingIndicator();
+
+            try {
+                const response = await fetch(`${API_BASE}/api/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        history: conversationHistory
+                    })
+                });
+
+                const data = await response.json();
+                console.log('API Response:', data);
+
+                // Update statuses based on models used
+                if (data.models_used) {
+                    data.models_used.forEach((model, index) => {
+                        setTimeout(() => {
+                            if (model.name === 'Orchestrator') {
+                                updateTaskStatus('orchestrator', 'complete', 'GPT-4o - Done');
+                                updateTaskStatus('researcher', 'processing', 'Claude Sonnet 4.5 - Researching...');
+                            } else if (model.name === 'Researcher') {
+                                updateTaskStatus('researcher', 'complete', 'Claude Sonnet 4.5 - Done');
+                                updateTaskStatus('calculator', 'processing', 'GPT-4o-mini - Calculating...');
+                            } else if (model.name === 'Calculator') {
+                                updateTaskStatus('calculator', 'complete', 'GPT-4o-mini - Done');
+                            }
+                        }, index * 500);
+                    });
+                }
+
+                // Show tools called
+                if (data.tools_called) {
+                    showToolsCalled(data.tools_called);
+                }
+
+                hideTypingIndicator();
+
+                if (data.success) {
+                    if (data.response) {
+                        addMessage(data.response, 'bot');
+
+                        // Update conversation history
+                        conversationHistory.push({ role: 'user', content: message });
+                        conversationHistory.push({ role: 'assistant', content: data.response });
+                    } else {
+                        console.error('Empty response received');
+                        addMessage('I received an empty response. Please try again.', 'bot');
+                    }
+                } else {
+                    console.error('API Error - success:', data.success, 'response:', data.response, 'error:', data.error);
+
+                    // Format professional error message for government users
+                    const errorMsg = formatErrorMessage(data.error);
+                    addMessage(errorMsg, 'bot');
+                }
+
+                // Reset statuses after delay
+                setTimeout(() => {
+                    updateTaskStatus('orchestrator', 'complete', 'GPT-4o - Ready');
+                    updateTaskStatus('researcher', 'complete', 'Claude Sonnet 4.5 - Ready');
+                    updateTaskStatus('calculator', 'complete', 'GPT-4o-mini - Ready');
+                }, 2000);
+
+            } catch (error) {
+                console.error('API Error:', error);
+                hideTypingIndicator();
+
+                // Fallback to local response
+                const fallbackResponse = generateLocalResponse(message);
+                addMessage(fallbackResponse, 'bot');
+
+                updateTaskStatus('orchestrator', 'complete', 'GPT-4o - Ready');
+                updateTaskStatus('researcher', 'complete', 'Claude Sonnet 4.5 - Ready');
+                updateTaskStatus('calculator', 'complete', 'GPT-4o-mini - Ready');
+            }
+        }
+
+        function formatErrorMessage(error) {
+            // Handle PANW Prisma AIRS security violations with professional formatting
+            const errorStr = typeof error === 'string' ? error : JSON.stringify(error);
+
+            // Check for PANW security blocking
+            if (errorStr.includes('panw_prisma_airs_blocked') || errorStr.includes('guardrail_violation')) {
+                try {
+                    // Extract category if available
+                    let category = 'security policy';
+                    if (errorStr.includes('malicious')) category = 'malicious content';
+                    else if (errorStr.includes('toxic')) category = 'toxic content';
+                    else if (errorStr.includes('injection')) category = 'prompt injection';
+                    else if (errorStr.includes('dlp')) category = 'data loss prevention';
+
+                    return `## 🛡️ Security Alert
+
+**Your request was blocked by AI Security**
+
+The Palo Alto Networks Prisma AI Security system has identified your request as potentially containing ${category}.
+
+**For U.S. Government Employees:**
+- All requests are scanned for security threats
+- This system complies with federal information security requirements
+- If you believe this was blocked in error, contact your system administrator
+
+**What you can do:**
+- Rephrase your request using appropriate language
+- Ensure your request is related to official government travel
+- Avoid requesting sensitive or classified information through this system
+
+If you need assistance, please contact the travel office help desk.`;
+                } catch (e) {
+                    // Fallback if parsing fails
+                    return `## 🛡️ Security Alert
+
+**Request Blocked by AI Security**
+
+Your request was blocked by Palo Alto Networks Prisma AI Security for policy violation.
+
+Please rephrase your request and ensure it relates to official government travel planning.`;
+                }
+            }
+
+            // Generic error handling for other errors
+            return `## ⚠️ System Error
+
+We encountered an issue processing your request.
+
+**Suggested actions:**
+- Try rephrasing your question
+- Check your network connection
+- Contact system support if the problem persists
+
+Error details have been logged for administrator review.`;
+        }
+
+        function addMessage(content, sender) {
+            const container = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+
+            if (sender === 'bot') {
+                const formattedContent = formatBotResponse(content);
+                messageDiv.innerHTML = `<div class="bot-message-content">${formattedContent}</div>`;
+            } else {
+                messageDiv.textContent = content;
+            }
+
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function formatBotResponse(text) {
+            // Convert markdown-style formatting to HTML
+            let html = text;
+
+            // Escape HTML but preserve our formatting
+            html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+            // Headers
+            html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+            html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+            html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+            // Bold
+            html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+            // Italic
+            html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+            // Bullet points (-, *, •)
+            html = html.replace(/^[\-\*•]\s+(.+)$/gm, '<li>$1</li>');
+
+            // Wrap consecutive li elements in ul
+            html = html.replace(/(<li>.*<\/li>\n?)+/g, function(match) {
+                return '<ul>' + match + '</ul>';
+            });
+
+            // Numbered lists
+            html = html.replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>');
+
+            // Price highlighting
+            html = html.replace(/\$(\d+(?:,\d{3})*(?:\.\d{2})?)/g, '<span class="price">$$$1</span>');
+
+            // Horizontal rules
+            html = html.replace(/^---+$/gm, '<hr>');
+
+            // Convert newlines to line breaks, but not inside tags
+            html = html.replace(/\n\n/g, '</p><p>');
+            html = html.replace(/\n/g, '<br>');
+
+            // Wrap in paragraph if not already wrapped
+            if (!html.startsWith('<')) {
+                html = '<p>' + html + '</p>';
+            }
+
+            // Clean up empty paragraphs
+            html = html.replace(/<p>\s*<\/p>/g, '');
+            html = html.replace(/<p>(<h[123]>)/g, '$1');
+            html = html.replace(/(<\/h[123]>)<\/p>/g, '$1');
+            html = html.replace(/<p>(<ul>)/g, '$1');
+            html = html.replace(/(<\/ul>)<\/p>/g, '$1');
+
+            return html;
+        }
+
+        function showTypingIndicator() {
+            const container = document.getElementById('chat-messages');
+
+            typingIndicatorElement = document.createElement('div');
+            typingIndicatorElement.className = 'typing-indicator';
+            typingIndicatorElement.innerHTML = `
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <span class="typing-text">Thinking...</span>
+            `;
+
+            container.appendChild(typingIndicatorElement);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            if (typingIndicatorElement) {
+                typingIndicatorElement.remove();
+                typingIndicatorElement = null;
+            }
+        }
+
+        function generateLocalResponse(message) {
+            const lower = message.toLowerCase();
+
+            if (lower.includes('per diem') || lower.includes('rates')) {
+                return `## Per Diem Information
+
+**Washington DC Area (FY2025):**
+
+- **Lodging:** $258/night
+- **M&IE (Meals & Incidental Expenses):** $79/day
+- **First/Last Day Rate:** $59.25
+
+---
+
+### Tips:
+- Always check current rates on the GSA website
+- Rates vary by location and season
+- Government lodging may be required when available
+
+Would you like me to look up per diem rates for a specific city?`;
+            } else if (lower.includes('tokyo') || lower.includes('japan')) {
+                return `## 5-Day Tokyo TDY Trip Plan
+
+### ✈️ Recommended Flights
+| Airline | Flight | Departure | Price |
+|---------|--------|-----------|-------|
+| **ANA** | NH106 | 10:30 AM | $850 |
+| JAL | JL1 | 1:15 PM | $780 |
+| United | UA837 | 9:00 AM | $650 |
+
+### 🏨 Recommended Hotels
+- **Shibuya Excel Hotel Tokyu** - $180/night ⭐ 4.4
+- **The Gate Hotel Asakusa** - $220/night ⭐ 4.6
+
+---
+
+### 📅 Day-by-Day Itinerary
+
+**Day 1: Arrival & Shinjuku**
+- Arrive at Narita/Haneda Airport
+- Transfer to hotel (recommend Limousine Bus)
+- Evening: Explore Shinjuku area
+
+**Day 2: Traditional Tokyo**
+- Morning: Senso-ji Temple in Asakusa
+- Afternoon: Imperial Palace East Gardens
+- Evening: Akihabara electronics district
+
+**Day 3: Modern Tokyo**
+- Morning: TeamLab Digital Art Museum
+- Afternoon: Shibuya Crossing & Harajuku
+- Evening: Roppongi for dining
+
+**Day 4: Day Trip Options**
+- Mount Fuji day tour, or
+- Nikko temples, or
+- Kamakura temples
+
+**Day 5: Departure**
+- Morning: Last-minute shopping at Ginza
+- Depart for airport
+
+---
+
+### 💰 Budget Summary
+- **Flights:** $780 (JAL recommended)
+- **Hotel (4 nights):** $720
+- **Daily Expenses:** $320 (food/transport)
+- **Activities:** ~$200
+
+**Estimated Total: $2,020**
+
+Would you like me to refine any part of this itinerary?`;
+            } else if (lower.includes('paris')) {
+                return `## Romantic Paris Weekend
+
+### ✈️ Flight Options
+- **Air France** direct from major US hubs
+- Weekend fares typically $600-900 round-trip
+
+### 🏨 Recommended Hotels
+- **Le Marais District** - Charming, central location
+- **Saint-Germain-des-Prés** - Classic Parisian atmosphere
+
+---
+
+### 📅 Suggested Itinerary
+
+**Day 1: Arrival & Left Bank**
+- Check into hotel
+- Afternoon: Musée d'Orsay
+- Evening: Seine river cruise at sunset
+- Dinner: Saint-Germain-des-Prés area
+
+**Day 2: Icons & Romance**
+- Morning: Eiffel Tower (book timed entry!)
+- Lunch: Café near Champ de Mars
+- Afternoon: Louvre Museum highlights
+- Evening: Montmartre & Sacré-Cœur
+- Dinner: Le Marais district
+
+**Day 3: Departure**
+- Morning: Croissants at local patisserie
+- Optional: Palace of Versailles half-day
+- Depart for airport
+
+---
+
+### 💡 Tips
+- Book restaurant reservations in advance
+- Metro is the best way to get around
+- Many museums free first Sunday of month
+
+Would you like more specific recommendations?`;
+            }
+
+            return `## How Can I Help?
+
+I can assist you with:
+
+- **Trip Planning** - Travel authorizations and detailed itineraries
+- **Per Diem Rates** - Current lodging and M&IE allowances
+- **Flight & Hotel Search** - Finding the best options
+- **Budget Calculations** - Estimated trip costs
+- **System Navigation** - Travel system help
+
+---
+
+### Try asking:
+- "Plan a 5-day trip to Tokyo"
+- "What are the per diem rates for DC?"
+- "Plan a weekend getaway to Paris"
+
+What destination are you interested in?`;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✈️ U.S. GOV Travel Assistant - Ready');
+        });
+    </script>
+</body>
+</html>

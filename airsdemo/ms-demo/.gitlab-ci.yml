@@ -1,0 +1,57 @@
+include:
+  - project: 'airs/demo-env/ci-library'
+    ref: 'main'
+    file: '/templates/gcp-build-and-deploy.yml'
+
+# variables:
+#   Check https://code.pan.run/airs/demo-env/ci-library/-/blob/main/README.md?ref_type=heads
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+stages:
+  - build
+  - deploy
+  - cleanup
+
+build:
+  extends: .build
+  stage: build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+deploy:production:
+  extends: .gke-deploy-with-mr
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+#  variables:
+#   Check https://code.pan.run/airs/demo-env/ci-library/-/blob/main/README.md?ref_type=heads
+  environment:
+    name: production
+    action: start
+
+deploy:mr-preview:
+  extends: .gke-deploy-with-mr
+  stage: deploy
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+#  variables:
+#   Check https://code.pan.run/airs/demo-env/ci-library/-/blob/main/README.md?ref_type=heads
+  environment:
+    name: mr-${CI_MERGE_REQUEST_IID}
+    action: start
+    on_stop: cleanup
+
+cleanup:
+  extends: .gke-cleanup-mr
+  stage: cleanup
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: manual
+  environment:
+    name: mr-${CI_MERGE_REQUEST_IID}
+    action: stop

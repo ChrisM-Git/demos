@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VERO Recommendation Engine - Prisma AIRS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1a0f08;
+            --accent: #d4a373;
+            --accent-dark: #c49466;
+            --accent-light: rgba(212, 163, 115, 0.12);
+            --charcoal: #f0e6da;
+            --soft-black: #1e1209;
+            --cream: rgba(30, 18, 9, 0.6);
+            --warm-gray: #a89480;
+            --light-gray: rgba(212, 163, 115, 0.2);
+            --sand: rgba(212, 163, 115, 0.3);
+            --white: rgba(20, 12, 6, 0.75);
+            --good: #6db87e;
+            --good-bg: rgba(109, 184, 126, 0.1);
+            --good-border: rgba(109, 184, 126, 0.3);
+            --bad: #d45a4a;
+            --bad-bg: rgba(212, 90, 74, 0.1);
+            --bad-border: rgba(212, 90, 74, 0.3);
+            --radius: 12px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.3);
+            --shadow-hover: 0 8px 32px rgba(0,0,0,0.45);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--charcoal);
+            min-height: 100vh;
+            background: #0d0805 url('images/mcp-bg.png') no-repeat center center fixed;
+            background-size: cover;
+            overflow-x: hidden;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: rgba(13, 8, 5, 0.9);
+            color: white;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 2rem;
+        }
+        .top-bar-left { display: flex; align-items: center; gap: 1.25rem; }
+        .top-bar-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem; font-weight: 600;
+            letter-spacing: 4px; color: white; text-decoration: none;
+        }
+        .top-bar-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.2); }
+        .top-bar-subtitle {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.7rem; letter-spacing: 1.5px;
+            text-transform: uppercase; color: rgba(255,255,255,0.7);
+        }
+        .top-bar-right { display: flex; align-items: center; gap: 0.5rem; }
+        .airs-badge {
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.35rem 0.85rem;
+            background: rgba(212, 163, 115, 0.15);
+            border: 1px solid rgba(212, 163, 115, 0.3);
+            border-radius: 20px; font-size: 0.7rem;
+            font-weight: 600; color: var(--accent); letter-spacing: 0.5px;
+        }
+        .airs-badge-dot {
+            width: 6px; height: 6px; background: var(--accent);
+            border-radius: 50%; animation: pulseDot 2s ease-in-out infinite;
+        }
+        @keyframes pulseDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.35rem 0.85rem;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 6px; color: rgba(255,255,255,0.8);
+            text-decoration: none; font-size: 0.7rem;
+            font-weight: 500; letter-spacing: 0.5px;
+            transition: all 0.2s ease; margin-right: 0.75rem;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.15); color: white; }
+
+        /* Main Container */
+        .demo-container { max-width: 1400px; margin: 0 auto; padding: 80px 1.5rem 3rem; }
+
+        .page-header { text-align: center; padding: 2rem 0 1.5rem; }
+        .page-header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5rem; font-weight: 400;
+            color: #f0e6da; letter-spacing: 3px; margin-bottom: 0.5rem;
+        }
+        .page-header p { font-size: 0.875rem; color: #a89480; letter-spacing: 1px; }
+
+        /* Grid Layout */
+        .demo-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr 320px;
+            gap: 1.25rem;
+        }
+
+        .panel {
+            background: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: box-shadow 0.3s ease;
+        }
+        .panel:hover { box-shadow: var(--shadow-hover); }
+
+        .goal-section { grid-column: 1 / 3; }
+
+        .section-title {
+            display: flex; align-items: center; gap: 0.6rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600; font-size: 0.75rem;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            color: #f0e6da; margin-bottom: 1.25rem;
+        }
+        .section-title i { color: var(--accent); font-size: 0.9rem; }
+
+        .input-label {
+            display: block; font-family: 'Montserrat', sans-serif;
+            font-size: 0.688rem; letter-spacing: 1.5px;
+            text-transform: uppercase; color: var(--accent-dark);
+            margin-bottom: 0.5rem; font-weight: 600;
+        }
+        .input-group { margin-bottom: 1rem; }
+
+        .goal-input, .input-field {
+            width: 100%; background: rgba(15, 9, 4, 0.7);
+            color: #e8d4b8; border: 1px solid rgba(212, 163, 115, 0.2);
+            outline: none; border-radius: 8px;
+            padding: 0.75rem 1rem; font-size: 0.875rem;
+            font-family: 'DM Sans', sans-serif;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .goal-input::placeholder, .input-field::placeholder { color: rgba(212, 163, 115, 0.4); }
+        .goal-input:focus, .input-field:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212, 163, 115, 0.12);
+        }
+
+        .customer-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+        .customer-selector { margin-bottom: 1rem; }
+        .customer-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+        .customer-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.5rem 1rem; background: rgba(20, 12, 6, 0.6);
+            border: 1px solid rgba(212, 163, 115, 0.25); border-radius: 24px;
+            color: #e8d4b8; cursor: pointer;
+            transition: all 0.2s ease; font-size: 0.8rem;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .customer-btn:hover { border-color: var(--accent); background: var(--accent-light); }
+        .customer-btn.active { border-color: var(--accent); background: var(--accent); color: white; }
+        .customer-tier {
+            font-size: 0.65rem; font-weight: 600; letter-spacing: 0.5px;
+            text-transform: uppercase; padding: 0.15rem 0.5rem;
+            border-radius: 10px; background: rgba(212, 163, 115, 0.15);
+            color: var(--accent-dark);
+        }
+        .customer-btn.active .customer-tier { background: rgba(255,255,255,0.25); color: white; }
+
+        .execute-btn {
+            display: inline-flex; align-items: center; gap: 0.6rem;
+            border: 1px solid rgba(212, 163, 115, 0.3); cursor: pointer; padding: 0.85rem 2rem;
+            border-radius: 4px; font-family: 'Montserrat', sans-serif;
+            font-weight: 600; font-size: 0.75rem; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--accent);
+            background: rgba(212, 163, 115, 0.08); transition: all 0.3s ease;
+        }
+        .execute-btn:hover {
+            background: var(--accent); color: white; transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(212, 163, 115, 0.3);
+        }
+        .execute-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .examples { margin-top: 1rem; }
+        .examples-label {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.688rem; letter-spacing: 1.5px;
+            text-transform: uppercase; color: var(--accent);
+            margin-bottom: 0.5rem; font-weight: 500;
+        }
+        .example-goals { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+        .example-goal {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.5rem 1rem; background: rgba(20, 12, 6, 0.6);
+            border: 1px solid rgba(212, 163, 115, 0.25); border-radius: 24px;
+            color: #e8d4b8; cursor: pointer;
+            transition: all 0.2s ease; font-size: 0.8rem;
+        }
+        .example-goal:hover {
+            border-color: var(--accent); background: var(--accent-light);
+            transform: translateY(-1px);
+        }
+
+        /* ============================
+           MCP FLOW DIAGRAM - LEFT TO RIGHT
+           ============================ */
+        .mcp-flow-section { grid-column: 1 / 3; }
+
+
+        .command-log-panel .section-title {
+            color: var(--accent);
+        }
+        .command-log-panel .section-title i {
+            color: var(--accent);
+        }
+
+        .cmd-entry {
+            margin-bottom: 0.6rem;
+            padding-bottom: 0.6rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            animation: cmdFadeIn 0.3s ease-out;
+        }
+        .cmd-entry:last-child { border-bottom: none; }
+        @keyframes cmdFadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+
+        .cmd-step-label {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.3rem;
+        }
+        .cmd-line {
+            font-family: 'DM Sans', monospace;
+            font-size: 0.72rem;
+            line-height: 1.5;
+            padding: 0.15rem 0;
+        }
+        .cmd-line.mcp-call {
+            color: #e8d4b8;
+        }
+        .cmd-line.mcp-call::before {
+            content: ">";
+            color: var(--accent);
+            margin-right: 0.4rem;
+            font-weight: 700;
+        }
+        .cmd-line.db-query {
+            color: #a0c4ff;
+        }
+        .cmd-line.db-query::before {
+            content: "DB";
+            color: #6ea8fe;
+            margin-right: 0.4rem;
+            font-weight: 700;
+            font-size: 0.6rem;
+        }
+        .cmd-line.response-line {
+            color: #8fd19e;
+        }
+        .cmd-line.response-line::before {
+            content: "<";
+            color: var(--good);
+            margin-right: 0.4rem;
+            font-weight: 700;
+        }
+        .cmd-line.airs-line {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .cmd-line.airs-line::before {
+            content: "";
+            margin-right: 0.4rem;
+        }
+        .cmd-line.blocked-line {
+            color: #e07a6e;
+            font-weight: 600;
+        }
+        .cmd-line.blocked-line::before {
+            content: "";
+            margin-right: 0.4rem;
+        }
+        .cmd-empty {
+            color: rgba(232, 212, 184, 0.3);
+            font-size: 0.75rem;
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .mcp-flow-container {
+            position: relative;
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            padding: 2rem 1rem;
+            min-height: 440px;
+        }
+
+        /* Left Column: Agent/Host */
+        .flow-col-agent {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 160px;
+            z-index: 2;
+        }
+
+        .mcp-host {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 2rem 1.5rem;
+            background: rgba(15, 9, 4, 0.9);
+            color: #f0e6da;
+            border-radius: 12px;
+            border: 2px solid var(--accent);
+            box-shadow: 0 4px 20px rgba(212, 163, 115, 0.2);
+            min-width: 150px;
+        }
+        .mcp-host-icon { font-size: 2rem; color: var(--accent); }
+        .mcp-host-label {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem; font-weight: 600;
+            letter-spacing: 1.5px; text-transform: uppercase;
+        }
+        .mcp-host-sub { font-size: 0.7rem; color: rgba(255,255,255,0.6); letter-spacing: 0.5px; }
+
+        /* Middle Column: Connection Lines + MCP Servers */
+        .flow-col-servers {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+
+        .flow-connections-left {
+            flex: 1;
+            min-width: 80px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .flow-servers-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            z-index: 2;
+            flex-shrink: 0;
+        }
+
+        .flow-connections-right {
+            flex: 1;
+            min-width: 80px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        /* Right Column: Database */
+        .flow-col-data {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 150px;
+            z-index: 2;
+        }
+
+        .data-source {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 1.5rem 1.25rem;
+            background: rgba(15, 9, 4, 0.9);
+            border: 2px solid rgba(212, 163, 115, 0.3);
+            border-radius: 12px;
+        }
+        .data-source-icon { font-size: 2rem; color: var(--accent); }
+        .data-source-label {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.75rem; font-weight: 600;
+            letter-spacing: 1px; text-transform: uppercase;
+            color: #f0e6da;
+        }
+        .data-source-sub { font-size: 0.7rem; color: #a89480; }
+
+        /* MCP Server Boxes */
+        .mcp-server {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 0.75rem 1rem;
+            background: rgba(20, 12, 6, 0.85);
+            border: 1.5px solid rgba(212, 163, 115, 0.2);
+            border-radius: 8px;
+            min-width: 190px;
+            position: relative;
+            transition: all 0.4s ease;
+            cursor: default;
+        }
+        .mcp-server-icon {
+            font-size: 1.1rem; color: #a89480;
+            transition: color 0.3s ease; flex-shrink: 0;
+        }
+        .mcp-server-name {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.72rem; font-weight: 600;
+            letter-spacing: 0.5px; text-transform: uppercase;
+            color: #e8d4b8; line-height: 1.3;
+        }
+        .mcp-server-port {
+            font-size: 0.65rem; color: #a89480;
+            font-family: 'DM Sans', sans-serif;
+            margin-left: auto;
+        }
+
+        .mcp-server.active {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212, 163, 115, 0.15), 0 4px 16px rgba(212, 163, 115, 0.2);
+            background: rgba(212, 163, 115, 0.1);
+        }
+        .mcp-server.active .mcp-server-icon { color: var(--accent); }
+
+        .mcp-server.done { border-color: var(--good); }
+        .mcp-server.done .mcp-server-icon { color: var(--good); }
+
+        .mcp-server.blocked-server { border-color: var(--bad); }
+        .mcp-server.blocked-server .mcp-server-icon { color: var(--bad); }
+
+        /* Animated Connection Lines */
+        .flow-svg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .flow-line {
+            stroke: rgba(212, 163, 115, 0.25);
+            stroke-width: 1.5;
+            fill: none;
+            transition: stroke 0.3s ease, stroke-width 0.3s ease;
+        }
+        .flow-line.active { stroke: var(--accent); stroke-width: 2.5; }
+        .flow-line.done { stroke: var(--good); stroke-width: 2; }
+        .flow-line.blocked { stroke: var(--bad); stroke-width: 2; }
+
+        /* Data packet animation */
+        .data-packet {
+            position: absolute;
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 16px rgba(212, 163, 115, 0.9);
+            opacity: 0;
+            z-index: 5;
+            pointer-events: none;
+        }
+        .data-packet.response {
+            background: var(--good);
+            box-shadow: 0 0 16px rgba(90, 143, 106, 0.9);
+        }
+
+        /* Floating command label that travels with the packet */
+        .flow-label {
+            position: absolute;
+            padding: 0.35rem 0.75rem;
+            border-radius: 5px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+            z-index: 6;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+        }
+        .flow-label.request {
+            background: var(--charcoal);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+        .flow-label.query {
+            background: var(--accent);
+            color: white;
+        }
+        .flow-label.response-label {
+            background: var(--good);
+            color: white;
+        }
+        .flow-label.airs-label {
+            background: rgba(15, 9, 4, 0.9);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+        .flow-label.visible { opacity: 1; }
+
+        /* AIRS Security Badge between connections */
+        .airs-flow-badge {
+            position: absolute;
+            left: 50%; top: -10px;
+            transform: translateX(-50%);
+            display: flex; align-items: center; gap: 0.4rem;
+            padding: 0.35rem 0.75rem;
+            background: rgba(15, 9, 4, 0.9);
+            border: 1px solid rgba(212, 163, 115, 0.3);
+            border-radius: 10px;
+            font-size: 0.72rem; font-weight: 600;
+            color: var(--accent-dark); letter-spacing: 0.5px;
+            z-index: 10; white-space: nowrap;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .airs-flow-badge.visible { opacity: 1; }
+        .airs-flow-badge i { font-size: 0.6rem; color: var(--accent); }
+        .airs-flow-badge.scanning {
+            animation: shieldScan 0.8s ease-in-out infinite;
+            border-color: var(--accent); background: var(--accent-light);
+        }
+        @keyframes shieldScan {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.1); }
+        }
+
+        /* Agent Plan */
+        .agent-plan {
+            grid-column: 1 / 3;
+            background: rgba(20, 12, 6, 0.75);
+            border: 1px solid rgba(212, 163, 115, 0.2);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+            display: none;
+        }
+        .plan-header {
+            display: flex; align-items: center; gap: 0.6rem;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.75rem; font-weight: 600;
+            letter-spacing: 1px; text-transform: uppercase;
+            color: #f0e6da; margin-bottom: 0.75rem;
+        }
+        .plan-header i { color: var(--accent); }
+        .plan-steps {
+            list-style: none; display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.25rem 1rem;
+        }
+        .plan-step {
+            padding: 0.4rem 0.5rem; color: var(--warm-gray);
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 0.8rem; border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .plan-step.step-active {
+            color: var(--accent-dark); background: var(--accent-light); font-weight: 600;
+        }
+        .plan-step.step-done { color: var(--good); font-weight: 500; }
+        .plan-step.step-blocked { color: var(--bad); font-weight: 500; }
+
+        /* Inspection Indicator */
+        .inspection-indicator {
+            grid-column: 1 / 3;
+            display: none; align-items: center; gap: 0.75rem;
+            padding: 0.85rem 1.25rem;
+            background: rgba(20, 12, 6, 0.85);
+            border: 1px solid var(--accent);
+            border-radius: var(--radius);
+            box-shadow: 0 2px 12px rgba(212, 163, 115, 0.1);
+        }
+        .inspection-indicator.active { display: flex; }
+        .shield-icon-container {
+            position: relative; width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .shield-icon-container i { color: var(--accent); font-size: 1.25rem; z-index: 1; position: relative; }
+        .shield-scan-ring {
+            position: absolute; inset: -4px;
+            border: 2px solid var(--accent); border-top-color: transparent;
+            border-radius: 50%; animation: spinRing 1s linear infinite;
+        }
+        @keyframes spinRing { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #inspectionText { font-size: 0.8rem; font-weight: 500; color: #e8d4b8; flex: 1; }
+
+        /* Workflow Section */
+        .workflow-section { grid-column: 1; }
+        .results-section { grid-column: 2; }
+
+        .workflow-steps { display: flex; flex-direction: column; gap: 0.75rem; }
+
+        .empty-state {
+            padding: 2rem 1rem; text-align: center;
+            color: #a89480;
+            border: 1px dashed rgba(212, 163, 115, 0.2);
+            border-radius: 8px; background: rgba(15, 9, 4, 0.5);
+            font-size: 0.85rem;
+        }
+
+        /* Step Cards */
+        .step-card {
+            background: rgba(20, 12, 6, 0.6); border: 1px solid rgba(212, 163, 115, 0.15);
+            border-radius: 10px; padding: 1rem;
+            transition: all 0.3s ease;
+            animation: cardSlideIn 0.3s ease-out;
+            position: relative; overflow: hidden;
+        }
+        @keyframes cardSlideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .step-card.inspecting { border-color: var(--accent); }
+        .step-card.inspecting::before {
+            content: ""; position: absolute; inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(212, 163, 115, 0.08), transparent);
+            animation: shimmerWarm 1.5s ease-in-out infinite;
+        }
+        @keyframes shimmerWarm { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+        .step-card.success { border-color: var(--good-border); border-left: 3px solid var(--good); }
+        .step-card.blocked { border-color: var(--bad-border); border-left: 3px solid var(--bad); }
+
+        .step-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
+        .step-number {
+            width: 26px; height: 26px; border-radius: 6px;
+            display: grid; place-items: center;
+            font-weight: 700; font-size: 0.75rem;
+            background: var(--accent-light);
+            border: 1px solid rgba(212, 163, 115, 0.25);
+            color: var(--accent-dark); flex-shrink: 0;
+        }
+        .step-title { flex: 1; font-weight: 500; font-size: 0.85rem; color: #e8d4b8; }
+        .step-status {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.6rem; padding: 0.3rem 0.6rem;
+            border-radius: 4px; border: 1px solid rgba(212, 163, 115, 0.2);
+            color: #a89480; background: rgba(15, 9, 4, 0.6);
+            text-transform: uppercase; letter-spacing: 0.5px;
+            font-weight: 600; white-space: nowrap;
+        }
+        .step-status.success { border-color: var(--good-border); background: var(--good-bg); color: var(--good); }
+        .step-status.blocked { border-color: var(--bad-border); background: var(--bad-bg); color: var(--bad); }
+
+        .step-server-tag {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.6rem; font-weight: 600;
+            letter-spacing: 0.5px; text-transform: uppercase;
+            color: var(--accent-dark); background: var(--accent-light);
+            padding: 0.2rem 0.5rem; border-radius: 4px;
+            margin-bottom: 0.4rem;
+        }
+        .step-details {
+            color: #a89480; font-size: 0.78rem; line-height: 1.5;
+        }
+        .step-details strong { color: #e8d4b8; }
+
+        /* Data preview within step cards */
+        .step-data-preview {
+            margin-top: 0.6rem; padding: 0.6rem 0.75rem;
+            background: rgba(15, 9, 4, 0.5); border: 1px solid rgba(212, 163, 115, 0.15);
+            border-radius: 6px; font-size: 0.75rem;
+            color: #e8d4b8; line-height: 1.5;
+        }
+        .step-data-preview .data-label {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.6rem; font-weight: 600;
+            letter-spacing: 1px; text-transform: uppercase;
+            color: var(--accent-dark); margin-bottom: 0.25rem;
+        }
+        .step-data-preview .data-item {
+            display: flex; justify-content: space-between;
+            padding: 0.15rem 0; border-bottom: 1px solid rgba(212, 163, 115, 0.1);
+        }
+        .step-data-preview .data-item:last-child { border-bottom: none; }
+        .step-data-preview .data-key { color: #a89480; }
+        .step-data-preview .data-value { font-weight: 500; color: #e8d4b8; }
+
+        /* Security Inspection within steps */
+        .security-inspection {
+            margin-top: 0.6rem; padding: 0.6rem 0.75rem;
+            border-radius: 6px; font-size: 0.75rem;
+            line-height: 1.4; display: flex;
+            align-items: flex-start; gap: 0.5rem;
+        }
+        .security-inspection .shield-mini {
+            flex-shrink: 0; width: 22px; height: 22px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 4px;
+        }
+        .security-inspection.allowed {
+            background: var(--good-bg); border: 1px solid var(--good-border); color: var(--good);
+        }
+        .security-inspection.allowed .shield-mini { background: var(--good); color: white; }
+        .security-inspection.blocked {
+            background: var(--bad-bg); border: 1px solid var(--bad-border); color: var(--bad);
+        }
+        .security-inspection.blocked .shield-mini { background: var(--bad); color: white; }
+        .security-inspection strong { font-weight: 600; }
+        .security-inspection .sec-text { flex: 1; }
+
+        /* Results / Recommendations */
+        .results-card { margin-bottom: 1rem; }
+        .results-card h4 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.7rem; font-weight: 600;
+            letter-spacing: 1px; text-transform: uppercase;
+            color: #f0e6da; margin-bottom: 1rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .results-card h4 i { color: var(--accent); }
+
+        .recommendation {
+            background: rgba(20, 12, 6, 0.6); border: 1px solid rgba(212, 163, 115, 0.15);
+            border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        .recommendation:hover {
+            border-color: var(--accent);
+            box-shadow: 0 4px 16px rgba(212, 163, 115, 0.12);
+            transform: translateY(-2px);
+        }
+        .recommendation-brand {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.6rem; font-weight: 600;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--warm-gray); margin-bottom: 0.3rem;
+        }
+        .recommendation-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem; font-weight: 500;
+            color: #f0e6da; margin-bottom: 0.35rem;
+        }
+        .recommendation-meta {
+            display: flex; gap: 0.5rem; font-size: 0.75rem;
+            color: var(--warm-gray); margin-bottom: 0.5rem; flex-wrap: wrap;
+        }
+        .recommendation-meta span { display: inline-flex; align-items: center; gap: 0.25rem; }
+        .recommendation-bottom {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 0.6rem; padding-top: 0.6rem;
+            border-top: 1px solid rgba(212, 163, 115, 0.15);
+        }
+        .recommendation-price { font-size: 1.1rem; font-weight: 600; color: #f0e6da; }
+        .recommendation-score {
+            padding: 0.3rem 0.75rem; border-radius: 4px;
+            border: 1px solid var(--accent); background: var(--accent-light);
+            color: var(--accent-dark); font-weight: 700;
+            font-size: 0.7rem; font-family: 'Montserrat', sans-serif;
+            letter-spacing: 0.5px;
+        }
+        .recommendation-reason {
+            font-size: 0.78rem; color: var(--warm-gray);
+            font-style: italic; line-height: 1.4;
+        }
+
+        .security-summary {
+            background: rgba(20, 12, 6, 0.6); border: 1px solid rgba(212, 163, 115, 0.15);
+            border-left: 3px solid var(--accent); border-radius: 8px;
+            padding: 1rem; margin-top: 0.75rem;
+        }
+        .security-summary h4 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.7rem; font-weight: 600;
+            letter-spacing: 1px; text-transform: uppercase;
+            color: #f0e6da; display: flex;
+            align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;
+        }
+        .security-summary h4 i { color: var(--accent); }
+        .security-summary p { font-size: 0.8rem; color: #a89480; line-height: 1.5; }
+        .security-summary p strong { color: var(--accent); }
+
+        .final-action-card {
+            background: rgba(20, 12, 6, 0.6); border: 1px solid var(--good-border);
+            border-left: 3px solid var(--good); border-radius: 8px;
+            padding: 1rem; margin-top: 0.75rem;
+        }
+        .final-action-card h4 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.7rem; font-weight: 600;
+            letter-spacing: 1px; text-transform: uppercase;
+            color: #f0e6da; margin-bottom: 0.4rem;
+        }
+        .final-action-card p { font-size: 0.8rem; color: #a89480; }
+
+        /* Command Log Panel - Right Column */
+        .command-log-panel {
+            grid-column: 3;
+            grid-row: 1 / -1;
+            position: sticky;
+            top: 60px;
+            height: fit-content;
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+            background: rgba(15, 9, 4, 0.85) !important;
+            border-color: rgba(212, 163, 115, 0.2) !important;
+            color: #e8d4b8;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .demo-body { grid-template-columns: 1fr 1fr; }
+            .command-log-panel { grid-column: 1 / -1; grid-row: auto; position: relative; top: 0; max-height: 400px; }
+            .goal-section, .mcp-flow-section, .agent-plan, .inspection-indicator { grid-column: 1 / -1; }
+        }
+        @media (max-width: 768px) {
+            .demo-body { grid-template-columns: 1fr; }
+            .workflow-section, .results-section { grid-column: 1; }
+            .goal-section, .mcp-flow-section, .agent-plan, .inspection-indicator { grid-column: 1; }
+            .customer-inputs { grid-template-columns: 1fr; }
+            .plan-steps { grid-template-columns: 1fr; }
+            .mcp-flow-container { flex-direction: column; align-items: center; gap: 1rem; }
+            .flow-connections-left, .flow-connections-right { width: 100%; height: 30px; }
+            .page-header h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <a href="../landpage.html" class="back-btn">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a href="#" class="top-bar-logo">VERO</a>
+            <div class="top-bar-divider"></div>
+            <span class="top-bar-subtitle">Recommendation Engine</span>
+        </div>
+        <div class="top-bar-right">
+            <a href="admin.html" class="back-btn">
+                <i class="fas fa-cogs"></i> Product Admin
+            </a>
+            <div class="airs-badge">
+                <div class="airs-badge-dot"></div>
+                <i class="fas fa-shield-alt"></i>
+                Prisma AIRS Active
+            </div>
+        </div>
+    </div>
+
+    <div class="demo-container">
+        <div class="page-header">
+            <h1>VERO Recommendation Engine</h1>
+            <p>Multi-Agent MCP Orchestration &middot; Secured by Palo Alto Networks Prisma AIRS</p>
+        </div>
+
+        <div class="demo-body">
+            <!-- Goal Input Section -->
+            <div class="goal-section panel">
+                <div class="section-title">
+                    <i class="fas fa-bullseye"></i> Define Goal
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Goal Description</label>
+                    <input type="text" id="goalInput" class="goal-input"
+                        placeholder="What would you like the agent to do?"
+                        value="Recommend 3 products for this customer based on their purchase history and preferences" />
+                </div>
+
+                <div class="customer-selector">
+                    <label class="input-label">Select Customer</label>
+                    <div class="customer-buttons">
+                        <button class="customer-btn active" onclick="selectCustomer(this, 'Isabelle Laurent', 'CUST-10001', 'VIP')">
+                            <i class="fas fa-user"></i> Isabelle Laurent <span class="customer-tier">VIP</span>
+                        </button>
+                        <button class="customer-btn" onclick="selectCustomer(this, 'Sophia Nakamura', 'CUST-10002', 'Premium')">
+                            <i class="fas fa-user"></i> Sophia Nakamura <span class="customer-tier">Premium</span>
+                        </button>
+                        <button class="customer-btn" onclick="selectCustomer(this, 'Amara Okafor', 'CUST-10005', 'Standard')">
+                            <i class="fas fa-user"></i> Amara Okafor <span class="customer-tier">Standard</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="customer-inputs">
+                    <div class="input-group">
+                        <label class="input-label">Customer Name</label>
+                        <input type="text" id="customerNameInput" class="input-field"
+                            placeholder="e.g., Isabelle Laurent" value="Isabelle Laurent" />
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Customer ID</label>
+                        <input type="text" id="customerIdInput" class="input-field"
+                            placeholder="e.g., CUST-10001" value="CUST-10001" />
+                    </div>
+                </div>
+
+                <button class="execute-btn" id="executeBtn" onclick="executeGoal()">
+                    <i class="fas fa-play"></i> Execute
+                </button>
+
+                <div class="examples">
+                    <div class="examples-label">Try These Examples</div>
+                    <div class="example-goals">
+                        <div class="example-goal" onclick="setExampleGoal(0)">
+                            <i class="fas fa-gem" style="color: var(--accent);"></i> Product Recommendations
+                        </div>
+                        <div class="example-goal" onclick="setExampleGoal(1)">
+                            <i class="fas fa-chart-bar" style="color: var(--accent);"></i> Customer Analytics
+                        </div>
+                        <div class="example-goal" onclick="setExampleGoal(2)">
+                            <i class="fas fa-envelope" style="color: var(--accent);"></i> Email Campaign
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MCP Flow Diagram - LEFT TO RIGHT -->
+            <div class="mcp-flow-section panel" id="mcpFlowSection">
+                <div class="section-title">
+                    <i class="fas fa-project-diagram"></i> MCP Architecture &mdash; Data Flow
+                </div>
+                <div class="mcp-flow-container" id="mcpFlowContainer">
+                            <!-- LEFT: Agent/Host -->
+                            <div class="flow-col-agent">
+                                <div class="mcp-host" id="mcpHost">
+                                    <i class="fas fa-brain mcp-host-icon"></i>
+                                    <div class="mcp-host-label">MCP Host</div>
+                                    <div class="mcp-host-sub">Agent Orchestrator</div>
+                                </div>
+                            </div>
+
+                            <!-- LEFT CONNECTIONS -->
+                            <div class="flow-connections-left" id="flowConnsLeft"></div>
+
+                            <!-- MIDDLE: MCP Servers stacked -->
+                            <div class="flow-servers-stack">
+                                <div class="mcp-server" id="mcp-customer-service" data-server="customer_service">
+                                    <i class="fas fa-headset mcp-server-icon"></i>
+                                    <div class="mcp-server-name">Customer Service</div>
+                                    <div class="mcp-server-port">:9001</div>
+                                </div>
+                                <div class="mcp-server" id="mcp-order-history" data-server="order_history">
+                                    <i class="fas fa-receipt mcp-server-icon"></i>
+                                    <div class="mcp-server-name">Order History</div>
+                                    <div class="mcp-server-port">:9002</div>
+                                </div>
+                                <div class="mcp-server" id="mcp-analytics" data-server="analytics">
+                                    <i class="fas fa-chart-line mcp-server-icon"></i>
+                                    <div class="mcp-server-name">Analytics</div>
+                                    <div class="mcp-server-port">:9003</div>
+                                </div>
+                                <div class="mcp-server" id="mcp-ml-recommendations" data-server="ml_recommendations">
+                                    <i class="fas fa-magic mcp-server-icon"></i>
+                                    <div class="mcp-server-name">ML Recommendations</div>
+                                    <div class="mcp-server-port">:9004</div>
+                                </div>
+                                <div class="mcp-server" id="mcp-product-catalog" data-server="product_catalog">
+                                    <i class="fas fa-tags mcp-server-icon"></i>
+                                    <div class="mcp-server-name">Product Catalog</div>
+                                    <div class="mcp-server-port">:9005</div>
+                                </div>
+                                <div class="mcp-server" id="mcp-notifications" data-server="notifications">
+                                    <i class="fas fa-bell mcp-server-icon"></i>
+                                    <div class="mcp-server-name">Notifications</div>
+                                    <div class="mcp-server-port">:9006</div>
+                                </div>
+                            </div>
+
+                            <!-- RIGHT CONNECTIONS -->
+                            <div class="flow-connections-right" id="flowConnsRight"></div>
+
+                            <!-- RIGHT: Data Sources -->
+                            <div class="flow-col-data">
+                                <div class="data-source">
+                                    <i class="fas fa-database data-source-icon"></i>
+                                    <div class="data-source-label">verodata.db</div>
+                                    <div class="data-source-sub">SQLite</div>
+                                </div>
+                                <div style="height: 0.75rem;"></div>
+                                <div class="airs-flow-badge visible" id="airsFlowBadge" style="position:relative;left:auto;top:auto;transform:none;opacity:1;">
+                                    <i class="fas fa-shield-alt"></i>
+                                    AIRS Security
+                                </div>
+                            </div>
+                </div>
+            </div>
+
+            <!-- Agent Plan -->
+            <div id="agentPlan" class="agent-plan">
+                <div class="plan-header">
+                    <i class="fas fa-list-ol"></i> Execution Plan
+                </div>
+                <ul id="planSteps" class="plan-steps"></ul>
+            </div>
+
+            <!-- Real-time Inspection Indicator -->
+            <div id="inspectionIndicator" class="inspection-indicator">
+                <div class="shield-icon-container">
+                    <i class="fas fa-shield-alt"></i>
+                    <div class="shield-scan-ring"></div>
+                </div>
+                <span id="inspectionText">AIRS Security inspecting step...</span>
+            </div>
+
+            <!-- Workflow Execution -->
+            <div class="workflow-section panel">
+                <div class="section-title">
+                    <i class="fas fa-stream"></i> Workflow Execution
+                </div>
+                <div id="workflowSteps" class="workflow-steps">
+                    <div class="empty-state"><p>Execute a goal to see the multi-agent workflow</p></div>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="results-section panel">
+                <div class="section-title">
+                    <i class="fas fa-gem"></i> Recommendations
+                </div>
+                <div id="recommendationsContainer">
+                    <div class="empty-state"><p>Recommendations will appear here after execution</p></div>
+                </div>
+            </div>
+
+            <!-- Command Log Panel -->
+            <div class="command-log-panel panel" id="commandLog">
+                <div class="section-title">
+                    <i class="fas fa-terminal"></i> Command Log
+                </div>
+                <div id="commandLogEntries">
+                    <div class="cmd-empty">Execute a goal to see MCP &amp; DB commands</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/mcp-api';
+        let isExecuting = false;
+
+        // Map step numbers to MCP server element IDs
+        const STEP_SERVER_MAP = {
+            1: 'mcp-customer-service',
+            2: 'mcp-customer-service',
+            3: 'mcp-order-history',
+            4: 'mcp-analytics',
+            5: 'mcp-analytics',
+            6: 'mcp-ml-recommendations',
+            7: 'mcp-ml-recommendations',
+            8: 'mcp-product-catalog',
+            9: 'mcp-notifications',
+            10: 'mcp-customer-service',
+            11: 'mcp-notifications'
+        };
+
+        // Map server names from API to diagram element IDs
+        const SERVER_ID_MAP = {
+            'customer-service': 'mcp-customer-service',
+            'customer_service': 'mcp-customer-service',
+            'order-history': 'mcp-order-history',
+            'order_history': 'mcp-order-history',
+            'analytics': 'mcp-analytics',
+            'ml-recommendation': 'mcp-ml-recommendations',
+            'ml_recommendations': 'mcp-ml-recommendations',
+            'product-catalog': 'mcp-product-catalog',
+            'product_catalog': 'mcp-product-catalog',
+            'notification': 'mcp-notifications',
+            'notifications': 'mcp-notifications'
+        };
+
+        const EXAMPLE_GOALS = [
+            { goal: "Recommend 3 products for this customer based on their purchase history and preferences", customerName: "Isabelle Laurent", customerId: "CUST-10001" },
+            { goal: "Analyze customer behavior and segment preferences", customerName: "Sophia Nakamura", customerId: "CUST-10002" },
+            { goal: "Send personalized email with product recommendations", customerName: "Amara Okafor", customerId: "CUST-10005" }
+        ];
+
+        function selectCustomer(btn, name, id, tier) {
+            document.querySelectorAll('.customer-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('customerNameInput').value = name;
+            document.getElementById('customerIdInput').value = id;
+        }
+
+        function setExampleGoal(index) {
+            const example = EXAMPLE_GOALS[index];
+            document.getElementById('goalInput').value = example.goal;
+            document.getElementById('customerNameInput').value = example.customerName;
+            document.getElementById('customerIdInput').value = example.customerId;
+            document.querySelectorAll('.customer-btn').forEach(b => b.classList.remove('active'));
+        }
+
+        // ============================
+        // MCP FLOW ANIMATION
+        // ============================
+
+        // Map step info to readable MCP commands and DB queries
+        const STEP_COMMANDS = {
+            1: { cmd: 'get_customer_profile()', query: 'SELECT * FROM customers WHERE id=?', response: 'Customer profile data' },
+            2: { cmd: 'get_customer_preferences()', query: 'SELECT * FROM customer_preferences WHERE id=?', response: 'Style & color preferences' },
+            3: { cmd: 'get_order_history()', query: 'SELECT * FROM orders WHERE customer_id=?', response: 'Purchase history records' },
+            4: { cmd: 'get_browsing_behavior()', query: 'SELECT * FROM browsing_activity WHERE id=?', response: 'Browsing analytics data' },
+            5: { cmd: 'get_customer_segment()', query: 'SELECT * FROM customer_segments WHERE id=?', response: 'Segment classification' },
+            6: { cmd: 'find_similar_customers()', query: 'SELECT * FROM similar_customers WHERE id=?', response: 'Similar customer matches' },
+            7: { cmd: 'get_product_recommendations()', query: 'SELECT r.*,p.* FROM recommendations r JOIN products p', response: 'ML-scored products' },
+            8: { cmd: 'check_inventory()', query: 'SELECT stock_quantity FROM products WHERE id IN(?)', response: 'Stock availability' },
+            9: { cmd: 'send_email()', query: null, response: 'Email dispatch' },
+            10: { cmd: 'browse_other_customers()', query: 'SELECT * FROM customers WHERE export=csv', response: 'Bulk customer data' },
+            11: { cmd: 'send_internal_notification()', query: null, response: 'Notification delivered' }
+        };
+
+        function resetMcpFlow() {
+            document.querySelectorAll('.mcp-server').forEach(s => {
+                s.classList.remove('active', 'done', 'blocked-server');
+            });
+            const badge = document.getElementById('airsFlowBadge');
+            badge.classList.remove('scanning');
+            document.querySelectorAll('.data-packet, .flow-label').forEach(p => p.remove());
+            document.getElementById('commandLogEntries').innerHTML = '';
+        }
+
+        function addCommandLogEntry(stepNumber, serverName, cmds, wasBlocked) {
+            const log = document.getElementById('commandLogEntries');
+            const entry = document.createElement('div');
+            entry.className = 'cmd-entry';
+
+            let html = `<div class="cmd-step-label">Step ${stepNumber} &mdash; ${serverName}</div>`;
+            html += `<div class="cmd-line mcp-call">${cmds.cmd}</div>`;
+            if (cmds.query) {
+                html += `<div class="cmd-line db-query">${cmds.query}</div>`;
+            }
+            if (wasBlocked) {
+                html += `<div class="cmd-line blocked-line">BLOCKED by AIRS</div>`;
+            } else {
+                html += `<div class="cmd-line response-line">${cmds.response}</div>`;
+                html += `<div class="cmd-line airs-line">AIRS: Verified</div>`;
+            }
+
+            entry.innerHTML = html;
+            log.appendChild(entry);
+
+            // Auto-scroll to bottom
+            const logPanel = document.getElementById('commandLog');
+            logPanel.scrollTop = logPanel.scrollHeight;
+        }
+
+        function getServerElement(stepNumber, serverName) {
+            let elementId = STEP_SERVER_MAP[stepNumber];
+            if (!elementId && serverName) {
+                elementId = SERVER_ID_MAP[serverName] || SERVER_ID_MAP[serverName.toLowerCase()];
+            }
+            return elementId ? document.getElementById(elementId) : null;
+        }
+
+        // Animate a packet + label between two elements, returns a promise
+        function animatePacketWithLabel(fromEl, toEl, labelText, labelClass, isResponse) {
+            return new Promise(resolve => {
+                const container = document.getElementById('mcpFlowContainer');
+                const containerRect = container.getBoundingClientRect();
+                const fromRect = fromEl.getBoundingClientRect();
+                const toRect = toEl.getBoundingClientRect();
+
+                // Create dot
+                const packet = document.createElement('div');
+                packet.className = 'data-packet' + (isResponse ? ' response' : '');
+
+                // Create label
+                const label = document.createElement('div');
+                label.className = `flow-label ${labelClass}`;
+                label.textContent = labelText;
+
+                // Calculate positions - horizontal at target Y level
+                let startX, endX;
+                if (!isResponse) {
+                    startX = fromRect.right - containerRect.left;
+                    endX = toRect.left - containerRect.left - 10;
+                } else {
+                    startX = fromRect.left - containerRect.left;
+                    endX = toRect.right - containerRect.left;
+                }
+                const targetY = toRect.top + toRect.height / 2 - containerRect.top - 5;
+
+                packet.style.left = startX + 'px';
+                packet.style.top = targetY + 'px';
+                packet.style.opacity = '1';
+
+                // Label positioned above the packet
+                label.style.left = startX + 'px';
+                label.style.top = (targetY - 28) + 'px';
+
+                container.appendChild(packet);
+                container.appendChild(label);
+
+                // Show label after brief delay
+                requestAnimationFrame(() => label.classList.add('visible'));
+
+                const duration = 600;
+                const startTime = performance.now();
+
+                function animate(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+
+                    const currentX = startX + (endX - startX) * eased;
+                    packet.style.left = currentX + 'px';
+                    label.style.left = currentX + 'px';
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        packet.style.opacity = '0';
+                        label.classList.remove('visible');
+                        setTimeout(() => { packet.remove(); label.remove(); resolve(); }, 250);
+                    }
+                }
+                requestAnimationFrame(animate);
+            });
+        }
+
+        // Full sequential animation for one MCP step
+        async function animateMcpStep(stepNumber, serverName, wasBlocked) {
+            const el = getServerElement(stepNumber, serverName);
+            if (!el) return;
+
+            const host = document.getElementById('mcpHost');
+            const db = document.querySelector('.data-source');
+            const badge = document.getElementById('airsFlowBadge');
+            const cmds = STEP_COMMANDS[stepNumber] || { cmd: `${serverName}.call()`, query: 'SELECT ...', response: 'Data' };
+
+            // Remove active from all, set this one active
+            document.querySelectorAll('.mcp-server.active').forEach(s => s.classList.remove('active'));
+            el.classList.add('active');
+
+            // Phase 1: Agent sends MCP command → Server
+            await animatePacketWithLabel(host, el, cmds.cmd, 'request', false);
+
+            // Phase 2: Server queries Database (if applicable)
+            if (cmds.query) {
+                await animatePacketWithLabel(el, db, cmds.query, 'query', false);
+
+                // Phase 3: Database returns data → Server
+                await animatePacketWithLabel(db, el, cmds.response, 'response-label', true);
+            }
+
+            // Phase 4: AIRS inspects
+            badge.classList.add('scanning');
+            await sleep(600);
+            badge.classList.remove('scanning');
+
+            // Phase 5: Server returns result → Agent
+            el.classList.remove('active');
+            if (wasBlocked) {
+                el.classList.add('blocked-server');
+                await animatePacketWithLabel(el, host, 'BLOCKED', 'airs-label', true);
+            } else {
+                el.classList.add('done');
+                await animatePacketWithLabel(el, host, 'AIRS Verified', 'response-label', true);
+            }
+
+            // Add entry to command log
+            addCommandLogEntry(stepNumber, serverName, cmds, wasBlocked);
+        }
+
+        // ============================
+        // WORKFLOW EXECUTION
+        // ============================
+
+        async function executeGoal() {
+            if (isExecuting) return;
+
+            const goal = document.getElementById('goalInput').value.trim();
+            const customerName = document.getElementById('customerNameInput').value.trim();
+            const customerId = document.getElementById('customerIdInput').value.trim();
+
+            if (!goal) { alert('Please enter a goal'); return; }
+            if (!customerName) { alert('Please enter a customer name'); return; }
+            if (!customerId) { alert('Please enter a customer ID'); return; }
+
+            isExecuting = true;
+            const executeBtn = document.getElementById('executeBtn');
+            executeBtn.disabled = true;
+            executeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Executing...';
+
+            document.getElementById('workflowSteps').innerHTML = '';
+            document.getElementById('recommendationsContainer').innerHTML = '';
+            resetMcpFlow();
+            showAgentPlan(goal);
+
+            try {
+                const response = await fetch(`${API_URL}/execute-goal`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ goal, context: { customer_id: customerId, customer_name: customerName } })
+                });
+
+                const data = await response.json();
+                console.log('API Response:', data);
+                await displayWorkflowWithInspection(data.result);
+                displayResults(data.result);
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('workflowSteps').innerHTML = `
+                    <div class="step-card blocked">
+                        <div class="step-header">
+                            <div class="step-number">!</div>
+                            <div class="step-title">Connection Error</div>
+                        </div>
+                        <div class="step-details">Could not connect to the MCP agent. Please ensure the backend service is running.</div>
+                    </div>`;
+            }
+
+            isExecuting = false;
+            executeBtn.disabled = false;
+            executeBtn.innerHTML = '<i class="fas fa-play"></i> Execute';
+        }
+
+        function showAgentPlan(goal) {
+            const planDiv = document.getElementById('agentPlan');
+            const planSteps = document.getElementById('planSteps');
+            planDiv.style.display = 'block';
+
+            planSteps.innerHTML = `
+                <li class="plan-step" id="plan-step-1"><i class="fas fa-circle" style="font-size:0.4rem;color:var(--sand);"></i> 1. Get customer profile</li>
+                <li class="plan-step" id="plan-step-2"><i class="fas fa-circle" style="font-size:0.4rem;color:var(--sand);"></i> 2. Get customer preferences</li>
+                <li class="plan-step" id="plan-step-3"><i class="fas fa-circle" style="font-size:0.4rem;color:var(--sand);"></i> 3. Get purchase history</li>
+                <li class="plan-step" id="plan-step-4"><i class="fas fa-circle" style="font-size:0.4rem;color:var(--sand);"></i> 4. Get browsing behavior</li>
+                <li class="plan-step" id="plan-step-5"><i class="fas fa-circle" style="font-size:0.4rem;color:var(--sand);"></i> 5. Get customer segment</li>
+                <li class="plan-step" id="plan-step-6"><i class="fas fa-circle" style="font-size:0.4rem;color:var(--sand);"></i> 6. Find similar customers</li>
+                <li class="plan-step" id="plan-step-7"><i class="fas fa-circle" style="font-size:0.4rem;color:var(--sand);"></i> 7. Generate ML recommendations</li>
+                <li class="plan-step" id="plan-step-8"><i class="fas fa-circle" style="font-size:0.4rem;color:var(--sand);"></i> 8. Check product inventory</li>
+                <li class="plan-step" id="plan-step-9"><i class="fas fa-circle" style="font-size:0.4rem;color:var(--sand);"></i> 9. Send recommendations (email)</li>
+                <li class="plan-step" id="plan-step-10"><i class="fas fa-circle" style="font-size:0.4rem;color:var(--sand);"></i> 10. Browse other customers</li>
+                <li class="plan-step" id="plan-step-11"><i class="fas fa-circle" style="font-size:0.4rem;color:var(--sand);"></i> 11. Send via internal notification</li>
+            `;
+        }
+
+        function highlightPlanStep(stepNumber) {
+            const step = document.getElementById(`plan-step-${stepNumber}`);
+            if (step) {
+                step.classList.add('step-active');
+                const icon = step.querySelector('i');
+                if (icon) { icon.style.color = 'var(--accent)'; icon.className = 'fas fa-arrow-right'; icon.style.fontSize = '0.55rem'; }
+            }
+        }
+
+        function completePlanStep(stepNumber, wasBlocked = false) {
+            const step = document.getElementById(`plan-step-${stepNumber}`);
+            if (step) {
+                step.classList.remove('step-active');
+                step.classList.add(wasBlocked ? 'step-blocked' : 'step-done');
+                const icon = step.querySelector('i');
+                if (icon) {
+                    icon.className = wasBlocked ? 'fas fa-times' : 'fas fa-check';
+                    icon.style.color = wasBlocked ? 'var(--bad)' : 'var(--good)';
+                    icon.style.fontSize = '0.55rem';
+                }
+            }
+        }
+
+        // Extract a short data preview from real API response data
+        function extractDataPreview(step) {
+            if (!step.response) return null;
+            const resp = step.response;
+
+            switch (step.step) {
+                case 1: // Customer profile
+                    return {
+                        label: 'Customer Profile',
+                        items: [
+                            ['Name', resp.name || '-'],
+                            ['Tier', resp.tier || resp.membership_tier || '-'],
+                            ['Email', resp.email || '-']
+                        ]
+                    };
+                case 2: // Preferences
+                    return {
+                        label: 'Preferences',
+                        items: [
+                            ['Style', (resp.preferred_styles || resp.style || ['-']).toString().substring(0, 30)],
+                            ['Colors', (resp.preferred_colors || resp.colors || ['-']).toString().substring(0, 30)],
+                            ['Budget', resp.price_range || resp.budget || '-']
+                        ]
+                    };
+                case 3: // Order history
+                    if (resp.orders) {
+                        return {
+                            label: 'Recent Orders',
+                            items: resp.orders.slice(0, 3).map(o => [o.product || o.product_name || 'Item', '$' + (o.amount || o.total || 0).toFixed(0)])
+                        };
+                    }
+                    return { label: 'Order Summary', items: [['Total Orders', resp.total_orders || '-'], ['Total Spent', '$' + (resp.total_spent || 0).toFixed(0)]] };
+                case 4: // Browsing
+                    return {
+                        label: 'Browsing Behavior',
+                        items: [
+                            ['Sessions', resp.sessions || resp.total_sessions || '-'],
+                            ['Pages Viewed', resp.pages_viewed || resp.total_page_views || '-'],
+                            ['Categories', (resp.categories_viewed || resp.top_categories || []).slice(0, 3).join(', ') || '-']
+                        ]
+                    };
+                case 5: // Segment
+                    return {
+                        label: 'Customer Segment',
+                        items: [
+                            ['Segment', resp.segment || resp.segment_name || '-'],
+                            ['Engagement', resp.engagement_score || resp.engagement_level || '-'],
+                            ['Probability', resp.purchase_probability ? (resp.purchase_probability * 100).toFixed(0) + '%' : '-']
+                        ]
+                    };
+                case 6: // Similar customers
+                    return {
+                        label: 'Similar Customers',
+                        items: [
+                            ['Similar Count', resp.similar_customers || '-'],
+                            ['Similarity', resp.similarity_score ? (resp.similarity_score * 100).toFixed(0) + '%' : '-'],
+                            ['Method', resp.collaborative_filtering_applied ? 'Collaborative Filtering' : 'Rule-based']
+                        ]
+                    };
+                case 7: // ML recommendations
+                    if (resp.recommendations && resp.recommendations.length > 0) {
+                        return {
+                            label: 'ML Recommendations',
+                            items: resp.recommendations.slice(0, 3).map(r => [
+                                r.name || r.product_id,
+                                (r.ml_score ? (r.ml_score * 100).toFixed(0) : '0') + '% match'
+                            ])
+                        };
+                    }
+                    return null;
+                case 8: // Inventory
+                    if (resp.inventory_status) {
+                        return {
+                            label: 'Inventory Check',
+                            items: resp.inventory_status.slice(0, 3).map(i => [
+                                i.product_id,
+                                i.in_stock ? 'In Stock (' + i.quantity + ')' : 'Out of Stock'
+                            ])
+                        };
+                    }
+                    return null;
+                case 9: // Email
+                    return { label: 'Notification', items: [['Channel', 'Email'], ['Status', 'Pending AIRS Review']] };
+                case 10: // Internal
+                    return {
+                        label: 'Internal Alert',
+                        items: [
+                            ['Channel', 'Internal System'],
+                            ['Status', resp.status || 'Delivered'],
+                            ['ID', resp.notification_id || '-']
+                        ]
+                    };
+                default:
+                    return null;
+            }
+        }
+
+        async function displayWorkflowWithInspection(result) {
+            const workflowDiv = document.getElementById('workflowSteps');
+            const inspectionIndicator = document.getElementById('inspectionIndicator');
+            const inspectionText = document.getElementById('inspectionText');
+
+            console.log('Full result:', result);
+
+            if (!result.steps || result.steps.length === 0) {
+                workflowDiv.innerHTML = '<div class="empty-state"><p>No steps executed</p></div>';
+                return;
+            }
+
+            workflowDiv.innerHTML = '';
+
+            for (let i = 0; i < result.steps.length; i++) {
+                const step = result.steps[i];
+                const cmds = STEP_COMMANDS[step.step] || {};
+
+                // Highlight plan step
+                highlightPlanStep(step.step);
+
+                // Create step card showing the MCP command
+                const stepCard = createStepCard(step, 'inspecting');
+                workflowDiv.appendChild(stepCard);
+
+                // Show inspection indicator
+                inspectionIndicator.classList.add('active');
+                inspectionText.textContent = `Step ${step.step}: ${cmds.cmd || step.tool + '()'}`;
+                stepCard.classList.add('inspecting');
+
+                // Add "calling" indicator to step card
+                const callingDiv = document.createElement('div');
+                callingDiv.className = 'security-inspection allowed';
+                callingDiv.innerHTML = `
+                    <div class="shield-mini"><i class="fas fa-satellite-dish" style="font-size:0.55rem;"></i></div>
+                    <div class="sec-text"><strong>MCP Call:</strong> ${step.server}.${cmds.cmd || step.tool + '()'}</div>
+                `;
+                stepCard.appendChild(callingDiv);
+
+                // Run the full sequential flow animation (waits for each phase)
+                await animateMcpStep(step.step, step.server, step.status === 'blocked');
+
+                // Remove calling indicator
+                stepCard.classList.remove('inspecting');
+                stepCard.classList.add(step.status);
+                callingDiv.remove();
+
+                // Add final security result
+                const secDiv = document.createElement('div');
+                if (step.status === 'success') {
+                    secDiv.className = 'security-inspection allowed';
+                    secDiv.innerHTML = `
+                        <div class="shield-mini"><i class="fas fa-check" style="font-size:0.55rem;"></i></div>
+                        <div class="sec-text"><strong>AIRS Verified</strong> &middot; ${step.server}.${step.tool}() &mdash; Allowed</div>
+                    `;
+                } else if (step.status === 'blocked') {
+                    secDiv.className = 'security-inspection blocked';
+                    secDiv.innerHTML = `
+                        <div class="shield-mini"><i class="fas fa-ban" style="font-size:0.55rem;"></i></div>
+                        <div class="sec-text"><strong>AIRS Blocked</strong> &middot; ${step.block_reason || 'Security policy violation'}</div>
+                    `;
+                }
+                stepCard.appendChild(secDiv);
+
+                // Add data preview from real response data
+                if (step.status === 'success') {
+                    const preview = extractDataPreview(step);
+                    if (preview) {
+                        const previewDiv = document.createElement('div');
+                        previewDiv.className = 'step-data-preview';
+                        let itemsHtml = preview.items.map(([k, v]) =>
+                            `<div class="data-item"><span class="data-key">${k}</span><span class="data-value">${v}</span></div>`
+                        ).join('');
+                        previewDiv.innerHTML = `<div class="data-label">${preview.label}</div>${itemsHtml}`;
+                        stepCard.appendChild(previewDiv);
+                    }
+                }
+
+                // Update status badge
+                const statusBadge = stepCard.querySelector('.step-status');
+                if (step.status === 'success') {
+                    statusBadge.textContent = 'Verified';
+                    statusBadge.className = 'step-status success';
+                    completePlanStep(step.step, false);
+                } else if (step.status === 'blocked') {
+                    statusBadge.textContent = 'Blocked';
+                    statusBadge.className = 'step-status blocked';
+                    completePlanStep(step.step, true);
+                }
+
+                // Brief pause between steps
+                await sleep(200);
+            }
+
+            inspectionIndicator.classList.remove('active');
+            const badge = document.getElementById('airsFlowBadge');
+            badge.classList.remove('scanning');
+        }
+
+        function createStepCard(step, initialStatus = 'inspecting') {
+            const card = document.createElement('div');
+            card.className = `step-card ${initialStatus}`;
+            card.innerHTML = `
+                <div class="step-header">
+                    <div class="step-number">${step.step}</div>
+                    <div class="step-title">${step.description}</div>
+                    <div class="step-status">Inspecting</div>
+                </div>
+                <div class="step-server-tag">
+                    <i class="fas fa-server" style="font-size:0.5rem;"></i>
+                    ${step.server}
+                </div>
+                <div class="step-details">
+                    <strong>MCP Call:</strong> ${step.server}.${step.tool}()
+                    &nbsp;&middot;&nbsp;
+                    <strong>Time:</strong> ${(step.execution_time * 1000).toFixed(0)}ms
+                </div>
+            `;
+            return card;
+        }
+
+        function displayResults(result) {
+            const recommendationsDiv = document.getElementById('recommendationsContainer');
+            const workflowDiv = document.getElementById('workflowSteps');
+
+            console.log('Displaying results. Recommendations:', result.recommendations);
+
+            // Display recommendations
+            recommendationsDiv.innerHTML = '';
+            if (result.recommendations && result.recommendations.length > 0) {
+                const recCard = document.createElement('div');
+                recCard.className = 'results-card';
+                recCard.innerHTML = '<h4><i class="fas fa-gem"></i> Curated For You</h4>';
+
+                result.recommendations.forEach(rec => {
+                    const recDiv = document.createElement('div');
+                    recDiv.className = 'recommendation';
+
+                    const material = rec.material || rec.category || '';
+                    const color = rec.color || '';
+                    const matchPct = rec.ml_score ? (rec.ml_score * 100).toFixed(0) : '0';
+                    const price = typeof rec.price === 'number' ? rec.price.toFixed(2) : rec.price || '0.00';
+
+                    recDiv.innerHTML = `
+                        <div class="recommendation-brand">VERO</div>
+                        <div class="recommendation-name">${rec.name || rec.product_id}</div>
+                        <div class="recommendation-reason">${rec.reason || ''}</div>
+                        <div class="recommendation-meta">
+                            ${material ? `<span><i class="fas fa-leaf"></i> ${material}</span>` : ''}
+                            ${color ? `<span><i class="fas fa-palette"></i> ${color}</span>` : ''}
+                            <span><i class="fas fa-star"></i> ${matchPct}% match</span>
+                        </div>
+                        <div class="recommendation-bottom">
+                            <div class="recommendation-price">$${price}</div>
+                            <div class="recommendation-score">${matchPct}% Match</div>
+                        </div>
+                    `;
+                    recCard.appendChild(recDiv);
+                });
+
+                recommendationsDiv.appendChild(recCard);
+            } else {
+                recommendationsDiv.innerHTML = '<div class="empty-state"><p>No recommendations generated. Check that MCP servers are running.</p></div>';
+                console.warn('No recommendations in result:', result);
+            }
+
+            // Security events
+            if (result.security_events && result.security_events.length > 0) {
+                result.security_events.forEach(evt => {
+                    const secCard = document.createElement('div');
+                    secCard.className = 'security-summary';
+                    secCard.innerHTML = `
+                        <h4><i class="fas fa-shield-alt"></i> Security Event (Step ${evt.step})</h4>
+                        <p>${evt.reason}</p>
+                        <p style="margin-top:0.5rem;"><strong>Agent Adaptation:</strong> ${evt.agent_adaptation}</p>
+                    `;
+                    workflowDiv.appendChild(secCard);
+                });
+            }
+
+            // Final action
+            if (result.final_action) {
+                const actionCard = document.createElement('div');
+                actionCard.className = 'final-action-card';
+                const blockedCount = result.security_events ? result.security_events.length : 0;
+                const actionText = result.final_action === 'internal_notification'
+                    ? `Recommendations saved to internal system (${blockedCount} action${blockedCount !== 1 ? 's' : ''} blocked by AIRS security)`
+                    : 'Recommendations sent successfully';
+                actionCard.innerHTML = `
+                    <h4><i class="fas fa-check-circle" style="color:var(--good);"></i> Final Action</h4>
+                    <p>${actionText}</p>
+                `;
+                workflowDiv.appendChild(actionCard);
+            }
+        }
+
+        function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+        async function checkAPIStatus() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                console.log('MCP Agent API ready', data);
+            } catch (error) {
+                console.warn('MCP Agent API not available. Ensure the backend is running.');
+            }
+        }
+
+        checkAPIStatus();
+    </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+[Unit]
+Description=Multi-Agent MCP Demo with Prisma AIRS
+After=network.target
+
+[Service]
+Type=simple
+User=chmartin
+Group=chmartin
+WorkingDirectory=/var/www/airsdemo/mcp
+Environment="PANW_AI_SEC_API_KEY=your_key_here"
+Environment="PATH=/usr/bin:/usr/local/bin"
+
+# Run the start script without the wait at the end
+ExecStart=/bin/bash -c 'cd /var/www/airsdemo/mcp && python3 multi_agent_demo.py'
+
+# Start MCP servers before the main app
+ExecStartPre=/bin/bash -c 'cd /var/www/airsdemo/mcp && python3 customer_mcp_server.py > logs/customer_mcp.log 2>&1 &'
+ExecStartPre=/bin/bash -c 'cd /var/www/airsdemo/mcp && sleep 1 && python3 order_history_mcp_server.py > logs/order_history_mcp.log 2>&1 &'
+ExecStartPre=/bin/bash -c 'cd /var/www/airsdemo/mcp && sleep 1 && python3 analytics_mcp_server.py > logs/analytics_mcp.log 2>&1 &'
+ExecStartPre=/bin/bash -c 'cd /var/www/airsdemo/mcp && sleep 1 && python3 ml_recommendation_mcp_server.py > logs/ml_recommendation_mcp.log 2>&1 &'
+ExecStartPre=/bin/bash -c 'cd /var/www/airsdemo/mcp && sleep 1 && python3 product_catalog_mcp_server.py > logs/product_catalog_mcp.log 2>&1 &'
+ExecStartPre=/bin/bash -c 'cd /var/www/airsdemo/mcp && sleep 1 && python3 notification_mcp_server.py > logs/notification_mcp.log 2>&1 &'
+ExecStartPre=/bin/bash -c 'cd /var/www/airsdemo/mcp && sleep 1 && python3 admin_server.py > logs/admin_server.log 2>&1 &'
+ExecStartPre=/bin/sleep 3
+
+# Stop all processes on stop
+ExecStop=/usr/bin/pkill -f "python3.*mcp"
+
+Restart=always
+RestartSec=10
+
+StandardOutput=append:/var/www/airsdemo/mcp/logs/multi_agent_demo.log
+StandardError=append:/var/www/airsdemo/mcp/logs/multi_agent_demo.log
+
+[Install]
+WantedBy=multi-user.target

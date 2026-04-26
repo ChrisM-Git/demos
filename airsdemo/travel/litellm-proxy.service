@@ -1,0 +1,16 @@
+[Unit]
+Description=LiteLLM Proxy with Palo Alto Networks Security
+After=network.target
+
+[Service]
+Type=simple
+User=chmartin
+WorkingDirectory=/var/www/airsdemo
+Environment="PATH=/var/www/airsdemo/venv/bin:/usr/local/bin:/usr/bin:/bin"
+EnvironmentFile=/var/www/airsdemo/.env
+ExecStart=/var/www/airsdemo/venv/bin/litellm --config /var/www/airsdemo/litellm_config.yaml --port 4000 --host 0.0.0.0
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

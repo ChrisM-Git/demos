@@ -1,0 +1,41 @@
+/* ============================================================
+   pro-mode.css  —  Professional / Presenter Mode
+   Shared across all demo pages.
+
+   HOW IT WORKS:
+   - landpage.html toggle button writes to localStorage
+   - BroadcastChannel syncs the state across all open tabs
+   - When active, adds class "professional-mode" to <body>
+   - Any image tagged class="agent-image" is hidden instantly
+
+   TO ADD THE WOMAN TO A NEW PAGE:
+   1. Add this file to the page <head>:
+        <link rel="stylesheet" href="/css/pro-mode.css">
+   2. Add the sync script to the page (copy from landpage.html)
+   3. Tag the woman image:
+        <img src="images/agent.png" class="agent-image" ... />
+   ============================================================ */
+
+/* ============================================================
+   pro-mode.css  —  Professional / Presenter Mode
+   Shared across all demo pages.
+
+   HOW IT WORKS:
+   - landpage.html toggle button writes to localStorage
+   - BroadcastChannel syncs the state across all open tabs
+   - When active, adds class "professional-mode" to <body>
+   - Any image tagged class="agent-image" is hidden instantly
+
+   TO ADD THE WOMAN TO A NEW PAGE:
+   1. Add this file to the page <head>:
+        <link rel="stylesheet" href="/css/pro-mode.css">
+   2. Add the sync script to the page <head>:
+        <script src="/js/pro-mode-sync.js"></script>
+   3. Tag the woman image:
+        <img src="images/agent.png" class="agent-image" ... />
+   ============================================================ */
+
+/* Hide all agent images when professional mode is active */
+body.professional-mode .agent-image {
+    display: none !important;
+}

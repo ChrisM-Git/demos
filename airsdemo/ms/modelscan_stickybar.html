@@ -1,0 +1,2409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prisma AIRS Model Security Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f1419;
+            color: #e3e7ed;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: #1a1f2e;
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid #2d3748;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .header-content {
+            max-width: 1800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .api-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .api-status.offline {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .api-status.offline .status-dot {
+            background: #ef4444;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .main-container {
+            padding-top: 80px;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            padding-bottom: 2rem;
+        }
+
+        .hero-banner {
+            background: linear-gradient(135deg, #1e43e4 0%, #6f7e91 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1rem 0 2rem 0;
+            text-align: center;
+        }
+
+        .hero-banner h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .workflow-status {
+            background: #1a1f2e;
+            border: 1px solid #2d3748;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .status-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-step {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            background: #0f1419;
+            border-radius: 6px;
+            border: 2px solid #2d3748;
+            transition: all 0.3s ease;
+        }
+
+        .status-step.active {
+            border-color: #2b6cb0;
+            background: rgba(30, 67, 228, 0.1);
+        }
+
+        .status-step.completed {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .status-step.failed {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .step-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-label {
+            font-size: 0.85rem;
+            color: #9ca3af;
+            font-weight: 600;
+        }
+
+        .status-step.active .step-label { color: #2b6cb0; }
+        .status-step.completed .step-label { color: #10b981; }
+        .status-step.failed .step-label { color: #ef4444; }
+
+        .demo-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.2fr;
+            gap: 1.5rem;
+        }
+
+        .panel {
+            background: #1a1f2e;
+            border: 1px solid #2d3748;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: #0f1419;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #2d3748;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: #e3e7ed;
+        }
+
+        .panel-title i {
+            color: #2b6cb0;
+        }
+
+        .model-selector {
+            background: #0f1419;
+            border: 1px solid #2d3748;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .model-option {
+            background: #000;
+            border: 1px solid #2d3748;
+            border-radius: 6px;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .model-option:hover {
+            border-color: #2b6cb0;
+            background: #1a1f2e;
+        }
+
+        .model-option.selected {
+            border-color: #2b6cb0;
+            background: rgba(30, 67, 228, 0.1);
+        }
+
+        .model-option.malicious {
+            border-color: #ef4444;
+        }
+
+        .model-name {
+            color: #e3e7ed;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .model-desc {
+            color: #9ca3af;
+            font-size: 0.85rem;
+        }
+
+        .code-editor {
+            background: #000000;
+            padding: 1rem;
+            height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .code-editor textarea {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            color: #e3e7ed;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+        }
+
+        .action-btn {
+            background: transparent;
+            color: #2b6cb0;
+            border: 2px solid #2b6cb0;
+            padding: 1rem 2rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover:not(:disabled) {
+            background: rgba(43, 108, 176, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(30, 67, 228, 0.3);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .terminal {
+            background: #000;
+            padding: 1.5rem;
+            height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        .terminal-line {
+            margin: 0.2rem 0;
+        }
+
+        .terminal-prompt { color: #10b981; font-weight: bold; }
+        .terminal-output { color: #9ca3af; }
+        .terminal-success { color: #10b981; }
+        .terminal-error { color: #ef4444; }
+        .terminal-warning { color: #f59e0b; }
+        .terminal-scan { color: #3b82f6; font-weight: bold; }
+        .terminal-highlight { color: #6366f1; }
+
+        .model-highlight {
+            color: #fbbf24;
+            font-weight: bold;
+            background: rgba(251, 191, 36, 0.1);
+        }
+
+        .code-display {
+            white-space: pre;
+            color: #e3e7ed;
+        }
+
+        @media (max-width: 1200px) {
+            .demo-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* CLI Command Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1a1f2e;
+            border: 2px solid #2b6cb0;
+            border-radius: 12px;
+            max-width: 900px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #1e43e4 0%, #2b6cb0 100%);
+            padding: 1.5rem;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: white;
+            font-size: 1.3rem;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .command-section {
+            background: #0f1419;
+            border: 1px solid #2d3748;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .command-section h3 {
+            color: #3b82f6;
+            margin: 0 0 1rem 0;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .command-code {
+            background: #000;
+            border: 1px solid #2d3748;
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #e3e7ed;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #1e40af;
+        }
+
+        .copy-btn.copied {
+            background: #10b981;
+        }
+
+        .command-highlight {
+            color: #fbbf24;
+        }
+
+        .command-param {
+            color: #3b82f6;
+        }
+
+        .command-value {
+            color: #10b981;
+        }
+
+        .security-group-info {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid #3b82f6;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .security-group-info strong {
+            color: #3b82f6;
+        }
+
+        .view-commands-btn {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background: #0f766e;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .view-commands-btn:hover {
+            background: #0d9488;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(15, 118, 110, 0.4);
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .status-badge.idle {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 2px solid #3b82f6;
+        }
+
+        .status-badge.scanning {
+            background: rgba(234, 179, 8, 0.1);
+            color: #eab308;
+            border: 2px solid #eab308;
+            animation: pulse 2s infinite;
+        }
+
+        .status-badge.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 2px solid #10b981;
+        }
+
+        .status-badge.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 2px solid #ef4444;
+        }
+
+        /* SVG Animation Styles */
+        .flow-node {
+            transition: all 0.3s ease;
+        }
+
+        .flow-node.active rect {
+            stroke: #3b82f6;
+            stroke-width: 3;
+            filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+        }
+
+        .flow-node.success rect {
+            stroke: #10b981;
+            stroke-width: 3;
+            filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.5));
+        }
+
+        .flow-node.error rect {
+            stroke: #ef4444;
+            stroke-width: 3;
+            filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.5));
+        }
+
+        .flow-path {
+            transition: stroke 0.5s ease;
+        }
+
+        .flow-path.active {
+            stroke: #3b82f6;
+            stroke-width: 4;
+            animation: pathFlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pathFlow {
+            0%, 100% {
+                stroke-dasharray: 10, 5;
+                stroke-dashoffset: 0;
+            }
+            50% {
+                stroke-dasharray: 10, 5;
+                stroke-dashoffset: 15;
+            }
+        }
+
+        .data-particle {
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .data-particle.active {
+            opacity: 1;
+            animation: particleMove 2s ease-in-out infinite;
+        }
+
+        @keyframes particleMove {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+        }
+    
+        /* ===== Sticky Action Bar (Best Usability) ===== */
+        .sticky-action-bar {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 18px;
+            width: min(1120px, calc(100% - 32px));
+            z-index: 9999;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+
+            padding: 14px 16px;
+            border-radius: 16px;
+
+            background: rgba(10, 15, 30, 0.62);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+
+            box-shadow:
+                0 18px 50px rgba(0,0,0,0.55),
+                0 0 0 1px rgba(139, 92, 246, 0.12) inset;
+        }
+
+        .sticky-action-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .sticky-action-meta .meta-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            color: #e5e7eb;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+
+        .sticky-action-meta .meta-subtitle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: rgba(229, 231, 235, 0.72);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sticky-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.10);
+            font-size: 0.85rem;
+            color: rgba(229,231,235,0.9);
+        }
+
+        .sticky-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .sticky-actions .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(135deg, rgba(59,130,246,1), rgba(139,92,246,1));
+            box-shadow: 0 10px 24px rgba(59,130,246,0.20);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+        }
+
+        .sticky-actions .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 16px 34px rgba(59,130,246,0.26);
+            filter: saturate(1.05);
+        }
+
+        .sticky-actions .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            color: rgba(229,231,235,0.92);
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.14);
+            transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+        }
+
+        .sticky-actions .btn-secondary:hover {
+            border-color: rgba(59,130,246,0.35);
+            background: rgba(59,130,246,0.10);
+            transform: translateY(-1px);
+        }
+
+        /* Make room for the fixed bar */
+        body {
+            padding-bottom: 110px;
+        }
+
+        @media (max-width: 720px) {
+            .sticky-action-bar {
+                bottom: 12px;
+                padding: 12px 12px;
+            }
+            .sticky-action-meta .meta-title {
+                font-size: 0.98rem;
+            }
+            .sticky-actions .btn-primary,
+            .sticky-actions .btn-secondary {
+                padding: 11px 13px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- CLI Command Modal -->
+    <div class="modal-overlay" id="commandModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-terminal"></i> Model Scan Commands</h2>
+                <button class="modal-close" onclick="closeCommandModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Commands will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <img src="logo.png" height="22" width="46"/>
+                Model Scanning with AIRS Integration
+            </div>
+            <div id="apiStatus" class="api-status offline">
+                <div class="status-dot"></div>
+                <span>Checking API...</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="hero-banner">
+            <h1>🔐 Prisma AIRS Model Security Platform</h1>
+            <p>Comprehensive AI model scanning from any source - HuggingFace, Local Files, S3, Azure Blob, Google Cloud Storage</p>
+        </div>
+
+        <div class="demo-layout">
+            <!-- Left Panel: Model Selection -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fas fa-database"></i>
+                        Model Selection
+                    </div>
+                </div>
+
+                <div style="padding: 1rem;">
+                    <!-- Model Source Selection -->
+                    <div style="background: #1a1f2e; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #2d3748;">
+                        <div style="color: #e3e7ed; font-weight: 600; margin-bottom: 0.75rem;">
+                            <i class="fas fa-database"></i> Model Source:
+                        </div>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="radio" name="modelSource" value="huggingface" checked onchange="updateModelSourceUI()">
+                                <span>HuggingFace</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="radio" name="modelSource" value="local" onchange="updateModelSourceUI()">
+                                <span>Local File</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="radio" name="modelSource" value="s3" onchange="updateModelSourceUI()">
+                                <span>AWS S3</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="radio" name="modelSource" value="azure" onchange="updateModelSourceUI()">
+                                <span>Azure Blob</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="radio" name="modelSource" value="gcs" onchange="updateModelSourceUI()">
+                                <span>Google Cloud Storage</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- HuggingFace Options -->
+                    <div id="huggingfaceOptions" class="model-selector">
+                        <div style="color: #e3e7ed; font-weight: 600; margin-bottom: 0.75rem;">
+                            <i class="fas fa-server"></i> Choose HuggingFace Model:
+                            <span id="selectedModelDisplay" style="color: #3b82f6; margin-left: 1rem;">microsoft/DialoGPT-medium</span>
+                        </div>
+
+                        <!-- Quick Select Models -->
+                        <div style="margin-bottom: 1rem;">
+                            <div style="color: #9ca3af; font-size: 0.85rem; margin-bottom: 0.5rem;">Quick Select:</div>
+                            <div class="model-option" onclick="selectModel('google/flan-t5-small', 'huggingface', false)">
+                                <div class="model-name">✅ google/flan-t5-small</div>
+                                <div class="model-desc">Google T5 - Passes security scan</div>
+                            </div>
+                            <div class="model-option selected" onclick="selectModel('microsoft/DialoGPT-medium', 'huggingface', false)">
+                                <div class="model-name">✅ microsoft/DialoGPT-medium</div>
+                                <div class="model-desc">Microsoft conversational AI - Passes security scan</div>
+                            </div>
+                            <div class="model-option malicious" onclick="selectModel('distilbert/distilbert-base-uncased', 'huggingface', true)">
+                                <div class="model-name" style="color: #ef4444;">❌ distilbert/distilbert-base-uncased</div>
+                                <div class="model-desc">DistilBERT - Blocked by security scan</div>
+                            </div>
+                            <div class="model-option malicious" onclick="selectModel('facebook/opt-125m', 'huggingface', true)">
+                                <div class="model-name" style="color: #ef4444;">❌ facebook/opt-125m</div>
+                                <div class="model-desc">Meta OPT - Blocked by security scan</div>
+                            </div>
+                        </div>
+
+                        <!-- Custom HuggingFace Model Input -->
+                        <div style="background: #0f1419; padding: 1rem; border-radius: 6px; border: 1px solid #2d3748;">
+                            <div style="color: #9ca3af; font-size: 0.85rem; margin-bottom: 0.5rem;">
+                                Or enter custom model:
+                            </div>
+                            <input type="text" id="customHFModel" placeholder="e.g., author/model-name or https://huggingface.co/author/model-name"
+                                style="width: 100%; padding: 0.75rem; background: #000; border: 1px solid #2d3748; border-radius: 6px; color: #e3e7ed; font-size: 0.9rem;"
+                                onkeyup="handleCustomModelInput(event)">
+                            <button onclick="useCustomHFModel()"
+                                style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                Use This Model
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Local File Options -->
+                    <div id="localOptions" style="display: none;">
+                        <!-- Download from HuggingFace -->
+                        <div style="background: #1a1f2e; padding: 1rem; border-radius: 6px; border: 1px solid #2d3748; margin-bottom: 1rem;">
+                            <div style="color: #e3e7ed; font-weight: 600; margin-bottom: 0.75rem;">
+                                <i class="fas fa-download"></i> Download Model from HuggingFace
+                            </div>
+                            <div style="color: #9ca3af; font-size: 0.85rem; margin-bottom: 0.5rem;">
+                                Enter HuggingFace model name to download to server:
+                            </div>
+                            <input type="text" id="downloadModelName" placeholder="e.g., google/flan-t5-small or author/model-name"
+                                style="width: 100%; padding: 0.75rem; background: #000; border: 1px solid #2d3748; border-radius: 6px; color: #e3e7ed; font-size: 0.9rem;">
+                            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                                <button onclick="downloadHFModel()" id="downloadBtn"
+                                    style="flex: 1; padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                    <i class="fas fa-download"></i> Download to Server
+                                </button>
+                            </div>
+                            <div id="downloadStatus" style="margin-top: 0.75rem; padding: 0.75rem; background: rgba(59, 130, 246, 0.1); border-left: 3px solid #3b82f6; color: #9ca3af; font-size: 0.85rem; display: none;">
+                                <div id="downloadMessage"></div>
+                            </div>
+                            <div style="margin-top: 0.75rem; padding: 0.75rem; background: rgba(59, 130, 246, 0.1); border-left: 3px solid #3b82f6; color: #9ca3af; font-size: 0.85rem;">
+                                <strong>Note:</strong> Large models may take several minutes to download.
+                            </div>
+                        </div>
+
+                        <!-- Use Existing Local Model -->
+                        <div style="color: #e3e7ed; font-weight: 600; margin-bottom: 0.75rem;">
+                            <i class="fas fa-folder"></i> Use Existing Local Model:
+                            <span id="selectedLocalPath" style="color: #3b82f6; margin-left: 1rem;"></span>
+                        </div>
+                        <div style="background: #0f1419; padding: 1rem; border-radius: 6px; border: 1px solid #2d3748;">
+                            <div style="color: #9ca3af; font-size: 0.85rem; margin-bottom: 0.5rem;">
+                                Enter full path to model directory on your server:
+                            </div>
+                            <input type="text" id="localModelPath" placeholder="e.g., /var/www/airsdemo/ms-rt/models/flan-t5-small"
+                                style="width: 100%; padding: 0.75rem; background: #000; border: 1px solid #2d3748; border-radius: 6px; color: #e3e7ed; font-size: 0.9rem;"
+                                onkeyup="handleLocalPathInput(event)">
+                            <button onclick="useLocalModel()"
+                                style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                Use This Model
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- S3 Options -->
+                    <div id="s3Options" style="display: none;">
+                        <div style="color: #e3e7ed; font-weight: 600; margin-bottom: 0.75rem;">
+                            <i class="fas fa-cloud"></i> AWS S3 Model URI:
+                            <span id="selectedS3URI" style="color: #3b82f6; margin-left: 1rem;"></span>
+                        </div>
+                        <div style="background: #0f1419; padding: 1rem; border-radius: 6px; border: 1px solid #2d3748;">
+                            <div style="color: #9ca3af; font-size: 0.85rem; margin-bottom: 0.5rem;">
+                                Enter S3 URI to your model:
+                            </div>
+                            <input type="text" id="s3ModelURI" placeholder="e.g., s3://my-bucket/models/my-model"
+                                style="width: 100%; padding: 0.75rem; background: #000; border: 1px solid #2d3748; border-radius: 6px; color: #e3e7ed; font-size: 0.9rem;"
+                                onkeyup="handleS3Input(event)">
+                            <button onclick="useS3Model()"
+                                style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                Use This Model
+                            </button>
+                            <div style="margin-top: 0.75rem; padding: 0.75rem; background: rgba(59, 130, 246, 0.1); border-left: 3px solid #3b82f6; color: #9ca3af; font-size: 0.85rem;">
+                                <strong>Note:</strong> Ensure your AWS credentials are configured and the S3 bucket is accessible.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Azure Options -->
+                    <div id="azureOptions" style="display: none;">
+                        <div style="color: #e3e7ed; font-weight: 600; margin-bottom: 0.75rem;">
+                            <i class="fas fa-cloud"></i> Azure Blob Storage URI:
+                            <span id="selectedAzureURI" style="color: #3b82f6; margin-left: 1rem;"></span>
+                        </div>
+                        <div style="background: #0f1419; padding: 1rem; border-radius: 6px; border: 1px solid #2d3748;">
+                            <div style="color: #9ca3af; font-size: 0.85rem; margin-bottom: 0.5rem;">
+                                Enter Azure Blob Storage URI:
+                            </div>
+                            <input type="text" id="azureModelURI" placeholder="e.g., https://mystorageaccount.blob.core.windows.net/models/my-model"
+                                style="width: 100%; padding: 0.75rem; background: #000; border: 1px solid #2d3748; border-radius: 6px; color: #e3e7ed; font-size: 0.9rem;"
+                                onkeyup="handleAzureInput(event)">
+                            <button onclick="useAzureModel()"
+                                style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                Use This Model
+                            </button>
+                            <div style="margin-top: 0.75rem; padding: 0.75rem; background: rgba(59, 130, 246, 0.1); border-left: 3px solid #3b82f6; color: #9ca3af; font-size: 0.85rem;">
+                                <strong>Note:</strong> Ensure your Azure credentials are configured and the blob storage is accessible.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GCS Options -->
+                    <div id="gcsOptions" style="display: none;">
+                        <div style="color: #e3e7ed; font-weight: 600; margin-bottom: 0.75rem;">
+                            <i class="fas fa-cloud"></i> Google Cloud Storage URI:
+                            <span id="selectedGCSURI" style="color: #3b82f6; margin-left: 1rem;"></span>
+                        </div>
+                        <div style="background: #0f1419; padding: 1rem; border-radius: 6px; border: 1px solid #2d3748;">
+                            <div style="color: #9ca3af; font-size: 0.85rem; margin-bottom: 0.5rem;">
+                                Enter GCS URI:
+                            </div>
+                            <input type="text" id="gcsModelURI" placeholder="e.g., gs://my-bucket/models/my-model"
+                                style="width: 100%; padding: 0.75rem; background: #000; border: 1px solid #2d3748; border-radius: 6px; color: #e3e7ed; font-size: 0.9rem;"
+                                onkeyup="handleGCSInput(event)">
+                            <button onclick="useGCSModel()"
+                                style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                Use This Model
+                            </button>
+                            <div style="margin-top: 0.75rem; padding: 0.75rem; background: rgba(59, 130, 246, 0.1); border-left: 3px solid #3b82f6; color: #9ca3af; font-size: 0.85rem;">
+                                <strong>Note:</strong> Ensure your GCP credentials are configured and the GCS bucket is accessible.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1rem;">
+                        <button class="view-commands-btn" onclick="showCommandModal()">
+                            <i class="fas fa-code"></i>
+                            View CLI Commands for This Model
+                        </button>
+                        <button class="action-btn" id="runBtn" onclick="runApplication()">
+                            <i class="fas fa-play"></i>
+                            Run Model Scan
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Code and Console -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <!-- Code Panel -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <i class="fas fa-shield-alt"></i>
+                            Application Code - WITH AIRS (Protected)
+                        </div>
+                    </div>
+                    <div class="code-editor" style="height: 400px; border-top: 2px solid #14532d;">
+                        <div id="codeWithAIRS" class="code-display"></div>
+                    </div>
+                </div>
+
+                <!-- Terminal Panel -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <i class="fas fa-terminal"></i>
+                            Development Console (Real-Time Output)
+                        </div>
+                    </div>
+
+                    <div class="terminal" id="terminal">
+                    <div class="terminal-line terminal-output">Development Environment</div>
+                    <div class="terminal-line terminal-output">Python 3.10.12 | AIRS SDK v2.4.1</div>
+                    <div class="terminal-line terminal-scan">🔒 Prisma AIRS Model Security: ACTIVE</div>
+                    <div class="terminal-line terminal-output">Backend API: <span id="apiEndpoint"></span></div>
+                    <div class="terminal-line"></div>
+                    <div class="terminal-line terminal-prompt">$ <span class="terminal-output">Ready to run application...</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Vertical Animation Flow -->
+            <div style="background: #1a1f2e; border: 2px solid #2b6cb0; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(43, 108, 176, 0.2);">
+                <div style="margin-bottom: 1rem; text-align: center;">
+                    <h3 style="color: #e3e7ed; margin: 0 0 0.5rem 0;"><i class="fas fa-network-wired"></i> Live Scanning Flow</h3>
+                    <p style="color: #9ca3af; font-size: 0.85rem; margin: 0;">Real-time model security analysis</p>
+                </div>
+
+                <!-- Vertical SVG Flow -->
+                <svg viewBox="0 0 280 580" xmlns="http://www.w3.org/2000/svg" style="width: 100%; max-height: 550px; height: auto;">
+                    <!-- Vertical Connection Lines -->
+                    <path id="path1" class="flow-path" d="M 140 110 L 140 175" stroke="#2d3748" stroke-width="3" fill="none"/>
+                    <path id="path2" class="flow-path" d="M 140 290 L 140 355" stroke="#2d3748" stroke-width="3" fill="none"/>
+                    <path id="path3" class="flow-path" d="M 140 465 L 140 520" stroke="#2d3748" stroke-width="3" fill="none"/>
+
+                    <!-- Data Particles -->
+                    <circle class="data-particle" id="particle1" cx="140" cy="110" r="4" fill="#3b82f6"/>
+                    <circle class="data-particle" id="particle2" cx="140" cy="290" r="4" fill="#3b82f6"/>
+                    <circle class="data-particle" id="particle3" cx="140" cy="465" r="4" fill="#3b82f6"/>
+
+                    <!-- Node 1: Model Source -->
+                    <g class="flow-node" id="node-source">
+                        <rect x="40" y="15" width="200" height="95" rx="8" fill="rgba(26, 31, 46, 0.9)" stroke="#2d3748" stroke-width="2"/>
+                        <text x="140" y="45" text-anchor="middle" fill="#2b6cb0" font-size="28">
+                            <tspan id="sourceIcon">🤗</tspan>
+                        </text>
+                        <text x="140" y="68" text-anchor="middle" fill="#e3e7ed" font-size="13" font-weight="600">Model Source</text>
+                        <text x="140" y="84" text-anchor="middle" fill="#9ca3af" font-size="10" id="sourceType">HuggingFace</text>
+                        <text x="140" y="99" text-anchor="middle" fill="#6b7280" font-size="9" id="sourceModel">Select a model</text>
+                    </g>
+
+                    <!-- Node 2: AIRS Scanner -->
+                    <g class="flow-node" id="node-scanner">
+                        <rect x="40" y="175" width="200" height="115" rx="8" fill="rgba(26, 31, 46, 0.9)" stroke="#2d3748" stroke-width="2"/>
+                        <text x="140" y="205" text-anchor="middle" fill="#2b6cb0" font-size="28">🔍</text>
+                        <text x="140" y="228" text-anchor="middle" fill="#e3e7ed" font-size="13" font-weight="600">AIRS Scanner</text>
+                        <text x="140" y="245" text-anchor="middle" fill="#9ca3af" font-size="9">Deep Analysis Engine</text>
+                        <text x="140" y="260" text-anchor="middle" fill="#6b7280" font-size="8">• Malware Detection</text>
+                        <text x="140" y="272" text-anchor="middle" fill="#6b7280" font-size="8">• Vulnerability Scan</text>
+                        <text x="140" y="284" text-anchor="middle" fill="#6b7280" font-size="8">• Policy Compliance</text>
+
+                        <!-- Scan waves -->
+                        <g id="scanWaves" opacity="0">
+                            <circle cx="140" cy="215" r="25" fill="none" stroke="#eab308" stroke-width="2" opacity="0.6">
+                                <animate attributeName="r" from="25" to="55" dur="2s" repeatCount="indefinite"/>
+                                <animate attributeName="opacity" from="0.6" to="0" dur="2s" repeatCount="indefinite"/>
+                            </circle>
+                        </g>
+                    </g>
+
+                    <!-- Node 3: Processing -->
+                    <g class="flow-node" id="node-processing">
+                        <rect x="40" y="355" width="200" height="110" rx="8" fill="rgba(26, 31, 46, 0.9)" stroke="#2d3748" stroke-width="2"/>
+                        <text x="140" y="385" text-anchor="middle" fill="#2b6cb0" font-size="28">⚙️</text>
+                        <text x="140" y="408" text-anchor="middle" fill="#e3e7ed" font-size="13" font-weight="600">Analysis Processing</text>
+                        <text x="140" y="425" text-anchor="middle" fill="#9ca3af" font-size="9" id="processingStatus">Awaiting Scan</text>
+                        <text x="140" y="441" text-anchor="middle" fill="#6b7280" font-size="8" id="progressText">Progress: 0%</text>
+                        <text x="140" y="455" text-anchor="middle" fill="#6b7280" font-size="8" id="timeElapsed">Time: 0s</text>
+                    </g>
+
+                    <!-- Node 4: Palo Alto Cloud -->
+                    <g class="flow-node" id="node-cloud">
+                        <rect x="40" y="520" width="200" height="50" rx="8" fill="rgba(26, 31, 46, 0.9)" stroke="#2d3748" stroke-width="2"/>
+                        <text x="60" y="550" text-anchor="start" fill="#2b6cb0" font-size="24">☁️</text>
+                        <text x="140" y="545" text-anchor="middle" fill="#e3e7ed" font-size="12" font-weight="600">Palo Alto Cloud</text>
+                        <text x="140" y="560" text-anchor="middle" fill="#9ca3af" font-size="8" id="cloudStatus">Standby</text>
+                    </g>
+                </svg>
+
+                <!-- Status Badge -->
+                <div style="text-align: center; margin-top: 1rem;">
+                    <span class="status-badge idle" id="mainStatus">
+                        <i class="fas fa-circle"></i>
+                        <span id="statusText">Ready to Scan</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getApiBaseUrl() {
+            const hostname = window.location.hostname;
+
+            // Always use nginx proxy for production (GCP only allows ports 80/443)
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                return 'http://localhost:5000';
+            } else {
+                // Use nginx proxy for all remote access
+                return '/modelscan-api';
+            }
+        }
+
+        const API_BASE_URL = getApiBaseUrl();
+        let selectedModel = 'microsoft/DialoGPT-medium';
+        let selectedSourceType = 'huggingface';
+        let selectedModelPath = null;
+        let isMalicious = false;
+
+        // CODE WITH AIRS - Protected with model scanning
+        const codeWithAIRSTemplate = `#!/usr/bin/env python3
+"""AI Application with AIRS Protection"""
+import os
+from aisecurity import secure_model_loader
+import aisecurity
+
+# Initialize Palo Alto AIRS SDK
+aisecurity.init(api_key=os.getenv("PANW_AI_SEC_API_KEY"))
+
+def load_ai_model():
+    """Load AI model with automatic security scanning"""
+    print("Model: MODEL_NAME")
+
+    # ✅ AIRS SDK automatically scans model before loading
+    model = secure_model_loader.load(
+        model_id="MODEL_NAME",
+        security_profile="luna-retail"
+    )
+    print("✅ Model loaded - verified and safe!")
+    return model
+
+if __name__ == '__main__':
+    ai_model = load_ai_model()  # REAL security scan here
+    # Run chatbot with verified model
+    run_chatbot(ai_model)`;
+
+        // Check API health on load
+        window.addEventListener('load', () => {
+            updateCode();
+            updateProcessFlowSource();
+            resetFlowAnimation();
+            document.getElementById('apiEndpoint').textContent = API_BASE_URL;
+            checkAPIHealth();
+        });
+
+        async function checkAPIHealth() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                const data = await response.json();
+
+                if (data.status === 'healthy') {
+                    updateAPIStatus(true, 'API Connected ✓');
+                } else {
+                    updateAPIStatus(false, 'API Error');
+                }
+            } catch (error) {
+                updateAPIStatus(false, 'Backend Offline - Start backend.py');
+            }
+        }
+
+        function updateAPIStatus(isOnline, message) {
+            const statusElement = document.getElementById('apiStatus');
+            statusElement.className = `api-status ${isOnline ? '' : 'offline'}`;
+            statusElement.querySelector('span').textContent = message;
+        }
+
+        function updateProcessFlowSource() {
+            const sourceType = selectedSourceType || 'huggingface';
+            const icons = {
+                'huggingface': '🤗',
+                'local': '📁',
+                's3': '☁️',
+                'azure': '🔷',
+                'gcs': '🌐'
+            };
+            const labels = {
+                'huggingface': 'HuggingFace',
+                'local': 'Local File',
+                's3': 'AWS S3',
+                'azure': 'Azure Blob',
+                'gcs': 'Google Cloud'
+            };
+
+            const icon = icons[sourceType] || '🤗';
+            const label = labels[sourceType] || 'HuggingFace';
+
+            if (document.getElementById('sourceIcon')) {
+                document.getElementById('sourceIcon').textContent = icon;
+            }
+            if (document.getElementById('sourceType')) {
+                document.getElementById('sourceType').textContent = label;
+            }
+        }
+
+        // Animation state management
+        function resetFlowAnimation() {
+            // Reset all nodes
+            document.querySelectorAll('.flow-node').forEach(node => {
+                node.classList.remove('active', 'success', 'error');
+            });
+
+            // Reset all paths
+            document.querySelectorAll('.flow-path').forEach(path => {
+                path.classList.remove('active');
+            });
+
+            // Reset all particles
+            document.querySelectorAll('.data-particle').forEach(particle => {
+                particle.classList.remove('active');
+            });
+
+            // Reset scan waves
+            if (document.getElementById('scanWaves')) {
+                document.getElementById('scanWaves').setAttribute('opacity', '0');
+            }
+
+            // Reset text elements
+            if (document.getElementById('sourceModel')) {
+                document.getElementById('sourceModel').textContent = selectedModel || 'Select a model';
+            }
+            if (document.getElementById('processingStatus')) {
+                document.getElementById('processingStatus').textContent = 'Awaiting Scan';
+            }
+            if (document.getElementById('progressText')) {
+                document.getElementById('progressText').textContent = 'Progress: 0%';
+            }
+            if (document.getElementById('timeElapsed')) {
+                document.getElementById('timeElapsed').textContent = 'Time: 0s';
+            }
+            if (document.getElementById('cloudStatus')) {
+                document.getElementById('cloudStatus').textContent = 'Standby';
+            }
+
+            // Reset status badge
+            const statusBadge = document.getElementById('mainStatus');
+            if (statusBadge) {
+                statusBadge.className = 'status-badge idle';
+            }
+            const statusText = document.getElementById('statusText');
+            if (statusText) {
+                statusText.textContent = 'Ready to Scan';
+            }
+        }
+
+        function activateNode(nodeId, status = 'active') {
+            const node = document.getElementById(nodeId);
+            if (node) {
+                node.classList.remove('active', 'success', 'error');
+                node.classList.add(status);
+            }
+        }
+
+        function activatePath(pathId) {
+            const path = document.getElementById(pathId);
+            if (path) {
+                path.classList.add('active');
+            }
+        }
+
+        function activateParticle(particleId) {
+            const particle = document.getElementById(particleId);
+            if (particle) {
+                particle.classList.add('active');
+            }
+        }
+
+        function updateMainStatus(status, text) {
+            const statusBadge = document.getElementById('mainStatus');
+            const statusText = document.getElementById('statusText');
+
+            if (statusBadge) {
+                statusBadge.className = `status-badge ${status}`;
+            }
+            if (statusText) {
+                statusText.textContent = text;
+            }
+        }
+
+        async function animateScanFlow() {
+            resetFlowAnimation();
+            updateMainStatus('idle', 'Initializing...');
+
+            await sleep(500);
+
+            // Step 1: Activate source node
+            activateNode('node-source', 'active');
+            updateMainStatus('scanning', 'Loading Model...');
+            await sleep(800);
+
+            // Animate to scanner
+            activatePath('path1');
+            activateParticle('particle1');
+            await sleep(1000);
+
+            // Step 2: Activate scanner node
+            activateNode('node-source', 'success');
+            activateNode('node-scanner', 'active');
+            document.getElementById('scanWaves').setAttribute('opacity', '1');
+            updateMainStatus('scanning', 'Scanning Model...');
+            await sleep(1500);
+
+            // Animate to processing
+            activatePath('path2');
+            activateParticle('particle2');
+            await sleep(1000);
+
+            // Step 3: Activate processing node and STOP HERE
+            // Wait for real API results before proceeding
+            activateNode('node-scanner', 'success');
+            activateNode('node-processing', 'active');
+            if (document.getElementById('processingStatus')) {
+                document.getElementById('processingStatus').textContent = 'Analyzing...';
+            }
+            updateMainStatus('scanning', 'Analyzing Results...');
+
+            // Keep showing progress while waiting for real results
+            // This will run until API results come back
+            if (document.getElementById('progressText')) {
+                document.getElementById('progressText').textContent = 'Progress: Waiting...';
+            }
+        }
+
+        async function applyFinalScanResults(isAllowed) {
+            // First, mark processing as complete
+            if (document.getElementById('processingStatus')) {
+                document.getElementById('processingStatus').textContent = 'Analysis Complete';
+            }
+            if (document.getElementById('progressText')) {
+                document.getElementById('progressText').textContent = 'Progress: 100%';
+            }
+
+            await sleep(300);
+
+            // Animate path to cloud
+            activatePath('path3');
+            activateParticle('particle3');
+
+            await sleep(500);
+
+            // Mark processing as success
+            activateNode('node-processing', 'success');
+
+            await sleep(500);
+
+            // Update cloud node with final status
+            activateNode('node-cloud', isAllowed ? 'success' : 'error');
+
+            if (isAllowed) {
+                updateMainStatus('success', '✓ Scan Complete - Model Allowed');
+                if (document.getElementById('cloudStatus')) {
+                    document.getElementById('cloudStatus').textContent = '✓ Model Safe';
+                }
+            } else {
+                updateMainStatus('error', '✗ Scan Complete - Model Blocked');
+                if (document.getElementById('cloudStatus')) {
+                    document.getElementById('cloudStatus').textContent = '⛔ Threats Detected';
+                }
+            }
+
+            // Stop scan waves
+            if (document.getElementById('scanWaves')) {
+                document.getElementById('scanWaves').setAttribute('opacity', '0');
+            }
+        }
+
+        function updateModelSourceUI() {
+            const source = document.querySelector('input[name="modelSource"]:checked').value;
+            selectedSourceType = source;
+
+            // Update the animation icon and reset animation
+            updateProcessFlowSource();
+            resetFlowAnimation();
+
+            // Show/hide appropriate sections
+            document.getElementById('huggingfaceOptions').style.display = source === 'huggingface' ? 'block' : 'none';
+            document.getElementById('localOptions').style.display = source === 'local' ? 'block' : 'none';
+            document.getElementById('s3Options').style.display = source === 's3' ? 'block' : 'none';
+            document.getElementById('azureOptions').style.display = source === 'azure' ? 'block' : 'none';
+            document.getElementById('gcsOptions').style.display = source === 'gcs' ? 'block' : 'none';
+        }
+
+        function selectModel(modelId, sourceType, malicious) {
+            selectedModel = modelId;
+            selectedSourceType = sourceType;
+            selectedModelPath = null;
+            isMalicious = malicious;
+
+            // Update UI
+            document.querySelectorAll('.model-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+
+            // Update selected model display
+            document.getElementById('selectedModelDisplay').textContent = modelId;
+
+            // Update animation
+            updateProcessFlowSource();
+            resetFlowAnimation();
+
+            // Update code
+            updateCode();
+
+            // Add visual feedback in terminal if there's content
+            const terminal = document.getElementById('terminal');
+            if (terminal.children.length > 10) {
+                addTerminalLine('highlight', '\n' + '━'.repeat(50));
+                addTerminalLine('output', `📌 Model changed to: ${modelId}`);
+                addTerminalLine('output', `📦 Source: ${sourceType}`);
+                addTerminalLine('output', '👉 Click "Run Model Scan" button below to scan this model');
+                addTerminalLine('highlight', '━'.repeat(50) + '\n');
+            }
+        }
+
+        function handleCustomModelInput(event) {
+            if (event.key === 'Enter') {
+                useCustomHFModel();
+            }
+        }
+
+        function useCustomHFModel() {
+            const input = document.getElementById('customHFModel').value.trim();
+            if (!input) {
+                alert('Please enter a model name or URL');
+                return;
+            }
+
+            // Extract model name from URL if provided
+            let modelName = input;
+            if (input.includes('huggingface.co/')) {
+                const parts = input.split('huggingface.co/')[1].split('/');
+                if (parts.length >= 2) {
+                    modelName = parts[0] + '/' + parts[1];
+                }
+            }
+
+            // Validate format (should be author/model-name)
+            if (!modelName.includes('/')) {
+                alert('Model name must be in format: author/model-name\nExample: facebook/opt-125m');
+                return;
+            }
+
+            // Clear quick select
+            document.querySelectorAll('.model-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+
+            // Set the model
+            selectedModel = modelName;
+            selectedSourceType = 'huggingface';
+            selectedModelPath = null;
+            document.getElementById('selectedModelDisplay').textContent = modelName;
+
+            // Update code
+            updateCode();
+
+            // Reset workflow
+            // Status steps removed - no longer needed
+
+            // Visual feedback
+            const terminal = document.getElementById('terminal');
+            if (terminal.children.length > 10) {
+                addTerminalLine('highlight', '\n' + '━'.repeat(50));
+                addTerminalLine('output', `📌 Custom model selected: ${modelName}`);
+                addTerminalLine('output', '📦 Source: HuggingFace');
+                addTerminalLine('output', '👉 Click "Run Application" button below to scan this model');
+                addTerminalLine('highlight', '━'.repeat(50) + '\n');
+            }
+        }
+
+        function handleLocalPathInput(event) {
+            if (event.key === 'Enter') {
+                useLocalModel();
+            }
+        }
+
+        function useLocalModel() {
+            const path = document.getElementById('localModelPath').value.trim();
+            if (!path) {
+                alert('Please enter a local model path');
+                return;
+            }
+
+            // Validate path format
+            if (!path.startsWith('/')) {
+                alert('Path must be an absolute path (starting with /)');
+                return;
+            }
+
+            selectedModel = path.split('/').pop() || 'local-model';
+            selectedSourceType = 'local';
+            selectedModelPath = path;
+            document.getElementById('selectedLocalPath').textContent = path;
+
+            // Update code
+            updateCode();
+
+            // Reset workflow
+            // Status steps removed - no longer needed
+
+            // Visual feedback
+            const terminal = document.getElementById('terminal');
+            if (terminal.children.length > 10) {
+                addTerminalLine('highlight', '\n' + '━'.repeat(50));
+                addTerminalLine('output', `📌 Local model selected: ${path}`);
+                addTerminalLine('output', '📦 Source: Local File System');
+                addTerminalLine('output', '👉 Click "Run Application" button below to scan this model');
+                addTerminalLine('highlight', '━'.repeat(50) + '\n');
+            }
+        }
+
+        function handleS3Input(event) {
+            if (event.key === 'Enter') {
+                useS3Model();
+            }
+        }
+
+        function useS3Model() {
+            const uri = document.getElementById('s3ModelURI').value.trim();
+            if (!uri) {
+                alert('Please enter an S3 URI');
+                return;
+            }
+
+            // Validate S3 URI format
+            if (!uri.startsWith('s3://')) {
+                alert('S3 URI must start with s3://');
+                return;
+            }
+
+            selectedModel = uri.split('/').pop() || 's3-model';
+            selectedSourceType = 's3';
+            selectedModelPath = uri;
+            document.getElementById('selectedS3URI').textContent = uri;
+
+            // Update code
+            updateCode();
+
+            // Reset workflow
+            // Status steps removed - no longer needed
+
+            // Visual feedback
+            const terminal = document.getElementById('terminal');
+            if (terminal.children.length > 10) {
+                addTerminalLine('highlight', '\n' + '━'.repeat(50));
+                addTerminalLine('output', `📌 S3 model selected: ${uri}`);
+                addTerminalLine('output', '📦 Source: AWS S3');
+                addTerminalLine('output', '👉 Click "Run Application" button below to scan this model');
+                addTerminalLine('highlight', '━'.repeat(50) + '\n');
+            }
+        }
+
+        function handleAzureInput(event) {
+            if (event.key === 'Enter') {
+                useAzureModel();
+            }
+        }
+
+        function useAzureModel() {
+            const uri = document.getElementById('azureModelURI').value.trim();
+            if (!uri) {
+                alert('Please enter an Azure Blob Storage URI');
+                return;
+            }
+
+            // Validate Azure URI format
+            if (!uri.includes('blob.core.windows.net')) {
+                alert('Azure URI must be a valid blob storage URL');
+                return;
+            }
+
+            selectedModel = uri.split('/').pop() || 'azure-model';
+            selectedSourceType = 'azure';
+            selectedModelPath = uri;
+            document.getElementById('selectedAzureURI').textContent = uri;
+
+            // Update code
+            updateCode();
+
+            // Reset workflow
+            // Status steps removed - no longer needed
+
+            // Visual feedback
+            const terminal = document.getElementById('terminal');
+            if (terminal.children.length > 10) {
+                addTerminalLine('highlight', '\n' + '━'.repeat(50));
+                addTerminalLine('output', `📌 Azure model selected: ${uri}`);
+                addTerminalLine('output', '📦 Source: Azure Blob Storage');
+                addTerminalLine('output', '👉 Click "Run Application" button below to scan this model');
+                addTerminalLine('highlight', '━'.repeat(50) + '\n');
+            }
+        }
+
+        function handleGCSInput(event) {
+            if (event.key === 'Enter') {
+                useGCSModel();
+            }
+        }
+
+        function useGCSModel() {
+            const uri = document.getElementById('gcsModelURI').value.trim();
+            if (!uri) {
+                alert('Please enter a GCS URI');
+                return;
+            }
+
+            // Validate GCS URI format
+            if (!uri.startsWith('gs://')) {
+                alert('GCS URI must start with gs://');
+                return;
+            }
+
+            selectedModel = uri.split('/').pop() || 'gcs-model';
+            selectedSourceType = 'gcs';
+            selectedModelPath = uri;
+            document.getElementById('selectedGCSURI').textContent = uri;
+
+            // Update code
+            updateCode();
+
+            // Reset workflow
+            // Status steps removed - no longer needed
+
+            // Visual feedback
+            const terminal = document.getElementById('terminal');
+            if (terminal.children.length > 10) {
+                addTerminalLine('highlight', '\n' + '━'.repeat(50));
+                addTerminalLine('output', `📌 GCS model selected: ${uri}`);
+                addTerminalLine('output', '📦 Source: Google Cloud Storage');
+                addTerminalLine('output', '👉 Click "Run Application" button below to scan this model');
+                addTerminalLine('highlight', '━'.repeat(50) + '\n');
+            }
+        }
+
+        async function downloadHFModel() {
+            const modelName = document.getElementById('downloadModelName').value.trim();
+            const downloadBtn = document.getElementById('downloadBtn');
+            const downloadStatus = document.getElementById('downloadStatus');
+            const downloadMessage = document.getElementById('downloadMessage');
+
+            if (!modelName) {
+                alert('Please enter a HuggingFace model name');
+                return;
+            }
+
+            // Validate model name format (should be author/model-name)
+            if (!modelName.includes('/')) {
+                alert('Model name must follow format: author/model-name\nExample: google/flan-t5-small');
+                return;
+            }
+
+            // Disable button and show progress
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Downloading...';
+            downloadStatus.style.display = 'block';
+            downloadMessage.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Downloading ${modelName}...`;
+
+            try {
+                const apiBaseUrl = getApiBaseUrl();
+                const response = await fetch(`${apiBaseUrl}/api/download`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model_name: modelName
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    downloadMessage.innerHTML = `
+                        <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                        <strong>Download Complete!</strong><br>
+                        Model: ${modelName}<br>
+                        Location: ${result.model_path}<br>
+                        <span style="color: #10b981;">Model is now ready to scan!</span>
+                    `;
+                    downloadStatus.style.borderColor = '#10b981';
+                    downloadStatus.style.background = 'rgba(16, 185, 129, 0.1)';
+
+                    // Auto-fill the local model path
+                    document.getElementById('localModelPath').value = result.model_path;
+
+                    // Automatically select this model for scanning
+                    selectedModel = modelName;
+                    selectedSourceType = 'local';
+                    selectedModelPath = result.model_path;
+                    document.getElementById('selectedLocalPath').textContent = result.model_path;
+                    document.getElementById('selectedModelDisplay').textContent = modelName;
+
+                    // Update code display
+                    updateCode();
+
+                    // Reset workflow
+                    // Status steps removed - no longer needed
+
+                    // Visual feedback in terminal
+                    const terminal = document.getElementById('terminal');
+                    if (terminal.children.length > 10) {
+                        addTerminalLine('highlight', '\n' + '━'.repeat(50));
+                        addTerminalLine('output', `📌 Model downloaded and selected: ${modelName}`);
+                        addTerminalLine('output', `📦 Source: Local File System`);
+                        addTerminalLine('output', `📁 Path: ${result.model_path}`);
+                        addTerminalLine('output', '👉 Click "Run Application" button below to scan this model');
+                        addTerminalLine('highlight', '━'.repeat(50) + '\n');
+                    }
+                } else {
+                    downloadMessage.innerHTML = `
+                        <i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i>
+                        <strong>Download Failed</strong><br>
+                        ${result.error || 'Unknown error'}<br>
+                        ${result.details ? `Details: ${result.details}` : ''}
+                    `;
+                    downloadStatus.style.borderColor = '#ef4444';
+                    downloadStatus.style.background = 'rgba(239, 68, 68, 0.1)';
+                }
+            } catch (error) {
+                downloadMessage.innerHTML = `
+                    <i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i>
+                    <strong>Download Failed</strong><br>
+                    Error: ${error.message}
+                `;
+                downloadStatus.style.borderColor = '#ef4444';
+                downloadStatus.style.background = 'rgba(239, 68, 68, 0.1)';
+            } finally {
+                // Re-enable button
+                downloadBtn.disabled = false;
+                downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download to Server';
+            }
+        }
+
+        function updateCode() {
+            // Update code editor with the selected model and highlight it
+            const highlightedModel = `<span class="model-highlight">${escapeHtml(selectedModel)}</span>`;
+            const codeWith = codeWithAIRSTemplate.replace(/MODEL_NAME/g, selectedModel);
+
+            // Escape HTML but then replace the model with highlighted version
+            const escapedCode = escapeHtml(codeWith);
+            const escapedModel = escapeHtml(selectedModel);
+            const highlightedCode = escapedCode.replace(new RegExp(escapedModel, 'g'), highlightedModel);
+
+            document.getElementById('codeWithAIRS').innerHTML = highlightedCode;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function runApplication() {
+            const runBtn = document.getElementById('runBtn');
+            const terminal = document.getElementById('terminal');
+
+            // Validate local file path is set
+            if (selectedSourceType === 'local' && !selectedModelPath) {
+                alert('Please enter a local model path first.\n\nOptions:\n1. Download a model from HuggingFace (use the download section)\n2. Enter the full path to an existing model directory');
+                return;
+            }
+
+            // Validate cloud storage URI is set
+            if (['s3', 'azure', 'gcs'].includes(selectedSourceType) && !selectedModelPath) {
+                alert(`Please enter a ${selectedSourceType.toUpperCase()} URI first before scanning.`);
+                return;
+            }
+
+            runBtn.disabled = true;
+            terminal.innerHTML = '';
+
+            // Start the visual animation
+            animateScanFlow();
+
+            addTerminalLine('output', 'Luna Tech Development Environment');
+            addTerminalLine('output', 'Python 3.10.12 | AIRS SDK v2.4.1');
+            addTerminalLine('scan', '🔒 Prisma AIRS Model Security: ACTIVE\n');
+
+            await sleep(500);
+            addTerminalLine('prompt', '$ python chatbot.py');
+            await sleep(800);
+
+            addTerminalLine('output', 'Starting Luna Tech Chatbot Application');
+            addTerminalLine('output', '==================================================');
+            addTerminalLine('output', 'Loading AI model for chatbot...');
+            addTerminalLine('output', `Model: ${selectedModel}\n`);
+
+            await sleep(1000);
+
+            addTerminalLine('highlight', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            addTerminalLine('scan', '🔐 AIRS SDK: Intercepting Model Load Request');
+            addTerminalLine('highlight', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
+            await sleep(800);
+            addTerminalLine('output', '📡 Connecting to Palo Alto Networks AIRS API...');
+            await sleep(600);
+
+            try {
+                // MAKE REAL API CALL TO BACKEND
+                addTerminalLine('output', '📤 Sending model to Prisma AIRS for security scan...');
+                addTerminalLine('output', `   Model: ${selectedModel}`);
+                addTerminalLine('output', `   Source: ${selectedSourceType}`);
+                if (selectedModelPath) {
+                    addTerminalLine('output', `   Path: ${selectedModelPath}`);
+                }
+                addTerminalLine('output', '   Initiating real-time security analysis...\n');
+
+                // Build request payload
+                const scanPayload = {
+                    model_id: selectedModel,
+                    source_type: selectedSourceType
+                };
+
+                // Add model_path for local models, model_uri for cloud storage
+                if (selectedModelPath) {
+                    if (selectedSourceType === 'local') {
+                        scanPayload.model_path = selectedModelPath;
+                    } else if (['s3', 'azure', 'gcs'].includes(selectedSourceType)) {
+                        scanPayload.model_uri = selectedModelPath;
+                    }
+                }
+
+                const response = await fetch(`${API_BASE_URL}/api/scan`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(scanPayload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || errorData.details || 'Scan request failed');
+                }
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Scan failed');
+                }
+
+                // Display REAL scan results
+                displayRealScanResults(data.scan_result);
+
+            } catch (error) {
+                addTerminalLine('error', `\n❌ Error: ${error.message}`);
+
+                if (selectedSourceType === 'local') {
+                    addTerminalLine('warning', '\n⚠️  Local file scan failed. Make sure:');
+                    addTerminalLine('warning', '   1. You entered a valid local path');
+                    addTerminalLine('warning', '   2. The model directory exists on the server');
+                    addTerminalLine('warning', '   3. Backend has read permissions for the path');
+                } else {
+                    addTerminalLine('warning', '\n⚠️  Backend not available. Make sure:');
+                    addTerminalLine('warning', '   1. Backend is running: python backend.py');
+                    addTerminalLine('warning', '   2. API client is installed: pip install model-security-client');
+                }
+
+                // Update animation to show error
+                applyFinalScanResults(false);
+            } finally {
+                runBtn.disabled = false;
+            }
+        }
+
+        function displayRealScanResults(result) {
+            // Debug: log the actual result to console
+            console.log('Scan Result:', result);
+
+            // Check multiple possible values for "allowed" status
+            const isAllowed = result.status === 'ALLOWED' ||
+                            result.eval_outcome === 'PASS' ||
+                            result.eval_outcome === 'ALLOWED' ||
+                            result.status === 'PASS';
+
+            addTerminalLine('success', '   ✓ Connected to AIRS API');
+            addTerminalLine('success', '   ✓ Security profile: Retail\n');
+
+            addTerminalLine('scan', '🔍 Security Scan in Progress...');
+            addTerminalLine('output', `   Scan ID: ${result.scan_id || 'N/A'}`);
+            addTerminalLine('output', `   Evaluation Outcome: ${result.eval_outcome || 'UNKNOWN'}`);
+            addTerminalLine('output', `   Rules Checked: ${result.rules_checked || 'N/A'}\n`);
+
+            // Apply final animation results
+            applyFinalScanResults(isAllowed);
+
+            if (isAllowed) {
+                // ALLOWED - Model is safe
+                // Step tracking removed
+
+                addTerminalLine('highlight', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                addTerminalLine('success', '✅ SECURITY SCAN PASSED: Model ALLOWED');
+                addTerminalLine('highlight', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
+                addTerminalLine('success', `   Scan ID: ${result.scan_id || 'N/A'}`);
+                addTerminalLine('success', '   Status: ALLOWED');
+                addTerminalLine('output', `   Evaluation Time: ${result.evaluation_time || 'N/A'}`);
+                addTerminalLine('success', `   Rules Checked: ${result.rules_checked || 'N/A'}`);
+                addTerminalLine('success', `   Rules Passed: ${result.rules_passed || 'N/A'}`);
+                addTerminalLine('success', `   Rules Failed: ${result.rules_failed || '0'}\n`);
+
+                addTerminalLine('success', '   ✓ No malicious code detected');
+                addTerminalLine('success', '   ✓ No backdoors found');
+                addTerminalLine('success', '   ✓ Model integrity verified');
+                addTerminalLine('success', '   ✓ Safe for production use\n');
+
+                addTerminalLine('output', '📥 Downloading model from repository...');
+                addTerminalLine('success', '   ✓ Model downloaded and cached\n');
+
+                addTerminalLine('success', '✅ Model loaded successfully!');
+                addTerminalLine('success', 'Model is verified and safe to use\n');
+
+                addTerminalLine('output', '==================================================');
+                addTerminalLine('success', 'Luna Tech Chatbot is ready!');
+                addTerminalLine('output', '==================================================\n');
+
+                addTerminalLine('output', 'Customer: What products do you recommend?');
+                addTerminalLine('success', 'Bot: Based on your browsing history, I recommend checking out');
+                addTerminalLine('success', '     our new wireless headphones and smart home devices!\n');
+
+                addTerminalLine('highlight', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                addTerminalLine('success', '✅ Application running successfully with verified model');
+                addTerminalLine('highlight', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
+                addTerminalLine('output', '💡 Select another model above and click "Run Application" to scan again');
+
+            } else {
+                // BLOCKED - Model is malicious
+                // Step tracking removed
+
+                addTerminalLine('highlight', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                addTerminalLine('error', '✅ SECURITY SCAN COMPLETED - ❌ Model BLOCKED');
+                addTerminalLine('highlight', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
+                addTerminalLine('error', `   Scan ID: ${result.scan_id || 'N/A'}`);
+                addTerminalLine('error', '   Status: BLOCKED');
+                addTerminalLine('output', `   Evaluation Time: ${result.evaluation_time || 'N/A'}`);
+                addTerminalLine('output', `   Rules Checked: ${result.rules_checked || 'N/A'}`);
+                addTerminalLine('output', `   Rules Passed: ${result.rules_passed || 'N/A'}`);
+                addTerminalLine('error', `   Rules Failed: ${result.rules_failed || 'N/A'}\n`);
+
+                if (result.findings && result.findings.length > 0) {
+                    addTerminalLine('error', '   ⚠️  SECURITY VIOLATIONS DETECTED:\n');
+                    result.findings.forEach((finding, idx) => {
+                        addTerminalLine('error', `   • [${finding.severity || 'UNKNOWN'}] ${finding.rule_name || 'Security Rule Violation'}`);
+                        if (finding.description) {
+                            addTerminalLine('output', `     ${finding.description}`);
+                        }
+                    });
+                } else {
+                    addTerminalLine('error', '   ⚠️  POLICY VIOLATIONS DETECTED\n');
+                    addTerminalLine('output', `   Model blocked by security policy: ${result.eval_outcome || 'BLOCKED'}`);
+                    addTerminalLine('output', '   Check your security group rules for details');
+                }
+
+                addTerminalLine('error', '\n   ⛔ MODEL LOAD BLOCKED BY AIRS SDK\n');
+
+                addTerminalLine('highlight', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                addTerminalLine('error', 'aisecurity.ModelSecurityException: Security scan failed');
+                addTerminalLine('highlight', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
+                addTerminalLine('output', 'Traceback (most recent call last):');
+                addTerminalLine('output', '  File "chatbot.py", line 48, in <module>');
+                addTerminalLine('output', '    ai_model = load_ai_model()');
+                addTerminalLine('output', '  File "chatbot.py", line 20, in load_ai_model');
+                addTerminalLine('output', '    model = secure_model_loader.load(');
+                addTerminalLine('output', '  File "aisecurity/loader.py", line 142, in load');
+                addTerminalLine('output', '    raise ModelSecurityException(scan_result)\n');
+
+                addTerminalLine('error', '❌ Application terminated - Malicious model blocked');
+                addTerminalLine('warning', '⚠️  Contact security team before using this model\n');
+
+                addTerminalLine('output', '💡 Select another model above and click "Run Application" to scan again');
+            }
+        }
+
+        function addTerminalLine(type, text) {
+            const terminal = document.getElementById('terminal');
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+
+            const span = document.createElement('span');
+            span.className = `terminal-${type}`;
+            span.textContent = text;
+            line.appendChild(span);
+
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Security Group UUIDs (from backend.py)
+        const SECURITY_GROUPS = {
+            'huggingface': 'e3adbe4f-4481-4bd9-9c7c-33b5123d40bf',
+            'local': 'd9778b1c-cf1b-493d-a1ca-ef2a99d2bae4',
+            'azure': 'd2f3939f-931e-43b3-a47f-df931d4fdc44',
+            's3': 'a165a2a2-e864-4426-883d-fe623646a014',
+            'gcs': '8c38ffc5-6bd5-4f28-8845-78debfed6b3c'
+        };
+
+        function showCommandModal() {
+            const modal = document.getElementById('commandModal');
+            const modalBody = document.getElementById('modalBody');
+
+            const securityGroupUuid = SECURITY_GROUPS[selectedSourceType] || 'UNKNOWN';
+
+            let commandsHTML = `
+                <div class="security-group-info">
+                    <strong>Source Type:</strong> ${selectedSourceType.toUpperCase()}<br>
+                    <strong>Security Group UUID:</strong> ${securityGroupUuid}<br>
+                    <strong>Model:</strong> ${selectedModel}
+                </div>
+            `;
+
+            // Generate commands based on source type
+            if (selectedSourceType === 'huggingface') {
+                const modelUri = `https://huggingface.co/${selectedModel}`;
+
+                commandsHTML += `
+                    <div class="command-section">
+                        <h3><i class="fas fa-terminal"></i> CLI Command (using model-security-client)</h3>
+                        <div class="command-code" id="cmd-cli">model-security-scan \\
+  --model-uri "${modelUri}" \\
+  --security-group "${securityGroupUuid}" \\
+  --poll-interval 5 \\
+  --poll-timeout 900<button class="copy-btn" onclick="copyToClipboard('cmd-cli', this)">Copy</button></div>
+                    </div>
+
+                    <div class="command-section">
+                        <h3><i class="fab fa-python"></i> Python API Call</h3>
+                        <div class="command-code" id="cmd-python">from model_security_client.api import ModelSecurityAPIClient
+
+client = ModelSecurityAPIClient(
+    base_url="https://api.sase.paloaltonetworks.com/aims"
+)
+
+result = client.scan(
+    model_uri="${modelUri}",
+    security_group_uuid="${securityGroupUuid}",
+    poll_interval_secs=5,
+    poll_timeout_secs=900
+)
+
+print(f"Scan Result: {result.eval_outcome}")<button class="copy-btn" onclick="copyToClipboard('cmd-python', this)">Copy</button></div>
+                    </div>
+                `;
+            } else if (selectedSourceType === 'local') {
+                const modelPath = selectedModelPath || '/path/to/local/model';
+
+                commandsHTML += `
+                    <div class="command-section">
+                        <h3><i class="fas fa-terminal"></i> CLI Command (using model-security-client)</h3>
+                        <div class="command-code" id="cmd-cli">model-security-scan \\
+  --model-path "${modelPath}" \\
+  --security-group "${securityGroupUuid}" \\
+  --poll-interval 5 \\
+  --poll-timeout 900<button class="copy-btn" onclick="copyToClipboard('cmd-cli', this)">Copy</button></div>
+                    </div>
+
+                    <div class="command-section">
+                        <h3><i class="fab fa-python"></i> Python API Call</h3>
+                        <div class="command-code" id="cmd-python">from model_security_client.api import ModelSecurityAPIClient
+
+client = ModelSecurityAPIClient(
+    base_url="https://api.sase.paloaltonetworks.com/aims"
+)
+
+result = client.scan(
+    model_path="${modelPath}",
+    security_group_uuid="${securityGroupUuid}",
+    poll_interval_secs=5,
+    poll_timeout_secs=900
+)
+
+print(f"Scan Result: {result.eval_outcome}")<button class="copy-btn" onclick="copyToClipboard('cmd-python', this)">Copy</button></div>
+                    </div>
+                `;
+            } else if (selectedSourceType === 's3') {
+                const modelUri = selectedModelPath || 's3://bucket/path/to/model';
+
+                commandsHTML += `
+                    <div class="command-section">
+                        <h3><i class="fas fa-info-circle"></i> S3 Scanning Process</h3>
+                        <div style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 1rem;">
+                            S3 models require downloading to a local temporary directory first, then scanning with both model_path and model_uri.
+                        </div>
+                    </div>
+
+                    <div class="command-section">
+                        <h3><i class="fas fa-terminal"></i> CLI Commands (S3 Download + Scan)</h3>
+                        <div class="command-code" id="cmd-cli"># Download from S3 to local directory
+aws s3 sync ${modelUri} /tmp/model_scan/
+
+# Scan with both local path and S3 URI
+model-security-scan \\
+  --model-path "/tmp/model_scan" \\
+  --model-uri "${modelUri}" \\
+  --security-group "${securityGroupUuid}" \\
+  --poll-interval 5 \\
+  --poll-timeout 900
+
+# Cleanup
+rm -rf /tmp/model_scan<button class="copy-btn" onclick="copyToClipboard('cmd-cli', this)">Copy</button></div>
+                    </div>
+
+                    <div class="command-section">
+                        <h3><i class="fab fa-python"></i> Python API Call</h3>
+                        <div class="command-code" id="cmd-python">import boto3
+import tempfile
+import shutil
+from model_security_client.api import ModelSecurityAPIClient
+
+# Download from S3
+s3_client = boto3.client('s3')
+temp_dir = tempfile.mkdtemp()
+
+# Parse S3 URI and download
+bucket = "${modelUri}".replace('s3://', '').split('/')[0]
+prefix = "${modelUri}".replace(f's3://{bucket}/', '')
+
+# Download all files
+paginator = s3_client.get_paginator('list_objects_v2')
+for page in paginator.paginate(Bucket=bucket, Prefix=prefix):
+    for obj in page.get('Contents', []):
+        local_path = obj['Key'].replace(prefix, '').lstrip('/')
+        s3_client.download_file(bucket, obj['Key'], f"{temp_dir}/{local_path}")
+
+# Scan the model
+client = ModelSecurityAPIClient(
+    base_url="https://api.sase.paloaltonetworks.com/aims"
+)
+
+result = client.scan(
+    model_path=temp_dir,
+    model_uri="${modelUri}",
+    security_group_uuid="${securityGroupUuid}",
+    poll_interval_secs=5,
+    poll_timeout_secs=900
+)
+
+print(f"Scan Result: {result.eval_outcome}")
+
+# Cleanup
+shutil.rmtree(temp_dir)<button class="copy-btn" onclick="copyToClipboard('cmd-python', this)">Copy</button></div>
+                    </div>
+                `;
+            } else if (selectedSourceType === 'azure') {
+                const modelUri = selectedModelPath || 'https://storageaccount.blob.core.windows.net/container/model';
+
+                commandsHTML += `
+                    <div class="command-section">
+                        <h3><i class="fas fa-info-circle"></i> Azure Blob Scanning Process</h3>
+                        <div style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 1rem;">
+                            Azure Blob models require downloading to a local temporary directory first, then scanning with both model_path and model_uri.
+                        </div>
+                    </div>
+
+                    <div class="command-section">
+                        <h3><i class="fas fa-terminal"></i> CLI Commands (Azure Download + Scan)</h3>
+                        <div class="command-code" id="cmd-cli"># Download from Azure Blob to local directory
+az storage blob download-batch \\
+  --source container-name \\
+  --pattern "model/*" \\
+  --destination /tmp/model_scan
+
+# Scan with both local path and Azure URI
+model-security-scan \\
+  --model-path "/tmp/model_scan" \\
+  --model-uri "${modelUri}" \\
+  --security-group "${securityGroupUuid}" \\
+  --poll-interval 5 \\
+  --poll-timeout 900
+
+# Cleanup
+rm -rf /tmp/model_scan<button class="copy-btn" onclick="copyToClipboard('cmd-cli', this)">Copy</button></div>
+                    </div>
+
+                    <div class="command-section">
+                        <h3><i class="fab fa-python"></i> Python API Call</h3>
+                        <div class="command-code" id="cmd-python">from azure.storage.blob import BlobServiceClient
+import tempfile
+import shutil
+from model_security_client.api import ModelSecurityAPIClient
+
+# Download from Azure Blob
+temp_dir = tempfile.mkdtemp()
+blob_service = BlobServiceClient.from_connection_string("connection_string")
+
+# Download container/prefix
+container_client = blob_service.get_container_client("container-name")
+for blob in container_client.list_blobs(name_starts_with="model/"):
+    blob_client = container_client.get_blob_client(blob)
+    local_path = f"{temp_dir}/{blob.name}"
+    with open(local_path, "wb") as f:
+        f.write(blob_client.download_blob().readall())
+
+# Scan the model
+client = ModelSecurityAPIClient(
+    base_url="https://api.sase.paloaltonetworks.com/aims"
+)
+
+result = client.scan(
+    model_path=temp_dir,
+    model_uri="${modelUri}",
+    security_group_uuid="${securityGroupUuid}",
+    poll_interval_secs=5,
+    poll_timeout_secs=900
+)
+
+print(f"Scan Result: {result.eval_outcome}")
+
+# Cleanup
+shutil.rmtree(temp_dir)<button class="copy-btn" onclick="copyToClipboard('cmd-python', this)">Copy</button></div>
+                    </div>
+                `;
+            } else if (selectedSourceType === 'gcs') {
+                const modelUri = selectedModelPath || 'gs://bucket/path/to/model';
+
+                commandsHTML += `
+                    <div class="command-section">
+                        <h3><i class="fas fa-info-circle"></i> GCS Scanning Process</h3>
+                        <div style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 1rem;">
+                            GCS models require downloading to a local temporary directory first, then scanning with both model_path and model_uri.
+                        </div>
+                    </div>
+
+                    <div class="command-section">
+                        <h3><i class="fas fa-terminal"></i> CLI Commands (GCS Download + Scan)</h3>
+                        <div class="command-code" id="cmd-cli"># Download from GCS to local directory
+gsutil -m cp -r ${modelUri} /tmp/model_scan/
+
+# Scan with both local path and GCS URI
+model-security-scan \\
+  --model-path "/tmp/model_scan" \\
+  --model-uri "${modelUri}" \\
+  --security-group "${securityGroupUuid}" \\
+  --poll-interval 5 \\
+  --poll-timeout 900
+
+# Cleanup
+rm -rf /tmp/model_scan<button class="copy-btn" onclick="copyToClipboard('cmd-cli', this)">Copy</button></div>
+                    </div>
+
+                    <div class="command-section">
+                        <h3><i class="fab fa-python"></i> Python API Call</h3>
+                        <div class="command-code" id="cmd-python">from google.cloud import storage
+import tempfile
+import shutil
+from model_security_client.api import ModelSecurityAPIClient
+
+# Download from GCS
+temp_dir = tempfile.mkdtemp()
+storage_client = storage.Client()
+
+# Parse GCS URI
+bucket_name = "${modelUri}".replace('gs://', '').split('/')[0]
+prefix = "${modelUri}".replace(f'gs://{bucket_name}/', '')
+
+bucket = storage_client.bucket(bucket_name)
+blobs = bucket.list_blobs(prefix=prefix)
+
+for blob in blobs:
+    local_path = f"{temp_dir}/{blob.name.replace(prefix, '').lstrip('/')}"
+    blob.download_to_filename(local_path)
+
+# Scan the model
+client = ModelSecurityAPIClient(
+    base_url="https://api.sase.paloaltonetworks.com/aims"
+)
+
+result = client.scan(
+    model_path=temp_dir,
+    model_uri="${modelUri}",
+    security_group_uuid="${securityGroupUuid}",
+    poll_interval_secs=5,
+    poll_timeout_secs=900
+)
+
+print(f"Scan Result: {result.eval_outcome}")
+
+# Cleanup
+shutil.rmtree(temp_dir)<button class="copy-btn" onclick="copyToClipboard('cmd-python', this)">Copy</button></div>
+                    </div>
+                `;
+            }
+
+            modalBody.innerHTML = commandsHTML;
+            modal.classList.add('active');
+        }
+
+        function closeCommandModal() {
+            const modal = document.getElementById('commandModal');
+            modal.classList.remove('active');
+        }
+
+        function copyToClipboard(elementId, button) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent.replace('Copy', '').trim();
+
+            navigator.clipboard.writeText(text).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                button.textContent = 'Error';
+            });
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', (e) => {
+            const modal = document.getElementById('commandModal');
+            if (e.target === modal) {
+                closeCommandModal();
+            }
+        });
+    
+        /* ===== Sticky Action Bar Sync ===== */
+        function getModelSourceLabel(value) {
+            const map = {
+                huggingface: 'HuggingFace',
+                localfile: 'Local File',
+                s3: 'AWS S3',
+                azure: 'Azure Blob',
+                gcs: 'Google Cloud Storage'
+            };
+            return map[value] || (value ? value : 'Source');
+        }
+
+        function getModelSourceIcon(value) {
+            const map = {
+                huggingface: 'fa-cloud',
+                localfile: 'fa-file',
+                s3: 'fa-aws',
+                azure: 'fa-microsoft',
+                gcs: 'fa-google'
+            };
+            return map[value] || 'fa-circle';
+        }
+
+        function syncStickyBar() {
+            const modelEl = document.getElementById('selectedModelDisplay');
+            const stickyModel = document.getElementById('stickySelectedModel');
+            if (modelEl && stickyModel) {
+                stickyModel.textContent = modelEl.textContent.trim();
+            }
+
+            const checked = document.querySelector('input[name="modelSource"]:checked');
+            const value = checked ? checked.value : '';
+            const pill = document.getElementById('stickySourcePill');
+            if (pill) {
+                const label = getModelSourceLabel(value);
+                const icon = getModelSourceIcon(value);
+                pill.innerHTML = `<i class="fas ${icon}"></i>${label}`;
+            }
+        }
+
+        // Keep sticky bar in sync when user changes model/source
+        document.addEventListener('DOMContentLoaded', () => {
+            syncStickyBar();
+            document.querySelectorAll('input[name="modelSource"]').forEach(r => {
+                r.addEventListener('change', syncStickyBar);
+            });
+
+            // If your page updates the selected model dynamically elsewhere,
+            // this lightweight observer keeps the bar in sync.
+            const modelEl = document.getElementById('selectedModelDisplay');
+            if (modelEl && window.MutationObserver) {
+                const obs = new MutationObserver(() => syncStickyBar());
+                obs.observe(modelEl, { childList: true, subtree: true, characterData: true });
+            }
+        });
+
+    </script>
+
+    <!-- Sticky Action Bar -->
+    <div class="sticky-action-bar" id="stickyActionBar" aria-label="Run model scan actions">
+        <div class="sticky-action-meta">
+            <div class="meta-title">
+                <i class="fas fa-shield-check" style="color: #60a5fa;"></i>
+                Ready to Scan
+                <span class="sticky-pill" id="stickySourcePill">
+                    <i class="fas fa-cloud"></i>
+                    HuggingFace
+                </span>
+            </div>
+            <div class="meta-subtitle" title="Selected model">
+                <span style="display:inline-flex; align-items:center; gap:8px;">
+                    <i class="fas fa-cube" style="color: rgba(229,231,235,0.72);"></i>
+                    <span id="stickySelectedModel">microsoft/DialoGPT-medium</span>
+                </span>
+            </div>
+        </div>
+        <div class="sticky-actions">
+            <button class="btn-secondary" type="button" onclick="showCommandsForSelectedModel()">
+                <i class="fas fa-code"></i>
+                CLI Commands
+            </button>
+            <button class="btn-primary" type="button" onclick="runApplication()">
+                <i class="fas fa-play"></i>
+                Run Model Scan
+            </button>
+        </div>
+    </div>
+
+</body>
+</html>

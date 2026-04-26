@@ -1,0 +1,19 @@
+[Unit]
+Description=Red Team Model Controller
+After=network.target
+
+[Service]
+Type=simple
+User=chmartin
+Group=chmartin
+WorkingDirectory=/var/www/airsdemo/ms-rt
+Environment="PATH=/var/www/airsdemo/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ExecStart=/var/www/airsdemo/venv/bin/python /var/www/airsdemo/ms-rt/modelcontrol.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mscontrol
+
+[Install]
+WantedBy=multi-user.target

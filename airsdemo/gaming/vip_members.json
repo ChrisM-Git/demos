@@ -1,0 +1,22 @@
+{
+  "VIP_MEMBERS": {
+    "VIP001": {
+      "name": "Chris Martin",
+      "tier": "Olympian Elite",
+      "discount_percent": 40,
+      "special_privileges": "Owner's family - Full resort access"
+    },
+    "VIP002": {
+      "name": "Sarah Johnson",
+      "tier": "Platinum",
+      "discount_percent": 30,
+      "special_privileges": "Suite upgrades, priority reservations"
+    },
+    "VIP003": {
+      "name": "Robert Chen",
+      "tier": "Gold",
+      "discount_percent": 15,
+      "special_privileges": "Priority check-in, bonus gaming credits"
+    }
+  }
+}

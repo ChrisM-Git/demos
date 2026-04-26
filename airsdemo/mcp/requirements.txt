@@ -1,0 +1,18 @@
+# MCP Demo Requirements
+# FastAPI and related dependencies
+fastapi
+pydantic
+uvicorn[standard]
+
+# HTTP client
+httpx
+
+# Environment variables
+python-dotenv
+
+# AI/ML dependencies
+ollama
+
+# Palo Alto Networks AI Security (optional)
+# Uncomment if using AI security features
+# pan-aisecurity

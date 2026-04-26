@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Model Security | Prisma AIRS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --cyan: #00e5ff;
+      --blue: #0080ff;
+      --purple: #8b5cf6;
+      --green: #00e676;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --card-bg: rgba(8, 18, 50, 0.7);
+      --border: rgba(0, 180, 255, 0.2);
+      --code-bg: rgba(0, 5, 25, 0.8);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      font-family: 'Inter', sans-serif;
+      background: #040a1a;
+      color: var(--text);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* STARFIELD BG */
+    .page-bg {
+      position: fixed; inset: 0; z-index: 0;
+      background: url('../images/bg-stars.png') center center / cover no-repeat;
+    }
+    .page-bg::after {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(0, 4, 18, 0.5);
+    }
+
+    .page-wrap { position: relative; z-index: 1; }
+
+    /* TOP NAV */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 32px;
+      background: rgba(0, 4, 18, 0.88);
+      border-bottom: 1px solid rgba(0, 100, 200, 0.2);
+      backdrop-filter: blur(16px);
+    }
+    .brand {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 600; font-size: 0.9rem; color: #c8dff5;
+      text-decoration: none;
+    }
+    .brand-badge {
+      width: 26px; height: 26px; border-radius: 6px;
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      display: grid; place-items: center;
+      font-size: 0.6rem; font-weight: 800; color: #030d20;
+    }
+    .back-link {
+      color: var(--cyan); text-decoration: none;
+      font-size: 0.85rem; font-weight: 500;
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 12px; border-radius: 6px;
+      border: 1px solid rgba(0,229,255,0.2);
+      transition: all .2s;
+    }
+    .back-link:hover { background: rgba(0,229,255,0.07); }
+
+    /* CRUMB */
+    .crumb {
+      padding: 7px 32px; font-size: 0.82rem;
+      color: rgba(130,170,210,0.55);
+      display: flex; gap: 7px; align-items: center;
+    }
+    .crumb a { color: var(--cyan); text-decoration: none; }
+
+    /* PAGE HERO */
+    .page-hero {
+      text-align: center;
+      padding: 48px 20px 36px;
+      position: relative;
+    }
+    .hero-icon {
+      width: 80px; height: 80px;
+      margin: 0 auto 20px;
+    }
+    .hero-icon img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 0 20px rgba(0,229,255,0.6));
+    }
+    .page-hero h1 {
+      font-size: 2.6rem; font-weight: 800;
+      background: linear-gradient(135deg, #fff 30%, var(--cyan) 70%);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+    .page-hero p {
+      color: var(--muted); font-size: 1.05rem;
+      line-height: 1.65; max-width: 620px; margin: 0 auto 28px;
+    }
+
+    /* DETECTION BADGES */
+    .detection-grid {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      justify-content: center; margin-bottom: 8px;
+    }
+    .badge {
+      display: flex; align-items: center; gap: 7px;
+      padding: 7px 14px; border-radius: 20px;
+      background: rgba(0, 230, 118, 0.08);
+      border: 1px solid rgba(0, 230, 118, 0.25);
+      font-size: 0.82rem; font-weight: 600;
+      color: var(--green);
+    }
+    .badge i { font-size: 0.75rem; }
+
+    /* GLOW DIVIDER */
+    .glow-divider {
+      position: relative; height: 40px; margin: 8px 0;
+    }
+    .glow-divider::before {
+      content: ''; position: absolute; top: 50%; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,200,255,0.3) 20%, var(--cyan) 45%, #fff 50%, var(--cyan) 55%, rgba(0,200,255,0.3) 80%, transparent);
+      box-shadow: 0 0 10px 2px rgba(0,220,255,0.4);
+    }
+    .glow-divider::after {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 300px; height: 50px;
+      background: radial-gradient(ellipse at center, rgba(0,220,255,0.35) 0%, transparent 70%);
+      filter: blur(8px);
+    }
+
+    /* MAIN CONTENT LAYOUT */
+    .content-wrap {
+      max-width: 1100px; margin: 0 auto;
+      padding: 36px 32px 80px;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    /* STICKY SIDEBAR NAV */
+    .sidebar {
+      position: sticky; top: 24px;
+    }
+    .sidebar-title {
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(0,229,255,0.6);
+      padding: 0 0 10px 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+    .sidebar-nav a {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px; border-radius: 8px;
+      color: var(--muted); text-decoration: none;
+      font-size: 0.88rem; font-weight: 500;
+      transition: all .2s;
+      border: 1px solid transparent;
+    }
+    .sidebar-nav a:hover {
+      color: var(--cyan); background: rgba(0,229,255,0.06);
+      border-color: rgba(0,229,255,0.15);
+    }
+    .sidebar-nav a.active {
+      color: var(--cyan); background: rgba(0,229,255,0.08);
+      border-color: rgba(0,229,255,0.2);
+    }
+    .sidebar-nav i { width: 16px; text-align: center; font-size: 0.8rem; }
+
+    /* SECTIONS */
+    .doc-section {
+      margin-bottom: 40px;
+      scroll-margin-top: 24px;
+    }
+    .section-title {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 1.4rem; font-weight: 700;
+      color: #d8eeff; margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-title i {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: rgba(0,229,255,0.1);
+      border: 1px solid rgba(0,229,255,0.25);
+      display: grid; place-items: center;
+      color: var(--cyan); font-size: 0.9rem;
+      flex: 0 0 auto;
+    }
+
+    /* INFO CARDS */
+    .info-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 22px;
+      margin-bottom: 16px;
+      backdrop-filter: blur(12px);
+    }
+    .info-card h3 {
+      font-size: 1rem; font-weight: 700;
+      color: #c8e8ff; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .info-card p, .info-card li {
+      color: var(--muted); font-size: 0.92rem;
+      line-height: 1.65;
+    }
+    .info-card ul { padding-left: 0; list-style: none; display: grid; gap: 6px; }
+    .info-card ul li {
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+    .info-card ul li::before {
+      content: '→'; color: var(--cyan);
+      font-size: 0.85rem; flex: 0 0 auto; margin-top: 1px;
+    }
+
+    /* STEP CARDS */
+    .steps { display: grid; gap: 14px; }
+    .step {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden;
+    }
+    .step::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; bottom: 0; width: 3px;
+      background: linear-gradient(180deg, var(--cyan), var(--blue));
+    }
+    .step-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 10px;
+    }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      display: grid; place-items: center;
+      font-size: 0.78rem; font-weight: 800;
+      color: #030d20; flex: 0 0 auto;
+    }
+    .step h3 {
+      font-size: 0.98rem; font-weight: 700; color: #d0e8ff;
+    }
+    .step p, .step li {
+      color: var(--muted); font-size: 0.9rem; line-height: 1.6;
+    }
+    .step ul { padding-left: 0; list-style: none; display: grid; gap: 5px; margin-top: 8px; }
+    .step ul li { display: flex; gap: 8px; align-items: flex-start; }
+    .step ul li::before { content: '✓'; color: var(--green); flex: 0 0 auto; }
+
+    /* WARNING / TIP BOXES */
+    .alert {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 14px 16px; border-radius: 10px;
+      margin: 14px 0;
+      font-size: 0.88rem; line-height: 1.55;
+    }
+    .alert-warn {
+      background: rgba(255, 180, 0, 0.07);
+      border: 1px solid rgba(255, 180, 0, 0.25);
+      color: #ffd54f;
+    }
+    .alert-info {
+      background: rgba(0, 229, 255, 0.06);
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      color: #b2ebf2;
+    }
+    .alert i { flex: 0 0 auto; margin-top: 1px; }
+
+    /* CODE BLOCKS */
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid rgba(0, 180, 255, 0.18);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 12px 0;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 14px;
+      background: rgba(0, 20, 60, 0.6);
+      border-bottom: 1px solid rgba(0,100,200,0.15);
+    }
+    .code-label {
+      font-size: 0.75rem; font-weight: 600;
+      color: rgba(0,229,255,0.7); letter-spacing: 1px;
+      text-transform: uppercase; font-family: 'JetBrains Mono', monospace;
+    }
+    .code-dots { display: flex; gap: 5px; }
+    .code-dots span {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .code-dots span:nth-child(1) { background: #ff5f56; }
+    .code-dots span:nth-child(2) { background: #ffbd2e; }
+    .code-dots span:nth-child(3) { background: #27c93f; }
+    pre {
+      padding: 16px 18px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      line-height: 1.65;
+      color: #b2d8f0;
+    }
+    pre .comment { color: rgba(100,160,200,0.5); }
+    pre .key { color: #80cbc4; }
+    pre .val { color: #a5d6a7; }
+    pre .cmd { color: #80deea; }
+
+    /* UUID TABLE */
+    .uuid-table {
+      width: 100%; border-collapse: collapse;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+      font-size: 0.88rem;
+    }
+    .uuid-table th {
+      background: rgba(0,20,60,0.7);
+      color: rgba(0,229,255,0.8);
+      padding: 10px 16px; text-align: left;
+      font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase;
+    }
+    .uuid-table td {
+      padding: 10px 16px;
+      border-top: 1px solid rgba(0,100,200,0.12);
+      color: var(--muted);
+    }
+    .uuid-table td:first-child { color: #c8e8ff; font-weight: 600; }
+    .uuid-table td:last-child {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem; color: var(--cyan);
+    }
+    .uuid-table tr:hover td { background: rgba(0,229,255,0.03); }
+
+    /* CHECKLIST */
+    .checklist {
+      display: grid; gap: 8px;
+    }
+    .check-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 10px;
+      background: rgba(0,8,30,0.5);
+      border: 1px solid rgba(0,120,200,0.18);
+      font-size: 0.9rem; color: rgba(210,230,250,0.85);
+    }
+    .check-item i {
+      width: 20px; height: 20px; border-radius: 5px;
+      background: rgba(0,230,118,0.1);
+      border: 1px solid rgba(0,230,118,0.3);
+      color: var(--green);
+      display: grid; place-items: center; font-size: 0.65rem;
+      flex: 0 0 auto;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 860px) {
+      .content-wrap { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-bg"></div>
+<div class="page-wrap">
+
+  <!-- NAV -->
+  <div class="topbar">
+    <a class="brand" href="../landpage.html">
+      <div class="brand-badge">AI</div>
+      Prisma AIRS Demo Portal
+    </a>
+    <a class="back-link" href="poc.html">
+      <i class="fa-solid fa-arrow-left"></i> Back to POC
+    </a>
+  </div>
+
+  <div class="crumb">
+    <a href="../landpage.html">homepage</a>
+    <span>/</span>
+    <a href="poc.html">POC</a>
+    <span>/</span>
+    <span>Model Security</span>
+  </div>
+
+  <!-- PAGE HERO -->
+  <div class="page-hero">
+    <div class="hero-icon">
+      <img src="./images/icon-ms.png" alt="Model Security" />
+    </div>
+    <h1>AI Model Security</h1>
+    <p>Scan AI models for threats before deployment. Detect backdoors, trojans, malicious payloads, and supply chain compromise across HuggingFace, local, and cloud storage.</p>
+    <div class="detection-grid">
+      <div class="badge"><i class="fa-solid fa-check"></i> Backdoors & Trojans</div>
+      <div class="badge"><i class="fa-solid fa-check"></i> Data Poisoning</div>
+      <div class="badge"><i class="fa-solid fa-check"></i> Malicious Payloads</div>
+      <div class="badge"><i class="fa-solid fa-check"></i> Supply Chain Attacks</div>
+      <div class="badge"><i class="fa-solid fa-check"></i> Serialization Exploits</div>
+    </div>
+  </div>
+
+  <div class="glow-divider"></div>
+
+  <!-- MAIN CONTENT -->
+  <div class="content-wrap">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-title">On This Page</div>
+      <nav class="sidebar-nav">
+        <a href="#prerequisites"><i class="fa-solid fa-list-check"></i> Prerequisites</a>
+        <a href="#credentials"><i class="fa-solid fa-key"></i> Get Credentials</a>
+        <a href="#installation"><i class="fa-solid fa-download"></i> Installation</a>
+        <a href="#scanning"><i class="fa-solid fa-shield-halved"></i> Scanning Models</a>
+        <a href="#cli"><i class="fa-solid fa-terminal"></i> CLI Reference</a>
+        <a href="#uuids"><i class="fa-solid fa-fingerprint"></i> Security Group UUIDs</a>
+        <a href="#troubleshooting"><i class="fa-solid fa-wrench"></i> Troubleshooting</a>
+        <a href="#checklist"><i class="fa-solid fa-circle-check"></i> Quick Checklist</a>
+      </nav>
+    </aside>
+
+    <!-- DOC CONTENT -->
+    <main>
+
+      <!-- PREREQUISITES -->
+      <section class="doc-section" id="prerequisites">
+        <div class="section-title">
+          <i class="fa-solid fa-list-check"></i>
+          Prerequisites
+        </div>
+        <div class="info-card">
+          <h3><i class="fa-brands fa-python" style="color:var(--cyan)"></i> Python 3.11 or Later</h3>
+          <p>Check your version before starting:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-label">Terminal</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+            <pre><span class="comment"># Mac / Linux</span>
+python3 --version
+
+<span class="comment"># Windows</span>
+python --version
+
+<span class="comment"># Upgrade if needed — Amazon Linux</span>
+sudo dnf install python3.11 -y
+<span class="comment"># Ubuntu/Debian</span>
+sudo apt update && sudo apt upgrade python3
+<span class="comment"># Mac</span>
+brew upgrade python3</pre>
+          </div>
+        </div>
+        <div class="info-card">
+          <h3><i class="fa-solid fa-folder" style="color:var(--cyan)"></i> Create Project Folder & Virtual Environment</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-label">Mac / Linux</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+            <pre>mkdir ~/model-scanner && cd ~/model-scanner
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip</pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-label">Windows PowerShell</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+            <pre>mkdir C:\model-scanner; cd C:\model-scanner
+python -m venv venv
+venv\Scripts\activate
+pip install --upgrade pip</pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- CREDENTIALS -->
+      <section class="doc-section" id="credentials">
+        <div class="section-title">
+          <i class="fa-solid fa-key"></i>
+          Get Your Credentials
+        </div>
+        <div class="alert alert-warn">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span><strong>CRITICAL:</strong> Save your Client Secret immediately after creation — you can never view it again after leaving the screen.</span>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-header"><div class="step-num">1</div><h3>Check Permissions in Strata Cloud Manager</h3></div>
+            <p>Log into <strong style="color:var(--cyan)">https://console.paloaltonetworks.com/</strong> and navigate to:</p>
+            <p style="margin-top:6px; color:#b2d8f0;">Common Services → Identity & Access → Access Management</p>
+            <p style="margin-top:8px;">You need one of:</p>
+            <ul>
+              <li>Superuser for all apps and services</li>
+              <li>Custom role with AI Model Security access</li>
+            </ul>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num">2</div><h3>Create Custom Role (if needed)</h3></div>
+            <p>Go to <strong style="color:#b2d8f0;">Roles → Custom Roles → Create Role</strong> and enable these permissions:</p>
+            <ul>
+              <li>ai_ms_pypi_auth</li>
+              <li>ai_ms.scans</li>
+              <li>ai_ms.security_groups</li>
+            </ul>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num">3</div><h3>Create Service Account</h3></div>
+            <p>Go to <strong style="color:#b2d8f0;">Service Accounts → Create Service Account</strong>, assign your role, then click Create. Copy the <strong style="color:var(--cyan)">Client ID</strong>, <strong style="color:var(--cyan)">Client Secret</strong>, and note your <strong style="color:var(--cyan)">TSG ID</strong>.</p>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num">4</div><h3>Set Environment Variables</h3></div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-label">Mac / Linux</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+              <pre>export MODEL_SECURITY_CLIENT_ID="your-client-id"
+export MODEL_SECURITY_CLIENT_SECRET="your-client-secret"
+export TSG_ID="your-tsg-id"
+export MODEL_SECURITY_API_ENDPOINT="https://api.sase.paloaltonetworks.com/aims"</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-label">Windows PowerShell</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+              <pre>$env:MODEL_SECURITY_CLIENT_ID="your-client-id"
+$env:MODEL_SECURITY_CLIENT_SECRET="your-client-secret"
+$env:TSG_ID="your-tsg-id"
+$env:MODEL_SECURITY_API_ENDPOINT="https://api.sase.paloaltonetworks.com/aims"</pre>
+            </div>
+            <div class="alert alert-info">
+              <i class="fa-solid fa-circle-info"></i>
+              <span>To make credentials permanent on Mac/Linux, add the export lines to your <code>~/.bashrc</code> or <code>~/.zshrc</code> file.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- INSTALLATION -->
+      <section class="doc-section" id="installation">
+        <div class="section-title">
+          <i class="fa-solid fa-download"></i>
+          Installation
+        </div>
+        <div class="alert alert-warn">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>The <code>model-security-client</code> is NOT on the public internet. It requires special authentication to download via a PyPI URL script.</span>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-header"><div class="step-num">1</div><h3>Create the PyPI Authentication Script</h3></div>
+            <p>Create a file called <code style="color:var(--cyan)">get_pypi_url.sh</code> with this content:</p>
+            <div class="code-block">
+              <div class="code-header"><span class="code-label">get_pypi_url.sh</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+              <pre>#!/bin/bash
+set -euo pipefail
+
+API_ENDPOINT="${MODEL_SECURITY_API_ENDPOINT:-https://api.sase.paloaltonetworks.com/aims}"
+TOKEN_ENDPOINT="https://auth.apps.paloaltonetworks.com/oauth2/access_token"
+
+TOKEN=$(curl -sf -X POST "$TOKEN_ENDPOINT" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -u "$MODEL_SECURITY_CLIENT_ID:$MODEL_SECURITY_CLIENT_SECRET" \
+  -d "grant_type=client_credentials&scope=tsg_id:$TSG_ID" | \
+  grep -o '"access_token":"[^"]*"' | cut -d'"' -f4)
+
+curl -sf "$API_ENDPOINT/mgmt/v1/pypi/authenticate" \
+  -H "Authorization: Bearer $TOKEN" | \
+  grep -o '"url":"[^"]*"' | cut -d'"' -f4</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-label">Make Executable</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+              <pre>chmod +x get_pypi_url.sh</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num">2</div><h3>Install the Model Security Client</h3></div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-label">Mac / Linux</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+              <pre>pip install pan-aisecurity flask
+pip install model-security-client --extra-index-url $(./get_pypi_url.sh)</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num">3</div><h3>Verify Installation</h3></div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-label">Terminal</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+              <pre>model-security-client --version
+<span class="comment"># Expected output: 1.0.0 or similar</span></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCANNING -->
+      <section class="doc-section" id="scanning">
+        <div class="section-title">
+          <i class="fa-solid fa-shield-halved"></i>
+          Running the Web Scanner
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-header"><div class="step-num">1</div><h3>Start the Web Interface</h3></div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-label">Terminal</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+              <pre>python3 modelscan_app.py
+
+<span class="comment"># Expected output:</span>
+Starting web server at http://localhost:5001</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num">2</div><h3>Open & Configure</h3></div>
+            <p>Navigate to <strong style="color:var(--cyan)">http://localhost:5001</strong> in your browser, enter your CLIENT_ID, CLIENT_SECRET, and TSG_ID, then click <strong style="color:#b2d8f0">Save Configuration</strong>.</p>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num">3</div><h3>Choose Your Scan Type</h3></div>
+            <ul>
+              <li>🤗 <strong>HuggingFace</strong> — enter a HuggingFace model URL</li>
+              <li>📁 <strong>Local File</strong> — select a model file from your computer</li>
+              <li>☁️ <strong>S3 / Cloud</strong> — enter an S3 URI (s3://bucket/model)</li>
+            </ul>
+            <div class="alert alert-info">
+              <i class="fa-solid fa-circle-info"></i>
+              <span>Large models can take 10–15 minutes to scan. Keep the terminal running.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CLI -->
+      <section class="doc-section" id="cli">
+        <div class="section-title">
+          <i class="fa-solid fa-terminal"></i>
+          CLI Reference
+        </div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-label">Scan HuggingFace Model</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+          <pre>model-security --base-url "https://api.sase.paloaltonetworks.com/aims" scan \
+  --security-group-uuid "e3adbe4f-4481-4bd9-9c7c-33b5123d40bf" \
+  --model-uri "https://huggingface.co/microsoft/DialoGPT-medium"</pre>
+        </div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-label">Scan Local Model</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+          <pre>model-security --base-url "https://api.sase.paloaltonetworks.com/aims" scan \
+  --security-group-uuid "d9778b1c-cf1b-493d-a1ca-ef2a99d2bae4" \
+  --model-path "/path/to/your/model"</pre>
+        </div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-label">Scan S3 Model</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+          <pre>model-security --base-url "https://api.sase.paloaltonetworks.com/aims" scan \
+  --security-group-uuid "a165a2a2-e864-4426-883d-fe623646a014" \
+  --model-uri "s3://your-bucket/your-model"</pre>
+        </div>
+        <div class="alert alert-info">
+          <i class="fa-solid fa-circle-info"></i>
+          <span>Set <code>export MODEL_SECURITY_BASE_URL="https://api.sase.paloaltonetworks.com/aims"</code> to skip the <code>--base-url</code> flag on every command.</span>
+        </div>
+      </section>
+
+      <!-- UUIDs -->
+      <section class="doc-section" id="uuids">
+        <div class="section-title">
+          <i class="fa-solid fa-fingerprint"></i>
+          Security Group UUIDs
+        </div>
+        <table class="uuid-table">
+          <thead>
+            <tr><th>Source</th><th>UUID</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>🤗 HuggingFace</td><td>e3adbe4f-4481-4bd9-9c7c-33b5123d40bf</td></tr>
+            <tr><td>📁 Local</td><td>d9778b1c-cf1b-493d-a1ca-ef2a99d2bae4</td></tr>
+            <tr><td>☁️ AWS S3</td><td>a165a2a2-e864-4426-883d-fe623646a014</td></tr>
+            <tr><td>🔷 Azure</td><td>d2f3939f-931e-43b3-a47f-df931d4fdc44</td></tr>
+            <tr><td>🟡 Google Cloud (GCS)</td><td>8c38ffc5-6bd5-4f28-8845-78debfed6b3c</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- TROUBLESHOOTING -->
+      <section class="doc-section" id="troubleshooting">
+        <div class="section-title">
+          <i class="fa-solid fa-wrench"></i>
+          Troubleshooting
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-header"><div class="step-num"><i class="fa-solid fa-bug" style="font-size:0.7rem"></i></div><h3>"Command not found: model-security-client"</h3></div>
+            <p>Scanner isn't installed or not in PATH. Reinstall:</p>
+            <div class="code-block">
+              <div class="code-header"><span class="code-label">Fix</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+              <pre>pip install model-security-client --extra-index-url $(./get_pypi_url.sh)
+pip list | grep model-security <span class="comment"># verify</span></pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num"><i class="fa-solid fa-bug" style="font-size:0.7rem"></i></div><h3>"Authentication failed"</h3></div>
+            <p>Environment variables not set correctly. Check and reset:</p>
+            <div class="code-block">
+              <div class="code-header"><span class="code-label">Fix</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+              <pre>echo $MODEL_SECURITY_CLIENT_ID  <span class="comment"># should not be empty</span>
+echo $TSG_ID
+export MODEL_SECURITY_CLIENT_ID="..."  <span class="comment"># reset if empty</span></pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num"><i class="fa-solid fa-bug" style="font-size:0.7rem"></i></div><h3>"Cannot connect to localhost:5001"</h3></div>
+            <p>The web app isn't running. Start it and check the port:</p>
+            <div class="code-block">
+              <div class="code-header"><span class="code-label">Fix</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+              <pre>python3 modelscan_app.py
+lsof -i :5001  <span class="comment"># Mac/Linux — check port</span>
+netstat -ano | findstr :5001  <span class="comment"># Windows</span></pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-header"><div class="step-num"><i class="fa-solid fa-bug" style="font-size:0.7rem"></i></div><h3>"Virtual environment deactivated"</h3></div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-label">Fix</span><div class="code-dots"><span></span><span></span><span></span></div></div>
+              <pre>source venv/bin/activate   <span class="comment"># Mac/Linux</span>
+venv\Scripts\activate      <span class="comment"># Windows</span></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CHECKLIST -->
+      <section class="doc-section" id="checklist">
+        <div class="section-title">
+          <i class="fa-solid fa-circle-check"></i>
+          Quick Startup Checklist
+        </div>
+        <div class="checklist">
+          <div class="check-item"><i class="fa-solid fa-check"></i> Python 3.11+ installed</div>
+          <div class="check-item"><i class="fa-solid fa-check"></i> Virtual environment created and activated</div>
+          <div class="check-item"><i class="fa-solid fa-check"></i> CLIENT_ID, CLIENT_SECRET, TSG_ID set as environment variables</div>
+          <div class="check-item"><i class="fa-solid fa-check"></i> get_pypi_url.sh created and marked executable</div>
+          <div class="check-item"><i class="fa-solid fa-check"></i> model-security-client installed</div>
+          <div class="check-item"><i class="fa-solid fa-check"></i> Flask installed (pip install flask)</div>
+          <div class="check-item"><i class="fa-solid fa-check"></i> Web app running: python3 modelscan_app.py</div>
+          <div class="check-item"><i class="fa-solid fa-check"></i> Browser open to http://localhost:5001</div>
+          <div class="check-item"><i class="fa-solid fa-check"></i> Credentials configured in web interface</div>
+        </div>
+        <div class="info-card" style="margin-top:20px">
+          <h3><i class="fa-solid fa-book" style="color:var(--cyan)"></i> Official Documentation</h3>
+          <ul>
+            <li><a href="https://docs.paloaltonetworks.com/ai-runtime-security/ai-model-security" target="_blank" style="color:var(--cyan)">AI Model Security Docs</a></li>
+            <li><a href="https://console.paloaltonetworks.com/" target="_blank" style="color:var(--cyan)">Strata Cloud Manager</a></li>
+          </ul>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,19 @@
+[Unit]
+Description=Agentic Travel Agent - Multi-Model AI Gateway Demo
+After=network.target
+
+[Service]
+Type=simple
+User=chmartin
+WorkingDirectory=/Users/chmartin/python/demos/airsdemo/travel
+Environment="PATH=/Users/chmartin/python/demos/airsdemo/travel/venv/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=/Users/chmartin/python/demos/airsdemo/travel/venv/bin/python travel.py
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=append:/var/log/travel-agent.log
+StandardError=append:/var/log/travel-agent-error.log
+
+[Install]
+WantedBy=multi-user.target
